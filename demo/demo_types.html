@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
+    <title>Magnet Demo</title>
+    <style>
+      body {
+        margin: 0;
+      }
+      * { font-size: 3vmin; }
+      #lines, #paper {
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+      }
+      #paper {
+        display: flex;
+        flex-flow: column;
+      }
+      #tool {
+        padding: 1vmin;
+        background-color: #eee;
+        font-family: monospace;
+        line-height: 150%;
+      }
+      #container {
+        flex: 2 2;
+      }
+      .item { white-space: nowrap; }
+      input, button {
+        outline: none;
+        border: .1vmin solid #666;
+        font-family: monospace;
+        color: #333;
+      }
+      input[type=checkbox] {
+        width: 3vmin;
+        height: 3vmin;
+      }
+      button { background-color: #eee; }
+      button:active { transform: translate(.1vmin, .1vmin); }
+      #lines {
+        z-index: 1;
+        pointer-events: none;
+      }
+      #lines >* {
+        position: absolute;
+        width: .1vmin;
+        height: .1vmin;
+        background-color: #999;
+        opacity: 0;
+      }
+      #lines >.show { opacity: .5; }
+      #lines .vert {
+        transform: translateX(-50%);
+        height: 100%;
+      }
+      #lines .hori {
+        transform: translateY(-50%);
+        width: 100%;
+      }
+      .block { position: absolute; }
+    </style>
+    <script src="../magnet.min.js"></script>
+    <script>
+      let NEAR_DISTANCE = 15;
+      const magnet = new Magnet();
+
+      window.addEventListener('load', () => {
+        let domContainer = document.getElementById('container');
+        let domMask = document.getElementById('lines');
+        let domHoriMagnet = domMask.querySelector('.hori');
+        let domVertMagnet = domMask.querySelector('.vert');
+
+        // show/hide horizon/vertical edge line
+        magnet.on('magnetenter', (e) => {
+          let result = e.detail;
+          console.log('magnetenter', result);
+          domHoriMagnet.classList.remove('show');
+          domVertMagnet.classList.remove('show');
+          let resultX = result.x;
+          let resultY = result.y;
+          if (resultX) {
+            domVertMagnet.style.left = (resultX.position+'px');
+            domVertMagnet.classList.add('show');
+          }
+          if (resultY) {
+            domHoriMagnet.style.top = (resultY.position+'px');
+            domHoriMagnet.classList.add('show');
+          }
+        }).on('magnetleave', () => {
+          console.log('magnetleave');
+          domHoriMagnet.classList.remove('show');
+          domVertMagnet.classList.remove('show');
+        });
+
+        // generate block
+        function genBlock() {
+          let rootWidth = window.innerWidth;
+          let rootHeight = window.innerHeight;
+          let width = Math.max(30, parseInt(Math.random()*rootWidth/2));
+          let height = Math.max(30, parseInt(Math.random()*rootHeight/2));
+          let block = document.createElement('span');
+          block.style.width = (width+'px');
+          block.style.height = (height+'px');
+          block.style.top = (parseInt(Math.random()*(window.innerHeight-height))+'px');
+          block.style.left = (parseInt(Math.random()*(window.innerWidth-width))+'px');
+          block.style.backgroundColor = ('#'+[1, 2, 3].map(() => ('0'+parseInt(100+Math.random()*155).toString(16)).slice(-2)).join(''));
+          block.style.opacity = (0.25+Math.random()*0.75);
+          block.classList.add('block');
+          block.addEventListener('mousedown', function(e) {
+            domContainer.removeChild(this);
+            domContainer.appendChild(this);
+          });
+          ['attract', 'unattract', 'attracted', 'unattracted'].forEach((type) => {
+            block.addEventListener(type, function(e) {
+              console.log(type, e);
+            });
+          });
+          domContainer.appendChild(block);
+          return block;
+        }
+        
+        // distance
+        document.getElementById('dist').onchange = () => magnet.distance(NEAR_DISTANCE = this.value);
+        magnet.distance(document.getElementById('dist').value = NEAR_DISTANCE);
+
+        // add one block
+        document.getElementById('add').onclick = () => magnet.add(genBlock());
+
+        // enable/disable fix edge
+        document.getElementById('fix').onchange = function() {
+          magnet.stayInParentElem(this.checked);
+        };
+        document.getElementById('fix').checked = magnet.stayInParentElem();
+
+        // enable/disable align outside
+        document.getElementById('outside').onchange = function() {
+          magnet.enabledAlignOuter(this.checked);
+        };
+        document.getElementById('outside').checked = magnet.enabledAlignOuter();
+
+        // enable/disable align inside
+        document.getElementById('inside').onchange = function() {
+          magnet.enabledAlignInner(this.checked);
+        };
+        document.getElementById('inside').checked = magnet.enabledAlignInner();
+
+        // enable/disable align middle
+        document.getElementById('middle').onchange = function() {
+          magnet.enabledAlignCenter(this.checked);
+        };
+        document.getElementById('middle').checked = magnet.enabledAlignCenter();
+
+        // init blocks
+        for (let bInx=(2+parseInt(Math.random()*3)); 0<bInx; bInx--) {
+          genBlock();
+        }
+        magnet.add(document.querySelectorAll('.block'));
+      });
+    </script>
+  </head>
+  <body>
+    <div id="lines">
+      <span class="vert"></span>
+      <span class="hori"></span>
+    </div>
+    <div id="paper">
+      <span id="tool">
+        <span class="item">Distance: <input id="dist" type="number" min="0" max="20" /></span>
+        <button id="add">Add Block</button>
+        <span class="item"><input id="fix" type="checkbox" /><label for="fix">Fix edge</label></span>
+        <span class="item"><input id="outside" type="checkbox" /><label for="outside">Align Outside</label></span>
+        <span class="item"><input id="inside" type="checkbox" /><label for="inside">Align Inside</label></span>
+        <span class="item"><input id="middle" type="checkbox" /><label for="middle">Align Middle</label></span>
+      </span>
+      <div id="container"></div>
+    </div>
+  </body>
+</html>
