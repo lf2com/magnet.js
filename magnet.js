@@ -28,29 +28,15 @@
   );
   const iselem = (e) => (isset(e)&&(e instanceof HTMLElement||e instanceof Document||e instanceof Window));
   const isarray = (a) => (isset(a)&&isset(a.length));
-  const stdarray = (a) => Array.prototype.slice.call(a);
   const objKeys = (o) => Object.keys(o);
   const objForEach = (o, f, t) => objKeys(o).forEach((p) => f.call(t, o[p], p, o));
-  const objMap = (o, f, t) => objKeys(o).reduce((r, p) => { r[p] = f.call(t, o[p], p, o); return r; }, {});
   const objReduce = (o, f, s) => objKeys(o).reduce((r, p) => f.call(null, r, o[p], p, o), s);
-  const objConcat = function() { return ((s, a) => { while (a.length) { s = objReduce(a.shift(), (r, v, p, o) => { r[p] = v; return r; }, s); } return s; })({}, Array.prototype.slice.call(arguments)) };
   const bindEventType = (t, a = _eventAppend) => (isarray(t) ?t :t.split(' ')).map((n) => (n+(a ?('.'+a) :''))).join(' ');
   const getEventXY = (e) => {
     e = ((e.touches||{})[0]||e);
     return { x: e.clientX, y: e.clientY };
   };
   const getDomStyle = (dom) => (dom.currentStyle||getComputedStyle(dom));
-  const getDomBorder = (dom) => {
-    if (!iselem(dom)) {
-      throw new Error('Invalid element');
-    }
-    return ((style) => ({
-      top: parseFloat(style.borderTopWidth),
-      right: parseFloat(style.borderRightWidth),
-      bottom: parseFloat(style.borderBottomWidth),
-      left: parseFloat(style.borderLeftWidth)
-    }))(getDomStyle(dom));
-  };
   const stdRect = (dom) => new Rect(dom);
   const stdDoms = function() {
     let doms = [];
@@ -86,7 +72,7 @@
       }
       ref = ref.parentElement;
     }
-    return (ref||document);
+    return document;
   };
 
   function Rect(src) {
