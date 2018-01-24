@@ -30,7 +30,6 @@
   const isarray = (a) => (isset(a)&&isset(a.length));
   const objKeys = (o) => Object.keys(o);
   const objForEach = (o, f, t) => objKeys(o).forEach((p) => f.call(t, o[p], p, o));
-  const objReduce = (o, f, s) => objKeys(o).reduce((r, p) => f.call(null, r, o[p], p, o), s);
   const bindEventType = (t, a = _eventAppend) => (isarray(t) ?t :t.split(' ')).map((n) => (n+(a ?('.'+a) :''))).join(' ');
   const getEventXY = (e) => {
     e = ((e.touches||{})[0]||e);
