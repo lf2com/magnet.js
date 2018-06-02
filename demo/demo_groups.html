@@ -69,6 +69,11 @@
         width: 100%;
       }
       .block { position: absolute; }
+      .block input {
+        position: absolute;
+        top: 0;
+        right: 0;
+      }
     </style>
     <script src="../magnet.min.js"></script>
     <script>
@@ -93,28 +98,59 @@
           block.style.backgroundColor = ('#'+[1, 2, 3].map(() => ('0'+parseInt(100+Math.random()*155).toString(16)).slice(-2)).join(''));
           block.style.opacity = (0.25+Math.random()*0.75);
           block.classList.add('block');
-          block.addEventListener('mousedown', function(e) {
-            dom.removeChild(this);
-            dom.appendChild(this);
-          });
-          ['attract', 'unattract', 'attracted', 'unattracted'].forEach((type) => {
-            block.addEventListener(type, function(e) {
-              console.log(type, e);
-            });
-          });
-          dom.appendChild(block);
           return block;
         }
 
         let globalMagnet = new Magnet().distance(NEAR_DISTANCE);
         let magnets = [];
         Array.prototype.forEach.call(domContainer.querySelectorAll('.group'), function(dom) {
+          let magnet = new Magnet().distance(NEAR_DISTANCE);
+          let doms = [];
           for (let bInx=(2+parseInt(Math.random()*2)); 0<bInx; bInx--) {
-            genBlock(dom);
+            let block = genBlock(dom);
+            let checkbox = document.createElement('input');
+            checkbox.setAttribute('type', 'checkbox');
+            checkbox.setAttribute('checked', '');
+            checkbox.addEventListener('change', function() {
+              let block = this.parentNode;
+              if (this.checked) {
+                magnet.add(block);
+                doms.push(block);
+              } else {
+                magnet.remove(block);
+                doms.splice(doms.indexOf(block), 1);
+              }
+            });
+            block.addEventListener('mousedown', function() {
+              this.style.zIndex = 10;
+            });
+            block.addEventListener('click', function() {
+              this.style.zIndex = 1;
+              dom.appendChild(this);
+            });
+            block.addEventListener('dblclick', function() {
+              let checkbox = this.querySelector('input[type=checkbox]');
+              checkbox.checked = !checkbox.checked;
+              if (checkbox.checked) {
+                magnet.add(this);
+                doms.push(this);
+              } else {
+                magnet.remove(this);
+                doms.splice(doms.indexOf(this), 1);
+              }
+            });
+            ['attract', 'unattract', 'attracted', 'unattracted'].forEach((type) => {
+              block.addEventListener(type, function(e) {
+                console.log(type, e);
+              });
+            });
+            block.appendChild(checkbox);
+            dom.appendChild(block);
+            doms.push(block);
           }
           magnets.push({
-            magnet: new Magnet().distance(NEAR_DISTANCE),
-            doms: dom.querySelectorAll('.block')
+            magnet: magnet,
+            doms: doms
           });
         });
         function setAttract() {
