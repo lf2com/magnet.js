@@ -62,7 +62,16 @@
         transform: translateY(-50%);
         width: 100%;
       }
-      .block { position: absolute; }
+      .block {
+        position: absolute;
+        resize: both;
+        overflow: auto;
+      }
+      .block input {
+        position: absolute;
+        top: 0;
+        right: 0;
+      }
     </style>
     <script src="../magnet.min.js"></script>
     <script>
@@ -111,16 +120,6 @@
           block.style.backgroundColor = ('#'+[1, 2, 3].map(() => ('0'+parseInt(100+Math.random()*155).toString(16)).slice(-2)).join(''));
           block.style.opacity = (0.25+Math.random()*0.75);
           block.classList.add('block');
-          block.addEventListener('mousedown', function(e) {
-            domContainer.removeChild(this);
-            domContainer.appendChild(this);
-          });
-          ['attract', 'unattract', 'attracted', 'unattracted'].forEach((type) => {
-            block.addEventListener(type, function(e) {
-              console.log(type, e);
-            });
-          });
-          domContainer.appendChild(block);
           return block;
         }
         
@@ -157,9 +156,43 @@
 
         // init blocks
         for (let bInx=(2+parseInt(Math.random()*3)); 0<bInx; bInx--) {
-          genBlock();
+          let block = genBlock();
+          let checkbox = document.createElement('input');
+          checkbox.setAttribute('type', 'checkbox');
+          checkbox.setAttribute('checked', '');
+          checkbox.addEventListener('change', function() {
+            let block = this.parentNode;
+            if (this.checked) {
+              magnet.add(block);
+            } else {
+              magnet.remove(block);
+            }
+          });
+          block.addEventListener('mousedown', function(e) {
+            this.style.zIndex = 10;
+          });
+          block.addEventListener('click', function() {
+            this.style.zIndex = 1;
+            domContainer.appendChild(this);
+          });
+          block.addEventListener('dblclick', function() {
+            let checkbox = this.querySelector('input[type=checkbox]');
+            checkbox.checked = !checkbox.checked;
+            if (checkbox.checked) {
+              magnet.add(this);
+            } else {
+              magnet.remove(this);
+            }
+          });
+          ['attract', 'unattract', 'attracted', 'unattracted'].forEach((type) => {
+            block.addEventListener(type, function(e) {
+              console.log(type, e);
+            });
+          });
+          block.appendChild(checkbox);
+          domContainer.appendChild(block);
+          magnet.add(block);
         }
-        magnet.add(document.querySelectorAll('.block'));
       });
     </script>
   </head>
