@@ -113,6 +113,7 @@
           let width = Math.max(30, parseInt(Math.random()*rootWidth/2));
           let height = Math.max(30, parseInt(Math.random()*rootHeight/2));
           let block = document.createElement('span');
+          let checkbox = document.createElement('input');
           block.style.width = (width+'px');
           block.style.height = (height+'px');
           block.style.top = (parseInt(Math.random()*(window.innerHeight-height))+'px');
@@ -120,6 +121,42 @@
           block.style.backgroundColor = ('#'+[1, 2, 3].map(() => ('0'+parseInt(100+Math.random()*155).toString(16)).slice(-2)).join(''));
           block.style.opacity = (0.25+Math.random()*0.75);
           block.classList.add('block');
+
+          checkbox.setAttribute('type', 'checkbox');
+          checkbox.setAttribute('checked', '');
+          checkbox.addEventListener('change', function() {
+            let block = this.parentNode;
+            if (this.checked) {
+              magnet.add(block);
+            } else {
+              magnet.remove(block);
+            }
+          });
+          block.addEventListener('mousedown', function(e) {
+            this.style.zIndex = 10;
+          });
+          block.addEventListener('click', function() {
+            this.style.zIndex = 1;
+            domContainer.appendChild(this);
+          });
+          block.addEventListener('dblclick', function() {
+            let checkbox = this.querySelector('input[type=checkbox]');
+            checkbox.checked = !checkbox.checked;
+            if (checkbox.checked) {
+              magnet.add(this);
+            } else {
+              magnet.remove(this);
+            }
+          });
+          ['attract', 'unattract', 'attracted', 'unattracted'].forEach((type) => {
+            block.addEventListener(type, function(e) {
+              console.log(type, e);
+            });
+          });
+
+          block.appendChild(checkbox);
+          domContainer.appendChild(block);
+          magnet.add(block);
           return block;
         }
         
@@ -156,42 +193,7 @@
 
         // init blocks
         for (let bInx=(2+parseInt(Math.random()*3)); 0<bInx; bInx--) {
-          let block = genBlock();
-          let checkbox = document.createElement('input');
-          checkbox.setAttribute('type', 'checkbox');
-          checkbox.setAttribute('checked', '');
-          checkbox.addEventListener('change', function() {
-            let block = this.parentNode;
-            if (this.checked) {
-              magnet.add(block);
-            } else {
-              magnet.remove(block);
-            }
-          });
-          block.addEventListener('mousedown', function(e) {
-            this.style.zIndex = 10;
-          });
-          block.addEventListener('click', function() {
-            this.style.zIndex = 1;
-            domContainer.appendChild(this);
-          });
-          block.addEventListener('dblclick', function() {
-            let checkbox = this.querySelector('input[type=checkbox]');
-            checkbox.checked = !checkbox.checked;
-            if (checkbox.checked) {
-              magnet.add(this);
-            } else {
-              magnet.remove(this);
-            }
-          });
-          ['attract', 'unattract', 'attracted', 'unattracted'].forEach((type) => {
-            block.addEventListener(type, function(e) {
-              console.log(type, e);
-            });
-          });
-          block.appendChild(checkbox);
-          domContainer.appendChild(block);
-          magnet.add(block);
+          genBlock();
         }
       });
     </script>
