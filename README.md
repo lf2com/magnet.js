@@ -76,8 +76,8 @@ magnet.enabledAlignOuter(); // true
 
 ### Set to keep element in the parent element
 ```javascript
-magnet.stayInParentEdge(true); // default is false
-magnet.stayInParentEdge(); // true
+magnet.stayInParentElem(true); // default is false
+magnet.stayInParentElem(); // true
 ```
 
 ### Event listener for magnet events
