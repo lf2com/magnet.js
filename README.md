@@ -76,9 +76,16 @@ magnet.enabledAlignOuter(); // true
 
 ### Set to keep element in the parent element
 ```javascript
+magnet.stayInParentEdge(true); // default is false
+magnet.stayInParentEdge(); // true
+```
+Or
+```javascript
 magnet.stayInParentElem(true); // default is false
 magnet.stayInParentElem(); // true
 ```
+**Both `stayInParentEdge` and `stayInParentElem` do the same thing.**
+
 
 ### Event listener for magnet events
 **Magnet enter/leave events would not be triggered if `ctrl` is pressed.**

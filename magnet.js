@@ -183,6 +183,7 @@
     return this;
   };
 
+  Magnet.prototype.stayInParentEdge = 
   Magnet.prototype.stayInParentElem = function(enabled) {
     if (!isset(enabled)) {
       return this._stayInParentElem;
