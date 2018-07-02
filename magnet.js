@@ -78,17 +78,19 @@
     let rect = ((src) => {
       if (iselem(src)) {
         let rect = null;
-        let border = ((style) => ({
-          top: parseFloat(style.borderTopWidth),
-          right: parseFloat(style.borderRightWidth),
-          bottom: parseFloat(style.borderBottomWidth),
-          left: parseFloat(style.borderLeftWidth)
-        }))(getDomStyle(src));
+        let border = null;
         if (src instanceof HTMLElement) {
           rect = src.getBoundingClientRect();
           rect = { top: rect.top, right: rect.right, bottom: rect.bottom, left: rect.left };
+          border = ((style) => ({
+            top: parseFloat(style.borderTopWidth),
+            right: parseFloat(style.borderRightWidth),
+            bottom: parseFloat(style.borderBottomWidth),
+            left: parseFloat(style.borderLeftWidth)
+          }))(getDomStyle(src));
         } else {
           rect = { top: 0, right: window.innerWidth, bottom: window.innerHeight, left: 0 };
+          border = { top: 0, right: 0, bottom: 0, left: 0 };
         }
         rect.top += border.top;
         rect.right -= border.right;
