@@ -64,7 +64,6 @@
       }
       .block {
         position: absolute;
-        resize: both;
         overflow: auto;
       }
       .block input {
@@ -124,11 +123,14 @@
 
           checkbox.setAttribute('type', 'checkbox');
           checkbox.setAttribute('checked', '');
+          checkbox.addEventListener('mousedown', (evt) => evt.stopPropagation());
           checkbox.addEventListener('change', function() {
             let block = this.parentNode;
             if (this.checked) {
+              block.style.resize = 'none';
               magnet.add(block);
             } else {
+              block.style.resize = 'both';
               magnet.remove(block);
             }
           });
