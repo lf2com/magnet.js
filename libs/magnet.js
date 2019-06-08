@@ -54,6 +54,7 @@ const MAGNET_PROPS = {
   targets: '_targets',
   eventHandler: '_eventHandler',
   distance: '_distance',
+  attractable: '_attractable',
   stayInParent: '_stayInParent',
   alignOuter: '_alignOuter',
   alignInner: '_alignInner',
@@ -70,6 +71,7 @@ function Magnet(...doms) {
     [MAGNET_PROPS.targets]: { value: [], writable: true },
     [MAGNET_PROPS.eventHandler]: { value: new EventHandler(this) },
     [MAGNET_PROPS.distance]: { value: 0, writable: true },
+    [MAGNET_PROPS.attractable]: { value: true, writable: true },
     [MAGNET_PROPS.stayInParent]: { value: false, writable: true },
     [MAGNET_PROPS.alignOuter]: { value: true, writable: true },
     [MAGNET_PROPS.alignInner]: { value: true, writable: true },
@@ -96,6 +98,18 @@ Magnet.prototype.setDistance = function(distance) {
 };
 Magnet.prototype.distance = function(distance) {
   return (isset(distance) ?this.setDistance(distance) :this.getDistance());
+};
+
+// attract
+Magnet.prototype.getAttractable = function() {
+  return this[MAGNET_PROPS.attractable];
+};
+Magnet.prototype.setAttractable = function(enabled) {
+  this[MAGNET_PROPS.attractable] = tobool(enabled);
+  return this;
+};
+Magnet.prototype.attractable = function(enabled) {
+  return (isset(enabled) ?this.setAttractable(enabled) :this.getAttractable());
 };
 
 // stay in parent
@@ -237,20 +251,21 @@ Magnet.prototype.add = function(...doms) {
         return false;
       };
       const handleDom = (evt) => {
+        const toAttract = (this.getAttractable() ?_toAttract :false);
         const { width, height } = stdRect(dom);
         const { x, y } = getEventXY(evt);
         const diffX = (x-oriX);
         const diffY = (y-oriY);
         const newX = (oriLeft+diffX);
         const newY = (oriTop+diffY);
-        const distance = (_toAttract ?this.getDistance() :0);
+        const distance = (toAttract ?this.getDistance() :0);
         const newRect = stdRect({
           top: newY,
           right: (newX+width),
           bottom: (newY+height),
           left: newX,
         });
-        const { parent, targets } = this.check(dom, newRect, (_toAttract ?undefined :[]));
+        const { parent, targets } = this.check(dom, newRect, (toAttract ?undefined :[]));
         const { rect: parentRect, element: parentElement } = parent;
         const newPosition = { x: newX, y: newY };
         const { x: attractedX, y: attractedY } = targets
@@ -387,8 +402,10 @@ Magnet.prototype.add = function(...doms) {
         (_lastAttractedX&&pushDomToEvent(eventsUnattracted, _lastAttractedX.target.element));
         (_lastAttractedY&&pushDomToEvent(eventsUnattracted, _lastAttractedY.target.element));
         eventsUnattracted.forEach((element) => EventHandler.trigger(element, EVENT.unattracted, dom));
-        EventHandler.trigger(dom, EVENT.unattract);
-        this[MAGNET_PROPS.eventHandler].trigger(EVENT.magnetEnd, { source: dom });
+        if (_lastAttractedX || _lastAttractedY) {
+          EventHandler.trigger(dom, EVENT.unattract);
+          this[MAGNET_PROPS.eventHandler].trigger(EVENT.magnetEnd, { source: dom });
+        }
       });
       EventHandler.on(document.body, bindEventNames(this, EVENT.mouseMove), (evt) => handleDom(evt));
     });

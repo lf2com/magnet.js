@@ -139,6 +139,30 @@ _Unit `px`; Default is `0`_
 > magnet.getDistance(); // get 15
 > ```
 
+### Attractable
+Attractable between group members
+
+**Setting to `false` has the same as pressing `ctrl` key**
+
+#### .attractable(enabled?)
+_Default is `true`_
+> Get/set attractable
+> ```javascript
+> magnet.attractable(true); // set to attract members
+> magnet.attractable(); // get: true
+> ```
+
+##### Alias
+> #### .setAttractable(enabled)
+> ```javascript
+> magnet.setAttractable(true); // set to true
+> ```
+
+> #### .getAttractable()
+> ```javascript
+> magnet.getAttractable(); // get: true
+> ```
+
 ### Alignment
 Magnet supports the following alignments:
 
