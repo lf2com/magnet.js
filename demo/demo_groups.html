@@ -114,7 +114,7 @@
             let checkbox = document.createElement('input');
             checkbox.setAttribute('type', 'checkbox');
             checkbox.setAttribute('checked', '');
-            // checkbox.addEventListener('mousedown', (evt) => evt.stopPropagation());
+            checkbox.addEventListener('mousedown', (evt) => evt.stopPropagation());
             checkbox.addEventListener('change', function() {
               let block = this.parentNode;
               if (this.checked) {
@@ -168,9 +168,15 @@
             } else {
               return magnets.map((obj) => obj.magnet.add(obj.doms));
             }
-          })().forEach((magnet) => magnet.on('magnetenter', (e) => {
+          })().forEach((magnet) => magnet.on('magnetstart', () => {
+            console.log('magnetstart');
+          }).on('magnetend', () => {
+            console.log('magnetend');
+            domHoriMagnet.classList.remove('show');
+            domVertMagnet.classList.remove('show');
+          }).on('magnetchange', (e) => {
             let result = e.detail;
-            console.log('magnetenter', result);
+            console.log('magnetchange', result);
             domHoriMagnet.classList.remove('show');
             domVertMagnet.classList.remove('show');
             let resultX = result.x;
@@ -183,10 +189,6 @@
               domHoriMagnet.style.top = (resultY.position+'px');
               domHoriMagnet.classList.add('show');
             }
-          }).on('magnetleave', () => {
-            console.log('magnetleave');
-            domHoriMagnet.classList.remove('show');
-            domVertMagnet.classList.remove('show');
           }));
         };
         document.getElementById('attract').addEventListener('change', setAttract);

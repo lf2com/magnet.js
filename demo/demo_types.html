@@ -83,26 +83,33 @@
         let domHoriMagnet = domMask.querySelector('.hori');
         let domVertMagnet = domMask.querySelector('.vert');
 
-        // show/hide horizon/vertical edge line
-        magnet.on('magnetenter', (e) => {
-          let result = e.detail;
-          console.log('magnetenter', result);
+        // start/end of magnet attract status
+        magnet.on('magnetstart', () => {
+          console.log('magnetstart');
+        }).on('magnetend', () => {
+          console.log('magnetend');
           domHoriMagnet.classList.remove('show');
           domVertMagnet.classList.remove('show');
+        });
+
+        // show/hide horizon/vertical edge line
+        magnet.on('magnetchange', (e) => {
+          let result = e.detail;
+          console.log('magnetchange', result);
           let resultX = result.x;
           let resultY = result.y;
           if (resultX) {
             domVertMagnet.style.left = (resultX.position+'px');
             domVertMagnet.classList.add('show');
+          } else {
+            domVertMagnet.classList.remove('show');
           }
           if (resultY) {
             domHoriMagnet.style.top = (resultY.position+'px');
             domHoriMagnet.classList.add('show');
+          } else {
+            domHoriMagnet.classList.remove('show');
           }
-        }).on('magnetleave', () => {
-          console.log('magnetleave');
-          domHoriMagnet.classList.remove('show');
-          domVertMagnet.classList.remove('show');
         });
 
         // generate block
@@ -175,6 +182,12 @@
         };
         document.getElementById('fix').checked = magnet.stayInParentElem();
 
+        // enable/disable align parent middle
+        document.getElementById('parentMiddle').onchange = function() {
+          magnet.enabledAlignParentCenter(this.checked);
+        };
+        document.getElementById('parentMiddle').checked = magnet.enabledAlignParentCenter();
+
         // enable/disable align outside
         document.getElementById('outside').onchange = function() {
           magnet.enabledAlignOuter(this.checked);
@@ -210,6 +223,7 @@
         <span class="item">Distance: <input id="dist" type="number" min="0" max="20" /></span>
         <button id="add">Add Block</button>
         <span class="item"><input id="fix" type="checkbox" /><label for="fix">Fix edge</label></span>
+        <span class="item"><input id="parentMiddle" type="checkbox" /><label for="fix">Align Parent Middle</label></span>
         <span class="item"><input id="outside" type="checkbox" /><label for="outside">Align Outside</label></span>
         <span class="item"><input id="inside" type="checkbox" /><label for="inside">Align Inside</label></span>
         <span class="item"><input id="middle" type="checkbox" /><label for="middle">Align Middle</label></span>
