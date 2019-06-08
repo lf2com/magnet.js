@@ -55,6 +55,7 @@ const MAGNET_PROPS = {
   eventHandler: '_eventHandler',
   distance: '_distance',
   attractable: '_attractable',
+  allowCtrlKey: '_allowCtrlKey',
   stayInParent: '_stayInParent',
   alignOuter: '_alignOuter',
   alignInner: '_alignInner',
@@ -72,6 +73,7 @@ function Magnet(...doms) {
     [MAGNET_PROPS.eventHandler]: { value: new EventHandler(this) },
     [MAGNET_PROPS.distance]: { value: 0, writable: true },
     [MAGNET_PROPS.attractable]: { value: true, writable: true },
+    [MAGNET_PROPS.allowCtrlKey]: { value: true, writable: true },
     [MAGNET_PROPS.stayInParent]: { value: false, writable: true },
     [MAGNET_PROPS.alignOuter]: { value: true, writable: true },
     [MAGNET_PROPS.alignInner]: { value: true, writable: true },
@@ -100,7 +102,7 @@ Magnet.prototype.distance = function(distance) {
   return (isset(distance) ?this.setDistance(distance) :this.getDistance());
 };
 
-// attract
+// attractable
 Magnet.prototype.getAttractable = function() {
   return this[MAGNET_PROPS.attractable];
 };
@@ -110,6 +112,18 @@ Magnet.prototype.setAttractable = function(enabled) {
 };
 Magnet.prototype.attractable = function(enabled) {
   return (isset(enabled) ?this.setAttractable(enabled) :this.getAttractable());
+};
+
+// allow ctrl key
+Magnet.prototype.getAllowCtrlKey = function() {
+  return this[MAGNET_PROPS.allowCtrlKey];
+};
+Magnet.prototype.setAllowCtrlKey = function(enabled) {
+  this[MAGNET_PROPS.allowCtrlKey] = tobool(enabled);
+  return this;
+};
+Magnet.prototype.allowCtrlKey = function(enabled) {
+  return (isset(enabled) ?this.setAllowCtrlKey(enabled) :this.getAllowCtrlKey());
 };
 
 // stay in parent
@@ -251,7 +265,10 @@ Magnet.prototype.add = function(...doms) {
         return false;
       };
       const handleDom = (evt) => {
-        const toAttract = (this.getAttractable() ?_toAttract :false);
+        const toAttract = (this.getAttractable()
+          ?(this.getAllowCtrlKey() ?_toAttract :true)
+          :false
+        );
         const { width, height } = stdRect(dom);
         const { x, y } = getEventXY(evt);
         const diffX = (x-oriX);

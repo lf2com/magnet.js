@@ -160,7 +160,31 @@ _Default is `true`_
 
 > #### .getAttractable()
 > ```javascript
-> magnet.getAttractable(); // get: true
+> magnet.getAttractable(); // get true
+> ```
+
+### Allow `Ctrl` Key
+Allow to press `ctrl` key to be unattractable temporarily
+
+**Pressing `ctrl` key makes group members unattractable, any magnet related event will not be triggered**
+
+#### .allowCtrlKey(enabled?)
+_Default is `true`_
+> Get/set allow ctrl key
+> ```javascript
+> magnet.allowCtrlKey(true); // set to allow ctrl key
+> magnet.allowCtrlKey(); // get: true
+> ```
+
+##### Alias
+> #### .setAllowCtrlKey(enabled)
+> ```javascript
+> magnet.setAllowCtrlKey(true); // set to true
+> ```
+
+> #### .getAllowCtrlKey()
+> ```javascript
+> magnet.getAllowCtrlKey(); // get true
 > ```
 
 ### Alignment
