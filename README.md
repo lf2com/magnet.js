@@ -4,7 +4,7 @@ Magnet.js is a JavaScript library for grouping HTML elements then make them drag
 
 # Demo
 
-[Basic demo](https://lf2com.github.io/magnet.js/demo/demo_types.html)
+### [Basic demo](https://lf2com.github.io/magnet.js/demo/demo_types.html)
 
 - Configure magnet attract distance
 - Stay in parent element
@@ -12,11 +12,11 @@ Magnet.js is a JavaScript library for grouping HTML elements then make them drag
 - Align to the others x/y center
 - Align to the parent element's x/y center
 
-[Group demo](https://lf2com.github.io/magnet.js/demo/demo_groups.html)
+### [Group demo](https://lf2com.github.io/magnet.js/demo/demo_groups.html)
 
 4 magnet groups that can attract the others in their own groups or all the other group members.
 
-[Arrow key demo](https://lf2com.github.io/magnet.js/demo/demo_arrow.html)
+### [Arrow key demo](https://lf2com.github.io/magnet.js/demo/demo_arrow.html)
 
 Extend the [Basic demo](https://lf2com.github.io/magnet.js/demo/demo_types.html) with new features:
 
