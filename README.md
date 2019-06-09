@@ -16,6 +16,13 @@ Magnet.js is a JavaScript library for grouping HTML elements then make them drag
 
 4 magnet groups that can attract the others in their own groups or all the other group members.
 
+[Arrow key demo](https://lf2com.github.io/magnet.js/demo/demo_arrow.html)
+
+Extend the [Basic demo](https://lf2com.github.io/magnet.js/demo/demo_types.html) with new features:
+
+- Support arrow keys to move focused box (also support `a`/`w`/`d`/`s` keys)
+- Configure `px` unit of arrow (`unit` < `distance` would cause the box stuck with other boxes)
+
 # Install
 
 ### NodeJS
