@@ -1,6 +1,7 @@
 'use strict';
 
 export const isset = (o) => ('undefined'!==typeof o);
+export const isbool = (b) => ('boolean'===typeof b);
 export const tobool = (b) => (b ?true :false);
 export const isnum = (n) => (!isNaN(n));
 export const tonum = (n) => parseFloat(n);
