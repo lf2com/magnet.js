@@ -6,6 +6,8 @@ Magnet.js is a JavaScript library for grouping HTML elements and make them dragg
 
 ### [Basic demo](https://lf2com.github.io/magnet.js/demo/demo_types.html)
 
+> [jQuery version](https://lf2com.github.io/magnet.js/demo/demo_types_jquery.html)
+
 - Configure magnet attract distance
 - Switch to stay in parent element
 - Align to outer/inner edge of the others
