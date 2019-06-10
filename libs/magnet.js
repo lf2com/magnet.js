@@ -17,9 +17,9 @@ const EVENT = {
   unattract: 'unattract',
   attracted: 'attracted',
   unattracted: 'unattracted',
-  magnetStart: ['magnetenter', 'magnetstart'],
-  magnetChange: 'magnetchange',
-  magnetEnd: ['magnetend', 'magnetleave'],
+  magnetStart: ['magnetenter', 'magnetstart', 'enter', 'start'],
+  magnetChange: ['magnetchange', 'change'],
+  magnetEnd: ['magnetend', 'magnetleave', 'end', 'leave'],
   mouseDown: ['mousedown', 'touchstart'],
   mouseMove: ['mousemove', 'touchmove'],
   mouseUp: ['mouseup', 'mouseleave', 'touchend'],
@@ -64,6 +64,17 @@ const MAGNET_PROPS = {
   alignParentCenter: '_alignParentCenter',
 };
 
+export const MAGNET_DEFAULTS = {
+  distance: 0,
+  attractable: true,
+  allowCtrlKey: true,
+  stayInParent: false,
+  alignOuter: true,
+  alignInner: true,
+  alignCenter: true,
+  alignParentCenter: false,
+};
+
 function Magnet(...doms) {
   if (!this instanceof Magnet) {
     return new Magnet(...arguments);
@@ -82,6 +93,7 @@ function Magnet(...doms) {
     [MAGNET_PROPS.alignCenter]: { value: true, writable: true },
     [MAGNET_PROPS.alignParentCenter]: { value: false, writable: true },
   });
+  objForEach(MAGNET_DEFAULTS, (value, prop) => (isset(this[prop])&&this[prop](value)));
   if (doms.length) {
     this.add(doms);
   }
@@ -136,6 +148,7 @@ Magnet.prototype.setStayInParent = function(enabled) {
   this[MAGNET_PROPS.stayInParent] = tobool(enabled);
   return this;
 };
+Magnet.prototype.stayInParent = 
 Magnet.prototype.stayInParentEdge = 
 Magnet.prototype.stayInParentElem = function(enabled) {
   return (isset(enabled) ?this.setStayInParent(enabled) :this.getStayInParent());
@@ -153,7 +166,8 @@ Magnet.prototype.stayInParentElem = function(enabled) {
     this[MAGNET_PROPS[propName]] = tobool(enabled);
     return this;
   };
-  Magnet.prototype[`enabled${funcName}`] = function(enabled) {
+  Magnet.prototype[propName] = 
+    Magnet.prototype[`enabled${funcName}`] = function(enabled) {
     return (isset(enabled) ?this[`set${funcName}`](enabled) :this[`get${funcName}`]());
   };
 });

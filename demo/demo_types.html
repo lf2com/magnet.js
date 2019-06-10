@@ -74,8 +74,11 @@
     </style>
     <script src="../magnet.min.js"></script>
     <script>
-      let NEAR_DISTANCE = 15;
       const magnet = new Magnet();
+
+      magnet.distance(15);
+      magnet.attractable(true);
+      magnet.allowCtrlKey(true);
 
       window.addEventListener('load', () => {
         let domContainer = document.getElementById('container');
@@ -84,18 +87,14 @@
         let domVertMagnet = domMask.querySelector('.vert');
 
         // start/end of magnet attract status
-        magnet.on('magnetstart', () => {
-          console.log('magnetstart');
-        }).on('magnetend', () => {
-          console.log('magnetend');
+        magnet.on('start change end', ({ type }) => {
+          console.log(`magnet${type}`);
+        }).on('end', () => {
           domHoriMagnet.classList.remove('show');
           domVertMagnet.classList.remove('show');
-        });
-
-        // show/hide horizon/vertical edge line
-        magnet.on('magnetchange', (e) => {
+        }).on('change', (e) => {
+          // show/hide horizon/vertical edge line
           let result = e.detail;
-          console.log('magnetchange', result);
           let resultX = result.x;
           let resultY = result.y;
           if (resultX) {
@@ -120,16 +119,16 @@
           let height = Math.max(30, parseInt(Math.random()*rootHeight/2));
           let block = document.createElement('span');
           let checkbox = document.createElement('input');
-          block.style.width = (width+'px');
-          block.style.height = (height+'px');
-          block.style.top = (parseInt(Math.random()*(window.innerHeight-height))+'px');
-          block.style.left = (parseInt(Math.random()*(window.innerWidth-width))+'px');
-          block.style.backgroundColor = ('#'+[1, 2, 3].map(() => ('0'+parseInt(100+Math.random()*155).toString(16)).slice(-2)).join(''));
-          block.style.opacity = (0.25+Math.random()*0.75);
+          block.style.width = `${width}px`;
+          block.style.height = `${height}px`;
+          block.style.top = `${parseInt(Math.random()*(rootHeight-height))}px`;
+          block.style.left = `${parseInt(Math.random()*(rootWidth-width))}px`;
+          block.style.backgroundColor = `rgba(${[0, 0, 0].map(() => parseInt(100+Math.random()*155)).concat(.25+(.75*Math.random())).join(', ')})`;
           block.classList.add('block');
 
           checkbox.setAttribute('type', 'checkbox');
           checkbox.setAttribute('checked', '');
+          checkbox.addEventListener('touchstart', (evt) => evt.stopPropagation());
           checkbox.addEventListener('mousedown', (evt) => evt.stopPropagation());
           checkbox.addEventListener('change', function() {
             let block = this.parentNode;
@@ -146,7 +145,7 @@
           });
           block.addEventListener('click', function() {
             this.style.zIndex = 1;
-            domContainer.appendChild(this);
+            this.parentElement.appendChild(this);
           });
           block.addEventListener('dblclick', function() {
             let checkbox = this.querySelector('input[type=checkbox]');
@@ -159,60 +158,56 @@
           });
           ['attract', 'unattract', 'attracted', 'unattracted'].forEach((type) => {
             block.addEventListener(type, function(e) {
-              console.log(type, e);
+              console.log(e.type, e);
             });
           });
 
           block.appendChild(checkbox);
           domContainer.appendChild(block);
-          magnet.add(block);
           return block;
         }
         
         // distance
-        document.getElementById('dist').onchange = () => magnet.distance(NEAR_DISTANCE = this.value);
-        magnet.distance(document.getElementById('dist').value = NEAR_DISTANCE);
+        document.getElementById('dist').onchange = () => magnet.setDistance(this.value);
+        magnet.setDistance(document.getElementById('dist').value = magnet.getDistance());
 
         // add one block
         document.getElementById('add').onclick = () => magnet.add(genBlock());
 
         // enable/disable fix edge
         document.getElementById('fix').onchange = function() {
-          magnet.stayInParentElem(this.checked);
+          magnet.setStayInParent(this.checked);
         };
-        document.getElementById('fix').checked = magnet.stayInParentElem();
+        document.getElementById('fix').checked = magnet.getStayInParent();
 
         // enable/disable align parent middle
         document.getElementById('parentMiddle').onchange = function() {
-          magnet.enabledAlignParentCenter(this.checked);
+          magnet.setAlignParentCenter(this.checked);
         };
-        document.getElementById('parentMiddle').checked = magnet.enabledAlignParentCenter();
+        document.getElementById('parentMiddle').checked = magnet.getAlignParentCenter();
 
         // enable/disable align outside
         document.getElementById('outside').onchange = function() {
-          magnet.enabledAlignOuter(this.checked);
+          magnet.setAlignOuter(this.checked);
         };
-        document.getElementById('outside').checked = magnet.enabledAlignOuter();
+        document.getElementById('outside').checked = magnet.getAlignOuter();
 
         // enable/disable align inside
         document.getElementById('inside').onchange = function() {
-          magnet.enabledAlignInner(this.checked);
+          magnet.setAlignInner(this.checked);
         };
-        document.getElementById('inside').checked = magnet.enabledAlignInner();
+        document.getElementById('inside').checked = magnet.getAlignInner();
 
         // enable/disable align middle
         document.getElementById('middle').onchange = function() {
-          magnet.enabledAlignCenter(this.checked);
+          magnet.setAlignCenter(this.checked);
         };
-        document.getElementById('middle').checked = magnet.enabledAlignCenter();
+        document.getElementById('middle').checked = magnet.getAlignCenter();
 
         // init blocks
         for (let bInx=(2+parseInt(Math.random()*3)); 0<bInx; bInx--) {
-          genBlock();
+          magnet.add(genBlock());
         }
-
-        magnet.attractable(true);
-        magnet.allowCtrlKey(true);
       });
     </script>
   </head>

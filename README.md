@@ -52,24 +52,41 @@ npm install https://github.com/lf2com/magnet.js
 
 ### Build
 
-The required files are `./index.js` and `./libs/*.js`. All dependencies in `./package.json` are only used for building a packaged/minified JS file as `./magnet.min.js`. Since the code registered as `window.Magnet`. You can build a browser-used **`magnet.js`** with the following commands:
+The required files are `./index.js` and `./libs/*.js`. All dependencies in `./package.json` are only used for building a packaged/minified JS file as `./magnet.min.js`. Since the code registered as `window.Magnet`. You can build a browser-used **`magnet.min.js`** with the following commands:
 
 ```sh
-# build with uglifying code
-browserify index.js -t [ babelify --presets [ es2015 stage-0 ] ] | uglifyjs -cm > magnet.min.js
-
-# the same command set in package.json
 npm run build
 ```
 
-> #### Debug Build
+> #### Build jQuery Plugin
+>
+> Build `./jquery-magnet.min.js`
 >
 > ```sh
-> # build without uglifying code
-> browserify index.js -t [ babelify --presets [ es2015 stage-0 ] ] > magnet.min.js
+> npm run jquery-build
+> ```
 >
-> # the same command set in package.json
+> #### Build All
+>
+> Build both `./magnet.min.js` and `./jquery-magnet.min.js`
+>
+> ```sh
+> npm run all-build
+> ```
+>
+> #### Debug Build
+>
+> Append **`-debug`** on any `build` command
+>
+> ```sh
 > npm run build-debug
+>
+> # for jQuery
+> npm run jquery-build-debug
+> 
+> # for both
+> npm run all-build-debug
+> ```
 
 ### Browser
 
@@ -84,9 +101,23 @@ Download from this repository or use your own built: [**`magnet.min.js`**](https
 </script>
 ```
 
+> #### jQuery Plugin
+>
+> **NOTICE: Please include jQuery library before incluing `jquery-magnet.min.js`**
+>
+> ```html
+> <script src="PATH/TO/jQuery.js"></script>
+> <script src="PATH/TO/jquery-magnet.min.js"></script>
+> <script>
+>   (function($) {
+>     console.log($.magnet); // here it is
+>   })(jQuery);
+> </script>
+> ```
+
 ## Usage of Magnet
 
-### Create
+### Create Magnet Group
 
 Create a magnet group. All the elements added into the group would be applied the attract behaviors.
 
@@ -94,14 +125,28 @@ Create a magnet group. All the elements added into the group would be applied th
 let magnet = new Magnet();
 ```
 
-### Add
+> _**jQuery**_
+>
+> Create a new group
+>
+> #### $.magnet([options?](#magnet-default-values))
+>
+> ```js
+> let options = {
+>   distance: 15,
+>   stayInParent: true,
+> };
+> let $magnet = $.magnet(options);
+> ```
+
+### Add Elements
 
 Add HTML elements into the group
 
 #### .add(...DOMs)
 
 ```js
-magnet.add(document.querySelectorAll('.magnet'));
+magnet.add(document.querySelectorAll('.magnet')); // return this
 ```
 
 > _Or add HTML element when creating a group_
@@ -125,8 +170,22 @@ magnet.add(document.querySelectorAll('.magnet'));
 >   .add(document.querySelectorAll('.other-magnet'))
 >   .add(document.getElementById('major-magnet'));
 > ```
+>
+> _**jQuery**_
+>
+> #### [$magnet.add(...DOMs)](#adddoms)
+>
+> Add elements to an existing group
+>
+> #### $.fn.magnet([options?](#magnet-default-values))
+>
+> Add element to a new group
+>
+> ```js
+> let $magnet = $('.magnet').magnet(options);
+> ```
 
-### Remove
+### Remove Elements
 
 Remove HTML elements from the group
 
@@ -135,7 +194,7 @@ Remove HTML elements from the group
 _**Keep** the positon changed by the magnet_
 
 ```js
-magnet.remove(document.querySelector('.magnet'));
+magnet.remove(document.querySelector('.magnet')); // return this
 ```
 
 #### .removeFull(...DOMs)
@@ -143,7 +202,7 @@ magnet.remove(document.querySelector('.magnet'));
 _**Remove** the positions changed by the magnet_
 
 ```js
-magnet.removeFull(document.querySelector('.magnet'))
+magnet.removeFull(document.querySelector('.magnet')); // return this
 ```
 
 > _Flexable ways to remove elements_
@@ -161,8 +220,14 @@ magnet.removeFull(document.querySelector('.magnet'))
 >   .remove(document.querySelectorAll('.other-magnet'))
 >   .remove(document.getElementById('major-magnet'));
 > ```
+>
+> _**jQuery**_
+>
+> #### [$magnet.remove(...DOMs)](#removedoms)
+>
+> #### [$magnet.removeFull(...DOMs)](#removefulldoms)
 
-### Clear
+### Clear All Elements
 
 Remove all the HTML elements from the group
 
@@ -182,7 +247,13 @@ _**Remove** the position changed by the magnet_
 magnet.clearFull();
 ```
 
-### Distance
+> _**jQuery**_
+>
+> #### [$magnet.clear()](#clear)
+>
+> #### [$magnet.clearFull()](#clearfull)
+
+### Distance of Attraction
 
 Distance for elements to attract others in the same group
 
@@ -193,7 +264,7 @@ Distance for elements to attract others in the same group
 Get/set distance
 
 ```js
-magnet.distance(15); // set: unit px
+magnet.distance(15); // set: unit px, return this
 magnet.distance(); // get: 15
 ```
 
@@ -210,6 +281,10 @@ magnet.distance(); // get: 15
 > ```js
 > magnet.getDistance(); // get 15
 > ```
+>
+> _**jQuery**_
+>
+> #### [$magnet.distance(px?)](#distancepx)
 
 ### Attractable
 
@@ -224,7 +299,7 @@ Attractable between group members
 Get/set attractable
 
 ```js
-magnet.attractable(true); // set to attract members
+magnet.attractable(true); // set to attract members, return this
 magnet.attractable(); // get: true
 ```
 
@@ -241,6 +316,10 @@ magnet.attractable(); // get: true
 > ```js
 > magnet.getAttractable(); // get true
 > ```
+>
+> _**jQuery**_
+>
+> #### [$magnet.attractable(enabled?)](#attractableenabled)
 
 ### Allow `Ctrl` Key
 
@@ -255,7 +334,7 @@ Allow to press `ctrl` key to be unattractable temporarily
 Get/set allow ctrl key
 
 ```js
-magnet.allowCtrlKey(true); // set to allow ctrl key
+magnet.allowCtrlKey(true); // set to allow ctrl key, return this
 magnet.allowCtrlKey(); // get: true
 ```
 
@@ -272,8 +351,12 @@ magnet.allowCtrlKey(); // get: true
 > ```js
 > magnet.getAllowCtrlKey(); // get true
 > ```
+>
+> _**jQuery**_
+>
+> #### [$magnet.allowCtrlKey(enabled?)](#allowctrlkeyenabled)
 
-### Alignment
+### Alignments
 
 Magnet supports the following alignments:
 
@@ -284,34 +367,48 @@ Magnet supports the following alignments:
 | **center** | align middle x/y to other's middle x/y | `true` |
 | **parent center** | align middle x/y to parent's middle x/y | `false` |
 
-#### .enabledAlign{prop}(enabled?)
+#### .align{[Prop](#alignments)}(enabled?)
 
 Get/set enabled of alignment
 
 ```js
-magnet.enabledAlignOuter(true); // set: align to element outside edges. default is true
-magnet.enabledAlignInner(false); // set: align to element inside edges. default is true
-magnet.enabledAlignCenter(true); // set: align to element middle line. default is true
-magnet.enabledAlignParentCenter(false); // set: alien to parent element middle line, default is false
+magnet.alignOuter(true); // set: align to element outside edges, return this
+magnet.alignInner(false); // set: align to element inside edges, return this
+magnet.alignCenter(true); // set: align to element middle line, return this
+magnet.alignParentCenter(false); // set: alien to parent element middle line, return this
 
-magnet.enabledAlignOuter(); // get: true
+magnet.alignOuter(); // get: true
 ```
 
 > _Alias_
 >
-> #### .setEnabledAlign{prop}(enabled)
+> #### .enabledAlign{[Prop](#alignments)}(enabled?)
+>
+> ```js
+> magnet.enabledAlignOuter(true); // set to true
+> magnet.enabledAlignParentCenter(false); // set to false
+>
+> magnet.enabledAlignOuter(); // get: true
+> magnet.enabledAlignParentCenter(); // get: false
+> ```
+>
+> #### .setEnabledAlign{[Prop](#alignments)}(enabled)
 >
 > ```js
 > magnet.setEnabledAlignOuter(true); // set to true
 > ```
 >
-> #### .getEnabledAlign{prop}()
+> #### .getEnabledAlign{[Prop](#alignments)}()
 >
 > ```js
 > magnet.getEnabledAlignOuter(); // get true
 > ```
+>
+> _**jQuery**_
+>
+> #### [$magnet.align{Prop}(enabled?)](#alignpropenabled)
 
-### Parent element
+### Align to Parent Inner Edges
 
 > _**CAUTION:**_
 >
@@ -319,7 +416,7 @@ magnet.enabledAlignOuter(); // get: true
 > - _**Parent** is the **first matched** `parentNode` whose `style.position` is not `static`_
 > - _All the `top`/`left` **offset** of magnet members is based on the **parent** element_
 
-#### .stayInParentEdge(enabled?)
+#### .stayInParent(enabled?)
 
 Force elements of group not to be out of the edge of parent element
 
@@ -328,11 +425,18 @@ Force elements of group not to be out of the edge of parent element
 Get/set stay inside of the parent
 
 ```js
-magnet.stayInParentEdge(true); // set: not to move outside of the parent element. default is false
-magnet.stayInParentEdge(); // get: true
+magnet.stayInParent(true); // set: not to move outside of the parent element, return this
+magnet.stayInParent(); // get: true
 ```
 
 > _Alias_
+>
+> #### .stayInParentEdge(enabled?)
+>
+> ```js
+> magnet.stayInParentEdge(true); // set to true
+> magnet.stayInParentEdge(); // get: true
+> ```
 >
 > #### .stayInParentElem(enabled?)
 >
@@ -354,18 +458,20 @@ magnet.stayInParentEdge(); // get: true
 > ```js
 > magnet.getStayInParent(); // get true
 > ```
+>
+> _**jQuery**_
+>
+> #### [$magnet.stayInParent(enabled?)](#stayinparentenabled)
 
 ### Events of Magnet
 
 Magnet supports the following events:
 
-| _Name_ | _description_ |
-| :-: | :- |
-| **magnetenter** | when the last result has no any attract but now it does |
-| **magnetstart** | the same as `magnetenter` |
-| **magnetleave** | when the last result has any attract but now it doesn't |
-| **magnetend** | the same as `magnetleave` |
-| **magnetchange** | when any change of attract, including start/end and the changes of attracted alignment properties |
+| _Name_ | _Description_ | _Alias_ |
+| :-: | :- | :-: |
+| **magnetstart** | when the last result has no any attract but now it does | `start`, `magnetenter`, `enter` |
+| **magnetend** | when the last result has any attract but now it doesn't | `end`, `magnetleave`, `leave` |
+| **magnetchange** | when any change of attract, including start/end and the changes of attracted alignment properties | `change` |
 
 #### Parameters of Magnet Event
 
@@ -426,6 +532,12 @@ magnet
   .off('magnetleave')
   .off('magnetchange');
 ```
+
+> _**jQuery**_
+>
+> #### [$magnet.on(eventNames, functions)](#oneventnames-functions)
+>
+> #### [$magnet.off(eventNames)](#offeventnames)
 
 ### Events of magnet members
 
@@ -494,7 +606,7 @@ elem.removeEventListener('attracted', onAttracted);
 elem.removeEventListener('unattracted', onUnattracted);
 ```
 
-### Check
+### Check Attracting Result
 
 Check the relationships between `source` and all the other group members
 
@@ -502,7 +614,7 @@ Check the relationships between `source` and all the other group members
 
 > _Default `sourceRect` is the [rectangle](#rectangle-object) of `sourceDOM`_
 >
-> _Default `alignments` is the [outer/inner/center](#alignment) settings of magnet_
+> _Default `alignments` is the [outer/inner/center](#alignments) settings of magnet_
 
 #### Parameter of Check Result
 
@@ -524,7 +636,11 @@ magnet.check(elem, ['topToTop', 'bottomToBottom']); // get the result of 'topToT
 magnet.check(elem, elem.getBoundingClientRect(), ['topToTop', 'bottomToBottom']);
 ```
 
-### Handle
+> _**jQuery**_
+>
+> #### [$magnet.check(sourceDOM[, sourceRect[, alignments]])](#checksourcedom-sourcerect-alignments)
+
+### Handle Rectangle Position of Element
 
 Change the position of target member for the input position with checking the attracting relationships between `source` and all the other group members
 
@@ -549,8 +665,12 @@ let rect = {
   height: height
 };
 magnet.add(elem);
-magnet.handle(elem, rect, true); // move the member to the new rectangle position with the attracting relationship
+magnet.handle(elem, rect, true); // move the member to the new rectangle position with the attracting relationship, return this
 ```
+
+> _**jQuery**_
+>
+> #### [$magnet.handle(sourceDOM[, sourceRect[, attractable]])](#handlesourcedom-sourcerect-attractable)
 
 ## Usage of Rectangle
 
@@ -649,6 +769,19 @@ Magnet.measure(rectA, rectB); // MeasureResult object
 
 ## References
 
+### Magnet Default Values
+
+| _Property_ | _Type_ | _Description_ | _Default_ |
+| :-: | :-: | :- | :-: |
+| **distance** | _Number_ | Distance to attract | `0` |
+| **attractable** | _Boolean_ | Ability to attract | `true` |
+| **allowCtrlKey** | _Boolean_ | Ability to use `ctrl` key to unattract | `true` |
+| **stayInParent** | _Boolean_ | Stay in parent element | `false` |
+| **alignOuter** | _Boolean_ | Align outer edges to that of the others | `true` |
+| **alignInner** | _Boolean_ | Align inner edges to that of the others | `true` |
+| **alignCenter** | _Boolean_ | Align x/y center to that of the others | `true` |
+| **alignParentCenter** | _Boolean_ | Align x/y center to that of parent element | `false` |
+
 ### Alignment Properties
 
 | _Value_ | _Description_ |
@@ -668,7 +801,7 @@ Magnet.measure(rectA, rectB); // MeasureResult object
 
 | _Property_ | _Type_ | _Description_ |
 | :-: | :-: | :- |
-| **type** | _String_ | [Alignment property name](#alignment) |
+| **type** | _String_ | [Alignment property name](#alignments) |
 | **rect** | _Object_ | Rectangle object of element |
 | **element** | _DOM_ | HTML element |
 | **position** | _Number_ | Absolute offset `px` based on window's top/left |
@@ -721,7 +854,7 @@ Magnet.measure(rectA, rectB); // MeasureResult object
 | **min** | _String_ | [Alignment property](#alignment-properties) with minimum distance |
 | **max** | _String_ | [Alignment property](#alignment-properties) with maximum distance |
 
-> **The following properties are DEPRECATED**
+> **NOTICE: The following properties are DEPRECATED**
 >
 > | _Property_ | _Type_ | _Replacement_ |
 > | :-: | :-: | :-: |

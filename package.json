@@ -5,7 +5,11 @@
   "main": "magnet.js",
   "scripts": {
     "build-debug": "browserify index.js -t [ babelify --presets [ es2015 stage-0 ] ] > magnet.min.js",
-    "build": "browserify index.js -t [ babelify --presets [ es2015 stage-0 ] ] | uglifyjs -cm > magnet.min.js"
+    "build": "browserify index.js -t [ babelify --presets [ es2015 stage-0 ] ] | uglifyjs -cm > magnet.min.js",
+    "jquery-build-debug": "browserify jquery-plugin.js -t [ babelify --presets [ es2015 stage-0 ] ] > jquery-magnet.min.js",
+    "jquery-build": "browserify jquery-plugin.js -t [ babelify --presets [ es2015 stage-0 ] ] | uglifyjs -cm > jquery-magnet.min.js",
+    "all-build-debug": "npm run build-debug & npm run jquery-build-debug",
+    "all-build": "npm run build & npm run jquery-build"
   },
   "author": "Wan Wan",
   "license": "MIT",
