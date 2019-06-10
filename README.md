@@ -1,16 +1,16 @@
 # Magnet.js
 
-Magnet.js is a JavaScript library for grouping HTML elements then make them draggable and attractable each other.
+Magnet.js is a JavaScript library for grouping HTML elements and make them draggable and attractable with each others.
 
-# Demo
+## Demo
 
 ### [Basic demo](https://lf2com.github.io/magnet.js/demo/demo_types.html)
 
 - Configure magnet attract distance
-- Stay in parent element
-- Align to outside/inside edge of the others
-- Align to the others x/y center
-- Align to the parent element's x/y center
+- Switch to stay in parent element
+- Align to outer/inner edge of the others
+- Align to the x/y center of the others
+- Align to the x/y center of parent element
 
 ### [Group demo](https://lf2com.github.io/magnet.js/demo/demo_groups.html)
 
@@ -21,44 +21,76 @@ Magnet.js is a JavaScript library for grouping HTML elements then make them drag
 Extend the [Basic demo](https://lf2com.github.io/magnet.js/demo/demo_types.html) with new features:
 
 - Support arrow keys to move focused box (also support `a`/`w`/`d`/`s` keys)
-- Configure `px` unit of arrow (`unit` < `distance` would cause the box stuck with other boxes)
+- Configure `px` unit of arrow_ (
+- _**`unit < distance` would cause the box stuck with the others when attracted**_
 
-# Install
+## Install
+
+### Git
+
+```sh
+git clone https://github.com/lf2com/magnet.js.git
+cd magnet.js
+npm install .
+```
 
 ### NodeJS
 
-```nodejs
+**CAUTION: Magnet.js is not tested on NodeJS environment. It uses `document` and `eventListener` related functions.**
+
+```sh
 npm install https://github.com/lf2com/magnet.js
 ```
 
-#### Build
+> #### Import
+>
+> ```js
+> import Magnet from './magnet';
+> // Or
+> const Magnet = require('./magnet');
+> ```
 
-The required codes are `./index.js` and `./libs/*.js`. All dependencies in `./package.json` are only used for building a packaged and minified `./magnet.min.js`. It is easy to build a browser-used **`magnet.js`** with your own ways.
+### Build
 
-There is a script for building the codes into `./magnet.min.js`:
-```nodejs
+The required files are `./index.js` and `./libs/*.js`. All dependencies in `./package.json` are only used for building a packaged/minified JS file as `./magnet.min.js`. Since the code registered as `window.Magnet`. You can build a browser-used **`magnet.js`** with the following commands:
+
+```sh
+# build with uglifying code
+browserify index.js -t [ babelify --presets [ es2015 stage-0 ] ] | uglifyjs -cm > magnet.min.js
+
+# the same command set in package.json
 npm run build
 ```
-Which runs
-```nodejs
-browserify magnet.js -t [ babelify --presets [ es2015 stage-0 ] ] | uglifyjs -cm > magnet.min.js
-```
+
+> #### Debug Build
+>
+> ```sh
+> # build without uglifying code
+> browserify index.js -t [ babelify --presets [ es2015 stage-0 ] ] > magnet.min.js
+>
+> # the same command set in package.json
+> npm run build-debug
 
 ### Browser
 
-Download [**`./magnet.min.js`**](https://lf2com.github.io/magnet.js/magnet.min.js) from this repository.
+Download from this repository or use your own built: [**`magnet.min.js`**](https://lf2com.github.io/magnet.js/magnet.min.js)
+
 ```html
+<!-- include script -->
 <script src="PATH/TO/magnet.min.js"></script>
+
+<script>
+  console.log(window.Magnet); // here it is
+</script>
 ```
 
-# Usage
-
-## Magnet
+## Usage of Magnet
 
 ### Create
 
 Create a magnet group. All the elements added into the group would be applied the attract behaviors.
-```javascript
+
+```js
 let magnet = new Magnet();
 ```
 
@@ -68,17 +100,19 @@ Add HTML elements into the group
 
 #### .add(...DOMs)
 
-```javascript
+```js
 magnet.add(document.querySelectorAll('.magnet'));
 ```
 
 > _Or add HTML element when creating a group_
-> ```javascript
+>
+> ```js
 > let magnet = new Magnet(document.querySelectorAll('.magnet'));
 > ```
-
+>
 > _Flexable ways to add elements_
-> ```javascript
+>
+> ```js
 > magnet.add(
 >   document.querySelectorAll('.magnet'),
 >   document.querySelectorAll('.other-magnet'),
@@ -98,20 +132,23 @@ Remove HTML elements from the group
 
 #### .remove(...DOMs)
 
-> _**Keep** the positon changed by the magnet_
-> ```javascript
-> magnet.remove(document.querySelector('.magnet'));
-> ```
+_**Keep** the positon changed by the magnet_
+
+```js
+magnet.remove(document.querySelector('.magnet'));
+```
 
 #### .removeFull(...DOMs)
 
-> _**Remove** the positions changed by the magnet_
-> ```javascript
-> magnet.removeFull(document.querySelector('.magnet'))
-> ```
+_**Remove** the positions changed by the magnet_
+
+```js
+magnet.removeFull(document.querySelector('.magnet'))
+```
 
 > _Flexable ways to remove elements_
-> ```javascript
+>
+> ```js
 > magnet.remove(
 >   document.querySelectorAll('.magnet'),
 >   document.querySelectorAll('.other-magnet'),
@@ -131,41 +168,46 @@ Remove all the HTML elements from the group
 
 #### .clear()
 
-> _**Keep** the position changed by the magnet_
-> ````javascript
-> magnet.clear();
-> ````
+_**Keep** the position changed by the magnet_
+
+````js
+magnet.clear();
+````
 
 #### .clearFull()
 
-> _**Remove** the position changed by the magnet_
-> ```javascript
-> magnet.clearFull();
-> ```
+_**Remove** the position changed by the magnet_
+
+```js
+magnet.clearFull();
+```
 
 ### Distance
 
 Distance for elements to attract others in the same group
 
+> _Default: `0` (px)_
+
 #### .distance(px?)
 
-_Unit `px`; Default is `0`_
+Get/set distance
 
-> Get/set distance
-> ```javascript
-> magnet.distance(15); // set: unit px
-> magnet.distance(); // get: 15
-> ```
+```js
+magnet.distance(15); // set: unit px
+magnet.distance(); // get: 15
+```
 
-##### Alias
-
+> _Alias_
+>
 > #### .setDistance(px)
-> ```javascript
+>
+> ```js
 > magnet.setDistance(15); // set to 15
 > ```
-
+>
 > #### .getDistance()
-> ```javascript
+>
+> ```js
 > magnet.getDistance(); // get 15
 > ```
 
@@ -173,27 +215,30 @@ _Unit `px`; Default is `0`_
 
 Attractable between group members
 
-**Setting to `false` has the same as pressing `ctrl` key**
+> _Default: `true`_
+
+**NOTICE: Setting to `false` has the same effect as pressing `ctrl` key**
 
 #### .attractable(enabled?)
 
-_Default is `true`_
+Get/set attractable
 
-> Get/set attractable
-> ```javascript
-> magnet.attractable(true); // set to attract members
-> magnet.attractable(); // get: true
-> ```
+```js
+magnet.attractable(true); // set to attract members
+magnet.attractable(); // get: true
+```
 
-##### Alias
-
+> _Alias_
+>
 > #### .setAttractable(enabled)
-> ```javascript
+>
+> ```js
 > magnet.setAttractable(true); // set to true
 > ```
-
+>
 > #### .getAttractable()
-> ```javascript
+>
+> ```js
 > magnet.getAttractable(); // get true
 > ```
 
@@ -201,27 +246,30 @@ _Default is `true`_
 
 Allow to press `ctrl` key to be unattractable temporarily
 
-**Pressing `ctrl` key makes group members unattractable, any magnet related event will not be triggered**
+> _Default: `true`_
+
+**NOTICE: Pressing `ctrl` key makes group members unattractable, any magnet related event will not be triggered**
 
 #### .allowCtrlKey(enabled?)
 
-_Default is `true`_
+Get/set allow ctrl key
 
-> Get/set allow ctrl key
-> ```javascript
-> magnet.allowCtrlKey(true); // set to allow ctrl key
-> magnet.allowCtrlKey(); // get: true
-> ```
+```js
+magnet.allowCtrlKey(true); // set to allow ctrl key
+magnet.allowCtrlKey(); // get: true
+```
 
-##### Alias
-
+> _Alias_
+>
 > #### .setAllowCtrlKey(enabled)
-> ```javascript
+>
+> ```js
 > magnet.setAllowCtrlKey(true); // set to true
 > ```
-
+>
 > #### .getAllowCtrlKey()
-> ```javascript
+>
+> ```js
 > magnet.getAllowCtrlKey(); // get true
 > ```
 
@@ -238,66 +286,72 @@ Magnet supports the following alignments:
 
 #### .enabledAlign{prop}(enabled?)
 
-> Get/set enabled of alignment
-> ```javascript
-> magnet.enabledAlignOuter(true); // set: align to element outside edges. default is true
-> magnet.enabledAlignInner(false); // set: align to element inside edges. default is true
-> magnet.enabledAlignCenter(true); // set: align to element middle line. default is true
-> magnet.enabledAlignParentCenter(false); // set: alien to parent element middle line, default is false
+Get/set enabled of alignment
+
+```js
+magnet.enabledAlignOuter(true); // set: align to element outside edges. default is true
+magnet.enabledAlignInner(false); // set: align to element inside edges. default is true
+magnet.enabledAlignCenter(true); // set: align to element middle line. default is true
+magnet.enabledAlignParentCenter(false); // set: alien to parent element middle line, default is false
+
+magnet.enabledAlignOuter(); // get: true
+```
+
+> _Alias_
 >
-> magnet.enabledAlignOuter(); // get: true
-> ```
-
-##### Alias
-
 > #### .setEnabledAlign{prop}(enabled)
-> ```javascript
+>
+> ```js
 > magnet.setEnabledAlignOuter(true); // set to true
 > ```
-
+>
 > #### .getEnabledAlign{prop}()
-> ```javascript
+>
+> ```js
 > magnet.getEnabledAlignOuter(); // get true
 > ```
 
 ### Parent element
 
-> #### _CAUTION_
-> **Parent** may not be the first `parentNode` of the current element.
-> 
-> **Parent** is the `parentNode` whose `style.position` is not set to `static` from the current element
-> 
-> All the magnet members `top`/`left` of position is based on the **parent** element
-
-Force elements of group not to be out of the edge of parent element
+> _**CAUTION:**_
+>
+> - _**Parent** may **NOT** be the **1st** `parentNode` of the current element_._
+> - _**Parent** is the **first matched** `parentNode` whose `style.position` is not `static`_
+> - _All the `top`/`left` **offset** of magnet members is based on the **parent** element_
 
 #### .stayInParentEdge(enabled?)
 
-_Default is `false`_
+Force elements of group not to be out of the edge of parent element
 
-> Get/set stay inside of the parent
-> ```javascript
-> magnet.stayInParentEdge(true); // set: not to move outside of the parent element. default is false
-> magnet.stayInParentEdge(); // get: true
-> ```
+> _Default: `false`_
 
-##### Alias
+Get/set stay inside of the parent
 
+```js
+magnet.stayInParentEdge(true); // set: not to move outside of the parent element. default is false
+magnet.stayInParentEdge(); // get: true
+```
+
+> _Alias_
+>
 > #### .stayInParentElem(enabled?)
-> ```javascript
+>
+> ```js
 > magnet.stayInParentElem(true); // set to true
 > magnet.stayInParentElem(); // get true
 > ```
-
-##### Alias
-
+>
+> _Another alias_
+>
 > #### .setStayInParent(enabled)
-> ```javascript
+>
+> ```js
 > magnet.setStayInParent(true); // set to true
 > ```
-
+>
 > #### .getStayInParent()
-> ```javascript
+>
+> ```js
 > magnet.getStayInParent(); // get true
 > ```
 
@@ -327,7 +381,7 @@ Each event has the following members in the detail of event object:
 
 Add event listener
 
-```javascript
+```js
 magnet.on('magnetenter', function(evt) {
   let detail = evt.detail;
   console.log('magnetenter', detail); // detail info of attract elements
@@ -363,7 +417,7 @@ magnet.on('magnetstart', function(evt) {
 
 Remove event listeners
 
-```javascript
+```js
 magnet.off('magnetenter magnetleave magnetchange'); // remove event listeners
 
 // the same as above
@@ -393,7 +447,7 @@ Events of `attract` and `unattract` have the following members in the detail of 
 | **x** | _Object_ | [Attract info](#attract-info) of x-axis, `null` if no attract |
 | **y** | _Object_ | [Attract info](#attract-info) of y-axis, `null` if no attract |
 
-```javascript
+```js
 let elem = document.querySelector('.block');
 magnet.add(elem);
 
@@ -421,7 +475,7 @@ elem.removeEventListener('unattract', onUnattract);
 
 Events of `attracted` and `unattracted` have the target member in the detail of event object
 
-```javascript
+```js
 function onAttracted(evt) {
   let dom = evt.detail;
   console.log('attracted', dom); // be attracted by dom
@@ -446,9 +500,9 @@ Check the relationships between `source` and all the other group members
 
 #### .check(sourceDOM[, sourceRect[, alignments]])
 
-_Default `sourceRect` is the [rectangle](#rectangle-object) of `sourceDOM`_
-
-_Default `alignments` is the [outer/inner/center](#alignment) settings of magnet_
+> _Default `sourceRect` is the [rectangle](#rectangle-object) of `sourceDOM`_
+>
+> _Default `alignments` is the [outer/inner/center](#alignment) settings of magnet_
 
 #### Parameter of Check Result
 
@@ -462,7 +516,7 @@ _Default `alignments` is the [outer/inner/center](#alignment) settings of magnet
 | **mins** | _Object_ | Object with [alignment properties](#alignment-properties) and the values are the minimum value of distance |
 | **maxs** | _Object_ | Object with [alignment properties](#alignment-properties) and the values are the maximum value of distance |
 
-```javascript
+```js
 magnet.add(elem);
 magnet.check(elem, ['topToTop', 'bottomToBottom']); // get the result of 'topToTop' and 'bottomToBottom' between the other members
 
@@ -476,11 +530,11 @@ Change the position of target member for the input position with checking the at
 
 #### .handle(sourceDOM[, sourceRect[, attractable]])
 
-_Default `sourceRect` is the [rectangle](#rectangle-object) of `sourceDOM`_
+> _Default `sourceRect` is the [rectangle](#rectangle-object) of `sourceDOM`_
+>
+> _Default `attractable` is the value of [attractable](#attractable)_
 
-_Default `attractable` is the value of [attractable](#attractable)_
-
-```javascript
+```js
 let { top, right, bottom, left, width, height } = elem.getBoundingClientRect();
 let offset = {
   x: 15,
@@ -498,7 +552,7 @@ magnet.add(elem);
 magnet.handle(elem, rect, true); // move the member to the new rectangle position with the attracting relationship
 ```
 
-## Rect
+## Usage of Rectangle
 
 ### Check Rectangle
 
@@ -517,9 +571,9 @@ Check if `rect` is a rectangle like object with the following object members and
 | **x** _(optional)_ | `= left` |
 | **y** _(optional)_ | `= top` |
 
-> Use `0.0000000001` for bias of calculation
+**NOTICE: Default use `0.0000000001` for bias of calculation**
 
-```javascript
+```js
 let rect = { top: 1, right: 2, bottom: 3, left: 4 };
 Magnet.isRect(rect); // false: right < left
 rect.right = 5;
@@ -550,7 +604,7 @@ Return a [rectangle object](#rectangle-object) if `rect` is a HTML element or a 
 | **x** | Inherit from `rect` or set to `left` |
 | **y** | Inherit from `rect` or set to `top` |
 
-```javascript
+```js
 Magnet.stdRect(rect); // get a rectangle object
 ```
 
@@ -575,22 +629,23 @@ let rectB = { top: 10, right: 13, bottom: 11, left: 12 };
 Magnet.measure(rectA, rectB); // MeasureResult object
 ```
 
-##### Alias
-
+> _Alias_
+>
 > #### Magnet.diffRect(source, target[, options])
-> ```javascript
+>
+> ```js
 > Magnet.diffRect(rectA, rectB);
 > ```
 
 #### Result of Measurement
 
-See [measurement result object](#measurement-result-object)
+> See [measurement result object](#measurement-result-object)
 
 ### _DEPRECATED_ Methods
 
 #### Magnet.nearby(...)
 
-To reduce the usless calculations of measurement, it's recommended to call `Magnet.measure`/`Magnet.diffRect` independently and handle the results handly to get what you really want.
+> To reduce the usless calculations of measurement, it's recommended to call `Magnet.measure`/`Magnet.diffRect` independently and handle the results handly to get what you really want.
 
 ## References
 
@@ -641,7 +696,7 @@ To reduce the usless calculations of measurement, it's recommended to call `Magn
 
 ### Measurement Value Object
 
-_**All the properties inherit from [alignment properties](#alignment-properties)**_
+**NOTICE: All the properties inherit from [alignment properties](#alignment-properties)**
 
 | _Value_ | _Type_ |
 | :-: | :-: |
@@ -666,8 +721,8 @@ _**All the properties inherit from [alignment properties](#alignment-properties)
 | **min** | _String_ | [Alignment property](#alignment-properties) with minimum distance |
 | **max** | _String_ | [Alignment property](#alignment-properties) with maximum distance |
 
-**The following properties are DEPRECATED**
-
+> **The following properties are DEPRECATED**
+>
 > | _Property_ | _Type_ | _Replacement_ |
 > | :-: | :-: | :-: |
 > | topToTop | _Number_ | `results.topToTop` |
