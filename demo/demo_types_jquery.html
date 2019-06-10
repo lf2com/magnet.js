@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
+    <title>Magnet Demo</title>
+    <style>
+      body {
+        margin: 0;
+      }
+      * { font-size: 3vmin; }
+      #lines, #paper {
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+      }
+      #paper {
+        display: flex;
+        flex-flow: column;
+      }
+      #tool {
+        padding: 1vmin;
+        background-color: #eee;
+        font-family: monospace;
+        line-height: 150%;
+      }
+      #container {
+        flex: 2 2;
+      }
+      .item { white-space: nowrap; }
+      input, button {
+        outline: none;
+        border: .1vmin solid #666;
+        font-family: monospace;
+        color: #333;
+      }
+      input[type=checkbox] {
+        width: 3vmin;
+        height: 3vmin;
+      }
+      button { background-color: #eee; }
+      button:active { transform: translate(.1vmin, .1vmin); }
+      #lines {
+        z-index: 1;
+        pointer-events: none;
+      }
+      #lines >* {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        background-color: #999;
+        opacity: 0;
+      }
+      #lines >.show { opacity: .5; }
+      #lines .vert {
+        transform: translateX(-50%);
+        height: 100%;
+      }
+      #lines .hori {
+        transform: translateY(-50%);
+        width: 100%;
+      }
+      .block {
+        position: absolute;
+        overflow: auto;
+      }
+      .block input {
+        position: absolute;
+        top: 0;
+        right: 0;
+      }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+    <script src="../jquery-magnet.min.js"></script>
+    <script>
+      (($) => {
+        const $window = $(window);
+        const $magnet = $.magnet({
+          distance: 15,
+          attractable: true,
+          allowCtrlKey: true,
+        });
+
+        $window.on('load', () => {
+          const $container = $('#container');
+          const $mask = $('#lines');
+          const $horiMagnet = $mask.find('.hori');
+          const $vertMagnet = $mask.find('.vert');
+
+          $magnet
+            .on('start change end', ({ type }) => {
+              console.log(`magnet${type}`);
+            })
+            .on('end', () => {
+              $horiMagnet.removeClass('show');
+              $vertMagnet.removeClass('show');
+            })
+            .on('change', (e) => {
+              // show/hide horizon/vertical edge line
+              let result = e.detail;
+              let resultX = result.x;
+              let resultY = result.y;
+              if (resultX) {
+                $vertMagnet.css('left', (resultX.position+'px'));
+                $vertMagnet.addClass('show');
+              } else {
+                $vertMagnet.removeClass('show');
+              }
+              if (resultY) {
+                $horiMagnet.css('top', (resultY.position+'px'));
+                $horiMagnet.addClass('show');
+              } else {
+                $horiMagnet.removeClass('show');
+              }
+            });
+
+          // generate block
+          function genBlock() {
+            const rootWidth = $window.width();
+            const rootHeight = $window.height();
+            const width = Math.max(30, parseInt(Math.random()*rootWidth/2));
+            const height = Math.max(30, parseInt(Math.random()*rootHeight/2));
+            const $checkbox = $('<input>')
+              .attr('type', 'checkbox')
+              .prop('checked', true)
+              .on('mousedown touchstart', (evt) => evt.stopPropagation())
+              .on('change', function() {
+                let block = this.parentNode;
+                if (this.checked) {
+                  block.style.resize = 'none';
+                  $magnet.add(block);
+                } else {
+                  block.style.resize = 'both';
+                  $magnet.remove(block);
+                }
+              });
+            const $block = $('<span>')
+              .css({
+                width: `${width}px`,
+                height: `${height}px`,
+                top: `${parseInt(Math.random()*(rootHeight-height))}px`,
+                left: `${parseInt(Math.random()*(rootWidth-width))}px`,
+                backgroundColor: `rgba(${[0, 0, 0].map(() => parseInt(100+Math.random()*155)).concat(.25+(.75*Math.random())).join(', ')})`,
+              })
+              .addClass('block')
+              .on('mousedown', function(e) {
+                this.style.zIndex = 10;
+              })
+              .on('click', function() {
+                this.style.zIndex = 1;
+                $(this).parent().append(this);
+              })
+              .on('dblclick', function() {
+                $checkbox = $(this).find('input[type=checkbox]');
+                const checked = $checkbox.prop('checked');
+                $checkbox.prop('checked', !checked);
+                if (checked) {
+                  $magnet.add(this);
+                } else {
+                  $magnet.remove(this);
+                }
+              })
+              .on('attract unattract attracted unattracted', function(e) {
+                console.log(e.type, e);
+              })
+              .append($checkbox)
+              .appendTo($container);
+            return $block;
+          }
+          
+          // distance
+          $('#dist')
+            .on('change', function() {
+              $magnet.distance(this.value);
+            })
+            .val($magnet.distance());
+
+          // add one block
+          $('#add').on('click', () => {
+            $magnet.add(genBlock());
+          });
+
+          // enable/disable fix edge
+          $('#fix')
+            .on('change', function() {
+              $magnet.stayInParent(this.checked);
+            })
+            .prop('checked', $magnet.stayInParent());
+
+          // enable/disable align parent middle
+          $('#parentMiddle')
+            .on('change', function() {
+              $magnet.alignParentCenter(this.checked);
+            })
+            .prop('checked', $magnet.alignParentCenter());
+
+          // enable/disable align outside
+          $('#outside')
+            .on('change', function() {
+              $magnet.alignOuter(this.checked);
+            })
+            .prop('checked', $magnet.alignOuter());
+
+          // enable/disable align inside
+          $('#inside')
+            .on('change', function() {
+              $magnet.alignInner(this.checked);
+            })
+            .prop('checked', $magnet.alignInner());
+
+          // enable/disable align middle
+          $('#middle')
+            .on('change', function() {
+              $magnet.alignCenter(this.checked);
+            })
+            .prop('checked', $magnet.alignCenter());
+
+          // init blocks
+          for (let bInx=(2+parseInt(Math.random()*3)); 0<bInx; bInx--) {
+            $magnet.add(genBlock());
+          }
+        });
+      })(jQuery);
+    </script>
+  </head>
+  <body>
+    <div id="lines">
+      <span class="vert"></span>
+      <span class="hori"></span>
+    </div>
+    <div id="paper">
+      <span id="tool">
+        <span class="item">Distance: <input id="dist" type="number" min="0" max="20" /></span>
+        <button id="add">Add Block</button>
+        <span class="item"><input id="fix" type="checkbox" /><label for="fix">Fix edge</label></span>
+        <span class="item"><input id="parentMiddle" type="checkbox" /><label for="parentMiddle">Align Parent Middle</label></span>
+        <span class="item"><input id="outside" type="checkbox" /><label for="outside">Align Outside</label></span>
+        <span class="item"><input id="inside" type="checkbox" /><label for="inside">Align Inside</label></span>
+        <span class="item"><input id="middle" type="checkbox" /><label for="middle">Align Middle</label></span>
+      </span>
+      <div id="container"></div>
+    </div>
+  </body>
+</html>
