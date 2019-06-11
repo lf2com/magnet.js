@@ -1,6 +1,6 @@
 (($) => { 'use strict';
 
-  const { isset, objForEach, objMemberProps } = require('./libs/stdlib');
+  const { isset, objForEach } = require('./libs/stdlib');
   const { default: Magnet, MAGNET_DEFAULTS } = require('./libs/magnet');
 
   $.magnet = function(options = {}) {
@@ -20,7 +20,22 @@
     ].forEach((prop) => {
       this[prop] = (...args) => {
         const result = magnet[prop](...args);
-        return (isset(result) ?result :this);
+        return (args.length ?this :result);
+      };
+    });
+
+    ['beforeAttract', 'afterAttract'].forEach((prop) => {
+      const value = options[prop];
+      if (isset(value)) {
+        magnet[prop] = value;
+      }
+      
+      this[prop] = (arg) => {
+        if (!isset(arg)) {
+          return magnet[prop];
+        }
+        magnet[prop] = arg;
+        return this;
       };
     });
 

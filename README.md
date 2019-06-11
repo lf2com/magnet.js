@@ -674,6 +674,81 @@ magnet.handle(elem, rect, true); // move the member to the new rectangle positio
 >
 > #### [$magnet.handle(sourceDOM[, sourceRect[, attractable]])](#handlesourcedom-sourcerect-attractable)
 
+### Before/After Applying Rectangle Position
+
+The group passes the info to target function before/after applying the change to target element.
+
+#### .beforeAttract = function(targetDom rectangleInfos, attractInfos)
+
+Set to a function for confirming the change
+
+| _Value_ | _Description_ |
+| :-: | :- |
+| `false` | Apply the original rectangle without attraction |
+| `rectangle` | [Rectangle object](#rectangle-object) to apply on the target element |
+
+#### .afterAttract = function(targetDom, rectangleInfos, attractInfos)
+
+See what changed after attracting
+
+#### Rectangle Infos
+
+| _Property_ | _Type_ | _Description_ |
+| :-: | :-: | :- |
+| **origin** | _Object_ | Origin [rectangle object](#rectangle-object) |
+| **target** | _Object_ | Target [rectangle object](#rectangle-object) |
+
+#### Attract Infos
+
+| _Property_ | _Type_ | _Description_ |
+| :-: | :-: | :- |
+| **current** | _Object_ | Current [attract info](#attract-info)s of x/y axises |
+| **last** | _Object_ | Last [attract info](#attract-info)s of x/y axises |
+
+```js
+// triggered before changing position of target element
+magnet.beforeAttract = function(dom, { origin, target }, { current, last }) {
+  console.log(this); // manget
+
+  if (MAKE_SOME_CHANGES) {
+    // apply other rectangle info
+    return {
+      top: (target.top - 1),
+      right: (target.right + 1),
+      bottom: (target.bottom + 1),
+      left: (target.left - 1),
+    };
+  } else if (NO_ATTRACTION) {
+    return false;
+  } else if (STILL_NO_ATTRACTION) {
+    return origin; // the same as false
+  }
+
+  // if went here, it would apply default change
+};
+
+// triggered after changing position of target element
+magnet.afterAttract = function(dom, { origin, target }, { current, last }) {
+  console.log(this); // magnet
+};
+```
+
+> _**jQuery**_
+>
+> #### [$magnet.beforeAttract(function(targetDom, rectangleInfos, attractInfos)?)](#beforeattract--functiontargetdom-rectangleinfos-attractinfos)
+>
+> #### [$magnet.afterAttract(function(targetDom, rectangleInfos, attractInfos)?)](#afterattract--functiontargetdom-rectangleinfos-attractinfos)
+>
+> ```js
+> $magnet.beforeAttract(function(targetDom, rectangleInfos, attractInfos) {
+>   // do something
+> }).afterAttract(function(targetDom, rectangleInfos, attractInfos) {
+>   // do something
+> }); // return $magnet
+>
+> $magnet.beforeAttract(); // get the function assigned for beforeAttract
+> ```
+
 ## Usage of Rectangle
 
 ### Check Rectangle

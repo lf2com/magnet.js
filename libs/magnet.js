@@ -2,7 +2,7 @@
 
 import {
   isset, tobool, tonum, tostr, isarray, objForEach,
-  objMap, isrect, getStyle, stdDoms, isbool, iselem
+  objMap, isrect, getStyle, stdDoms, isbool, iselem, isfunc
 } from './stdlib';
 import EventHandler from './event-handler';
 import { stdRect, diffRect } from './rect';
@@ -54,6 +54,7 @@ const MAGNET_PROPS = {
   temp: '_temp',
   targets: '_targets',
   eventHandler: '_eventHandler',
+  manualHandler: '_manualHandler',
   distance: '_distance',
   attractable: '_attractable',
   allowCtrlKey: '_allowCtrlKey',
@@ -84,6 +85,7 @@ function Magnet(...doms) {
     [MAGNET_PROPS.temp]: { value: [], writable: true },
     [MAGNET_PROPS.targets]: { value: [], writable: true },
     [MAGNET_PROPS.eventHandler]: { value: new EventHandler(this) },
+    [MAGNET_PROPS.manualHandler]: { value: {}, writable: true },
     [MAGNET_PROPS.distance]: { value: 0, writable: true },
     [MAGNET_PROPS.attractable]: { value: true, writable: true },
     [MAGNET_PROPS.allowCtrlKey]: { value: true, writable: true },
@@ -359,53 +361,109 @@ Magnet.prototype.handle = function(dom, refRect = stdRect(dom), toAttract = this
   const currentAttract = (attractedX||attractedY ?true :false);
   const lastAttract = (_lastAttractedX||_lastAttractedY ?true :false);
   const eventHandler = this[MAGNET_PROPS.eventHandler];
+  const currData = {
+    x: stdMagentEventTarget(attractedX),
+    y: stdMagentEventTarget(attractedY),
+  };
+  const lastData = {
+    x: stdMagentEventTarget(_lastAttractedX),
+    y: stdMagentEventTarget(_lastAttractedY),
+  };
 
   if (currentAttract) {
-    const dataX = stdMagentEventTarget(attractedX);
-    const dataY = stdMagentEventTarget(attractedY);
     const anyDiff = (diffAttractedX||diffAttractedY);
     if (!lastAttract) {
       // magnet start: start of any attract event
-      eventHandler.trigger(EVENT.magnetChange, { source: dom, x: dataX, y: dataY });
-      eventHandler.trigger(EVENT.magnetStart, { source: dom, x: dataX, y: dataY });
-      EventHandler.trigger(dom, EVENT.attract, { x: dataX, y: dataY });
+      eventHandler.trigger(EVENT.magnetChange, { source: dom, ...currData });
+      eventHandler.trigger(EVENT.magnetStart, { source: dom, ...currData });
+      EventHandler.trigger(dom, EVENT.attract, currData);
     } else if (anyDiff ||
       (!diffAttractedX && attractedX && _lastAttractedX && attractedX.prop !== _lastAttractedX.prop) ||
       (!diffAttractedY && attractedY && _lastAttractedY && attractedY.prop !== _lastAttractedY.prop)
     ) {
       // magnet change: change of any attract event
-      eventHandler.trigger(EVENT.magnetChange, { source: dom, x: dataX, y: dataY });
-      EventHandler.trigger(dom, EVENT.attract, { x: dataX, y: dataY });
+      eventHandler.trigger(EVENT.magnetChange, { source: dom, ...currData });
+      EventHandler.trigger(dom, EVENT.attract, currData);
     } else if (anyDiff) {
-      eventHandler.trigger(EVENT.magnetChange, { source: dom, x: dataX, y: dataY });
+      eventHandler.trigger(EVENT.magnetChange, { source: dom, ...currData });
     }
     if (anyDiff) {
-      EventHandler.trigger(dom, EVENT.unattract, {
-        x: stdMagentEventTarget(_lastAttractedX),
-        y: stdMagentEventTarget(_lastAttractedY),
-      });
+      EventHandler.trigger(dom, EVENT.unattract, lastData);
     }
   } else if (lastAttract) {
     // magnet end: end of all attract event
-    const dataX = stdMagentEventTarget(_lastAttractedX);
-    const dataY = stdMagentEventTarget(_lastAttractedY);
     eventHandler.trigger(EVENT.magnetChange, { source: dom, x: null, y: null });
-    eventHandler.trigger(EVENT.magnetEnd, { source: dom, x: dataX, y: dataY });
-    EventHandler.trigger(dom, EVENT.unattract, { x: dataX, y: dataY });
+    eventHandler.trigger(EVENT.magnetEnd, { source: dom, ...lastData });
+    EventHandler.trigger(dom, EVENT.unattract, lastData);
+  }
+
+  const manualHandler = this[MAGNET_PROPS.manualHandler];
+  const { beforeAttract, afterAttract } = manualHandler;
+  let targetRect = ((x, y) => stdRect({
+    top: y,
+    right: (x+width),
+    bottom: (y+height),
+    left: x,
+    width,
+    height,
+  }))((newPosition.x-parentRect.left), (newPosition.y-parentRect.top));
+
+  if (currentAttract && isfunc(beforeAttract)) {
+    const rect = beforeAttract.bind(this)(dom, {
+      origin: stdRect(refRect),
+      target: stdRect(targetRect),
+    }, {
+      current: currData,
+      last: lastData,
+    });
+    if (isrect(rect)) {
+      targetRect = rect;
+    } else if (isbool(rect) && false === rect) {
+      targetRect = refRect;
+    } else if (isset(rect)) {
+      throw new Error(`Invalid return value: ${tostr(rect)}`);
+    }
   }
 
   // move dom
-  dom.style.top = `${newPosition.y-parentRect.top}px`;
-  dom.style.left = `${newPosition.x-parentRect.left}px`;
-  dom.style.width = `${width}px`;
-  dom.style.height = `${height}px`;
+  dom.style.top = `${targetRect.top}px`;
+  dom.style.left = `${targetRect.left}px`;
+  dom.style.width = `${targetRect.width}px`;
+  dom.style.height = `${targetRect.height}px`;
   this[MAGNET_PROPS.temp][domIndex] = {
     _lastAttractedX: attractedX,
     _lastAttractedY: attractedY,
   };
 
+  if (currentAttract && isfunc(afterAttract)) {
+    afterAttract.bind(this)(dom, {
+      origin: stdRect(refRect),
+      target: stdRect(targetRect),
+    }, {
+      current: currData,
+      last: lastData,
+    });
+  }
+
   return this;
 };
+
+
+// manual handler
+['before', 'after'].forEach((prop) => {
+  const funcName = `${prop}Attract`;
+  Object.defineProperty(Magnet.prototype, funcName, {
+    get: function() {
+      return this[MAGNET_PROPS.manualHandler][funcName];
+    },
+    set: function(func) {
+      if (!isfunc(func)) {
+        throw new Error(`Invalid function: ${typeof func}`);
+      }
+      this[MAGNET_PROPS.manualHandler][funcName] = func;
+    },
+  });
+});
 
 
 // add
