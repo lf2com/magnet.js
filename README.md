@@ -943,3 +943,7 @@ Magnet.measure(rectA, rectB); // MeasureResult object
 > | bottomToBottom | _Number_ | `results.bottomToBottom` |
 > | xCenter | _Number_ | `results.xCenter` |
 > | yCenter | _Number_ | `results.yCenter` |
+
+## License
+
+[MIT](/LICENSE) Copyright @ Wan Wan
