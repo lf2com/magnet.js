@@ -13,7 +13,7 @@
     
     [
       'add', 'remove', 'removeFull', 'clear', 'clearFull',
-      'distance', 'attractable', 'allowCtrlKey', 'stayInParent',
+      'distance', 'attractable', 'allowCtrlKey', 'allowDrag', 'stayInParent',
       'alignOuter', 'alignInner', 'alignCenter', 'alignParentCenter',
       'check', 'handle',
       'on', 'off',

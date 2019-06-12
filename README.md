@@ -358,6 +358,39 @@ magnet.allowCtrlKey(); // get: true
 >
 > #### [$magnet.allowCtrlKey(enabled?)](#allowctrlkeyenabled)
 
+### Allow Drag Elements
+
+Allow to drag element by mouse/touch
+
+> _Default: `true`_
+
+#### .allowDrag(enabled?)
+
+Get/set allow drag
+
+```js
+magnet.allowDrag(true); // set to allow drag, return this
+manget.allowDrag(); // get: true
+```
+
+> _Alias_
+>
+> #### .setAllowDrag(enabled)
+>
+> ```js
+> magnet.setAllowDrag(true); // set to true
+> ```
+>
+> #### .getAllowDrag()
+>
+> ```js
+> magnet.getAllowDrag(); // get true
+> ```
+>
+> _**jQuery**_
+>
+> #### [$magnet.allowDrag(enabled?)](#allowdragenabled)
+
 ### Alignments
 
 Magnet supports the following alignments:

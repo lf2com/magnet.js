@@ -61,6 +61,7 @@ const MAGNET_PROPS = {
   distance: '_distance',
   attractable: '_attractable',
   allowCtrlKey: '_allowCtrlKey',
+  allowDrag: '_allowDrag',
   stayInParent: '_stayInParent',
   alignOuter: '_alignOuter',
   alignInner: '_alignInner',
@@ -72,6 +73,7 @@ export const MAGNET_DEFAULTS = {
   distance: 0,
   attractable: true,
   allowCtrlKey: true,
+  allowDrag: true,
   stayInParent: false,
   alignOuter: true,
   alignInner: true,
@@ -92,6 +94,7 @@ function Magnet(...doms) {
     [MAGNET_PROPS.distance]: { value: 0, writable: true },
     [MAGNET_PROPS.attractable]: { value: true, writable: true },
     [MAGNET_PROPS.allowCtrlKey]: { value: true, writable: true },
+    [MAGNET_PROPS.allowDrag]: { value: true, writable: true },
     [MAGNET_PROPS.stayInParent]: { value: false, writable: true },
     [MAGNET_PROPS.alignOuter]: { value: true, writable: true },
     [MAGNET_PROPS.alignInner]: { value: true, writable: true },
@@ -143,6 +146,18 @@ Magnet.prototype.setAllowCtrlKey = function(enabled) {
 };
 Magnet.prototype.allowCtrlKey = function(enabled) {
   return (isset(enabled) ?this.setAllowCtrlKey(enabled) :this.getAllowCtrlKey());
+};
+
+// allow drag
+Magnet.prototype.getAllowDrag = function() {
+  return this[MAGNET_PROPS.allowDrag];
+};
+Magnet.prototype.setAllowDrag = function(enabled) {
+  this[MAGNET_PROPS.allowDrag] = tobool(enabled);
+  return this;
+};
+Magnet.prototype.allowDrag = function(enabled) {
+  return (isset(enabled) ?this.setAllowDrag(enabled) :this.getAllowDrag());
 };
 
 // stay in parent
@@ -510,6 +525,9 @@ Magnet.prototype.add = function(...doms) {
       return;
     }
     EventHandler.on(dom, bindEventNames(this, EVENT.mouseDown), (evt) => {
+      if (!this.getAllowDrag()) {
+        return;
+      }
       evt.preventDefault();
 
       let _toAttract = !evt.ctrlKey;
