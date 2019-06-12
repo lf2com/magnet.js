@@ -17,6 +17,9 @@ const EVENT = {
   unattract: 'unattract',
   attracted: 'attracted',
   unattracted: 'unattracted',
+  attractStart: 'attractstart',
+  attractMove: 'attractmove',
+  attractEnd: 'attractend',
   magnetStart: ['magnetenter', 'magnetstart', 'enter', 'start'],
   magnetChange: ['magnetchange', 'change'],
   magnetEnd: ['magnetend', 'magnetleave', 'end', 'leave'],
@@ -398,7 +401,7 @@ Magnet.prototype.handle = function(dom, refRect = stdRect(dom), toAttract = this
   }
 
   const manualHandler = this[MAGNET_PROPS.manualHandler];
-  const { beforeAttract, afterAttract } = manualHandler;
+  const { beforeAttract, afterAttract, doAttract } = manualHandler;
   let targetRect = ((x, y) => stdRect({
     top: y,
     right: (x+width),
@@ -408,7 +411,8 @@ Magnet.prototype.handle = function(dom, refRect = stdRect(dom), toAttract = this
     height,
   }))((newPosition.x-parentRect.left), (newPosition.y-parentRect.top));
 
-  if (currentAttract && isfunc(beforeAttract)) {
+  // before attract
+  if (isfunc(beforeAttract)) {
     const rect = beforeAttract.bind(this)(dom, {
       origin: stdRect(refRect),
       target: stdRect(targetRect),
@@ -425,17 +429,39 @@ Magnet.prototype.handle = function(dom, refRect = stdRect(dom), toAttract = this
     }
   }
 
-  // move dom
-  dom.style.top = `${targetRect.top}px`;
-  dom.style.left = `${targetRect.left}px`;
-  dom.style.width = `${targetRect.width}px`;
-  dom.style.height = `${targetRect.height}px`;
-  this[MAGNET_PROPS.temp][domIndex] = {
-    _lastAttractedX: attractedX,
-    _lastAttractedY: attractedY,
-  };
+  // attract move event
+  EventHandler.trigger(dom, EVENT.attractMove, {
+    rects: {
+      origin: stdRect(refRect),
+      target: stdRect(targetRect),
+    },
+    attracts: {
+      current: currData,
+      last: lastData,
+    },
+  }, () => {
+    targetRect = refRect;
+  });
 
-  if (currentAttract && isfunc(afterAttract)) {
+  if (isfunc(doAttract)) {
+    // do attract
+    doAttract.bind(this)(dom, {
+      origin: stdRect(refRect),
+      target: stdRect(targetRect),
+    }, {
+      current: currData,
+      last: lastData,
+    });
+  } else {
+    // move dom
+    dom.style.top = `${targetRect.top}px`;
+    dom.style.left = `${targetRect.left}px`;
+    dom.style.width = `${targetRect.width}px`;
+    dom.style.height = `${targetRect.height}px`;
+  }
+
+  // after attract
+  if (isfunc(afterAttract)) {
     afterAttract.bind(this)(dom, {
       origin: stdRect(refRect),
       target: stdRect(targetRect),
@@ -444,22 +470,24 @@ Magnet.prototype.handle = function(dom, refRect = stdRect(dom), toAttract = this
       last: lastData,
     });
   }
+  
+  this[MAGNET_PROPS.temp][domIndex] = {
+    _lastAttractedX: attractedX,
+    _lastAttractedY: attractedY,
+  };
 
   return this;
 };
 
 
 // manual handler
-['before', 'after'].forEach((prop) => {
+['before', 'after', 'do'].forEach((prop) => {
   const funcName = `${prop}Attract`;
   Object.defineProperty(Magnet.prototype, funcName, {
     get: function() {
       return this[MAGNET_PROPS.manualHandler][funcName];
     },
     set: function(func) {
-      if (!isfunc(func)) {
-        throw new Error(`Invalid function: ${typeof func}`);
-      }
       this[MAGNET_PROPS.manualHandler][funcName] = func;
     },
   });
@@ -487,14 +515,13 @@ Magnet.prototype.add = function(...doms) {
       let _toAttract = !evt.ctrlKey;
       let _lastEvent = evt;
 
-      const { left: oriLeft, top: oriTop } = stdRect(dom);
+      const { left: oriLeft, top: oriTop, width, height } = stdRect(dom);
       const { x: oriX, y: oriY } = getEventXY(evt);
       const handleDom = (evt) => {
         const toAttract = (this.getAttractable()
           ?(this.getAllowCtrlKey() ?_toAttract :true)
           :false
         );
-        const { width, height } = stdRect(dom);
         const { x, y } = getEventXY(evt);
         const diffX = (x-oriX);
         const diffY = (y-oriY);
@@ -509,6 +536,7 @@ Magnet.prototype.add = function(...doms) {
         this.handle(dom, newRect, toAttract);
       };
 
+      EventHandler.trigger(dom, EVENT.attractStart, stdRect(dom));
       EventHandler.off(document.body, bindEventNames(this, EVENT.mouseMove, EVENT.mouseUp, EVENT.keyDown, EVENT.keyUp));
       EventHandler.on(document.body, bindEventNames(this, EVENT.keyDown, EVENT.keyUp), (evt) => {
         const toAttract = !evt.ctrlKey;
@@ -525,6 +553,7 @@ Magnet.prototype.add = function(...doms) {
         (_lastAttractedX&&pushDomToEvent(eventsUnattracted, _lastAttractedX.target.element));
         (_lastAttractedY&&pushDomToEvent(eventsUnattracted, _lastAttractedY.target.element));
         eventsUnattracted.forEach((element) => EventHandler.trigger(element, EVENT.unattracted, dom));
+        EventHandler.trigger(dom, EVENT.attractEnd, stdRect(dom));
         if (_lastAttractedX || _lastAttractedY) {
           const eventHandler = this[MAGNET_PROPS.eventHandler];
           EventHandler.trigger(dom, EVENT.unattract);

@@ -100,19 +100,30 @@ EventHandler.prototype.off = function(names) {
   return this;
 };
 
-EventHandler.prototype.trigger = function(names, detail) {
+EventHandler.prototype.trigger = function(names, detail, onPrevent) {
+  if (isset(onPrevent) && !isfunc(onPrevent)) {
+    throw new Error(`Invalid onPrevent function: ${tostr(onPrevent)}`);
+  }
   stdEventNames(names).forEach(([major, _minor]) => {
+    let _preventDefault = false;
     if (isset(_minor)) {
-      (this.events[major]||[]).filter(({ minor }) => (minor===_minor)).forEach(({ func }) => {
-        func({ detail });
-      });
-    } else if (window.CustomEvent) {
-      this.dom.dispatchEvent(new CustomEvent(major, { detail }));
+      let _stopImmediatePropagation = false;
+      const preventDefault = () => (_preventDefault=true);
+      const stopImmediatePropagation = () => (_stopImmediatePropagation=true);
+      const filteredEvents = (this.events[major]||[]).filter(({ minor }) => (minor===_minor));
+      for (let i=0; !_stopImmediatePropagation&&i<filteredEvents.length; i++) {
+        if (false === filteredEvents[i].func({ detail, preventDefault, stopImmediatePropagation })) {
+          _preventDefault = true;
+        }
+      }
     } else {
       const evt = document.createEvent('CustomEvent');
       evt.initCustomEvent(major, true, true, detail);
-      this.dom.dispatchEvent(evt);
+      if (false === this.dom.dispatchEvent(evt)) {
+        _preventDefault = true;
+      }
     }
+    (_preventDefault&&onPrevent&&onPrevent(major));
   });
   return this;
 };

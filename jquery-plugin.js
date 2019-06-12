@@ -24,7 +24,7 @@
       };
     });
 
-    ['beforeAttract', 'afterAttract'].forEach((prop) => {
+    ['beforeAttract', 'afterAttract', 'doAttract'].forEach((prop) => {
       const value = options[prop];
       if (isset(value)) {
         magnet[prop] = value;
