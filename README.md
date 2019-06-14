@@ -391,6 +391,37 @@ manget.allowDrag(); // get: true
 >
 > #### [$magnet.allowDrag(enabled?)](#allowdragenabled)
 
+### Use Relative Unit
+
+Use relative unit `%` or absolute unit `px`
+
+> _Default: `false`_
+
+#### .useRelativeUnit(enabled?)
+
+Get/set use relative unit
+
+```js
+magnet.useRelativeUnit(true); // set to use relative unit, return this
+magnet.useRelativeUnit(); // get: true
+```
+
+> _Alias_
+>
+> #### .setUseRelativeUnit(enabled)
+>
+> ```js
+> magnet.setUseRelativeUnit(true); // set to true
+> ```
+>
+> ```js
+> magnet.getUseRelativeUnit(); // get true
+> ```
+>
+> _**jQuery**_
+>
+> #### [$magnet.useRelativeUnit(enabled?)](#userelativeunitenabled)
+
 ### Alignments
 
 Magnet supports the following alignments:
@@ -775,7 +806,7 @@ Change the position of target member for the input position with checking the at
 > _Default `attractable` is the value of [attractable](#attractable)_
 
 ```js
-let { top, right, bottom, left, width, height } = elem.getBoundingClientRect();
+let { top, right, bottom, left } = elem.getBoundingClientRect();
 let offset = {
   x: 15,
   y: 10
@@ -785,8 +816,6 @@ let rect = {
   right: (right-offset.x),
   bottom: (bottom-offset.y),
   left: (left-offset.x),
-  width: width,
-  height: height
 };
 magnet.add(elem);
 magnet.handle(elem, rect, true); // move the member to the new rectangle position with the attracting relationship, return this
@@ -795,6 +824,22 @@ magnet.handle(elem, rect, true); // move the member to the new rectangle positio
 > _**jQuery**_
 >
 > #### [$magnet.handle(sourceDOM[, sourceRect[, attractable]])](#handlesourcedom-sourcerect-attractable)
+
+### Set Rectangle Position of Member
+
+Directly change the position of member that is faster than `.handle(...)`
+
+#### .setMemberRectangle(sourceDOM[, sourceRect[, useRelativeUnit]])
+
+> _Default `sourceRect` is the [rectangle](#rectangle-object) of `sourceDOM`_
+>
+> _Default `useRelativeUnit` is the value of [`.getUseRelativeUnit()`](#use-relative-unit)_
+
+```js
+let { top, right, bottom, left } = elem.getBoundingClientRect();
+
+magnet.setMemberRectangle(elem, rect);
+```
 
 ### Before/After/Do Applying Rectangle Position
 
