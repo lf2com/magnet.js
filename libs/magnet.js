@@ -22,7 +22,7 @@ const EVENT = {
   magnetEnd: ['magnetend', 'magnetleave', 'end', 'leave'],
   mouseDown: ['mousedown', 'touchstart'],
   mouseMove: ['mousemove', 'touchmove'],
-  mouseUp: ['mouseup', 'mouseleave', 'touchend'],
+  mouseUp: ['mouseup', 'touchend'],
   keyDown: 'keydown',
   keyUp: 'keyup',
 };
