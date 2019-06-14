@@ -1,6 +1,7 @@
 'use strict';
 
 export const isset = (o) => ('undefined'!==typeof o);
+export const useor = (a, b, f = isset) => (f(a) ?a :b);
 export const isbool = (b) => ('boolean'===typeof b);
 export const tobool = (b) => (b ?true :false);
 export const isnum = (n) => (!isNaN(n));
@@ -18,11 +19,6 @@ export const objReduce = (o, f = (()=>{}), r) => objKeys(o).reduce((r, p) => f(r
 export const objMap = (o, f = (()=>{}), t = this) => objReduce(o, (r, v, p) => ({ ...r, [p]: f.call(t, v, p, o) }), {});
 export const objValues = (o) => objReduce(o, (a, v) => a.concat([v]), []);
 export const iselem = (e) => (isset(e)&&(e instanceof Element||e instanceof Window||e instanceof Document));
-export const isrect = (r, e = 0.0000000001) => (isset(r)&&(({ x, y, top: t, right: r, bottom: b, left: l, width: w, height: h }) => (
-  isnum(t)&&isnum(r)&&isnum(b)&&isnum(l)&&
-  (t<=b)&&(l<=r)&&(isset(x)&&x===l||true)&&(isset(y)&&y===t||true)&&
-  (isset(w)&&Math.abs((w-(r-l)))<e||true)&&(isset(h)&&Math.abs((h-(b-t)))<e||true)
-))(r));
 export const getStyle = (d) => (d.currentStyle||window.getComputedStyle(d));
 export const stdDoms = (...doms) => doms.reduce((arr, dom) => {
   if (iselem(dom)) {

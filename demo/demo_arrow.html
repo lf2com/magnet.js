@@ -93,6 +93,7 @@
     <script>
       let NEAR_DISTANCE = 15;
       const magnet = new Magnet();
+      magnet.setAllowDrag(false);
 
       window.addEventListener('load', () => {
         let domContainer = document.getElementById('container');
@@ -261,6 +262,11 @@
           };
           document.getElementById('middle').checked = magnet.getAlignCenter();
 
+          document.getElementById('allowDrag').onchange = function() {
+            magnet.setAllowDrag(this.checked);
+          };
+          document.getElementById('allowDrag').checked = magnet.getAllowDrag();
+
           return domTool;
         })(document.getElementById('tool'));
 
@@ -342,6 +348,7 @@
         <div class="item"><input id="outside" type="checkbox" /><label for="outside">Align Outside</label></div>
         <div class="item"><input id="inside" type="checkbox" /><label for="inside">Align Inside</label></div>
         <div class="item"><input id="middle" type="checkbox" /><label for="middle">Align Middle</label></div>
+        <div class="item"><input id="allowDrag" type="checkbox" /><label for="allowDrag">Allow Drag</label></div>
       </div>
       <div id="container"></div>
     </div>

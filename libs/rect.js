@@ -1,18 +1,46 @@
 'use strict';
 
-import { isrect, tostr, iselem, objKeys, objMap, objReduce, objValues, getStyle } from './stdlib';
+import { tostr, isnum, iselem, objKeys, objMap, objReduce, objValues, getStyle, isset } from './stdlib';
 import ALIGNMENT_PROPS from './alignment-props';
 
+export const isRect = (rect, e = 0.0000000001) => {
+  if (!isset(rect)) return false;
+  const { x, y, top: t = (isset(t) ?t :y), right: r, bottom: b, left: l = (isset(l) ?l :x), width: w, height: h } = rect;
+  const isain = (n) => !(isset(n)&&!isnum(n)); // is set and is num
+  if (!isain(t)||!isain(r)||!isain(b)||!isain(l)||!isain(w)||!isain(h)||!isain(x)||!isain(y)) {
+    return false;
+  }
+  if (isset(w)) {
+    if (w < 0) return false;
+    if (isset(l)) {
+      if (isset(r)&&e<Math.abs(w-(r-l))) return false;
+    } else if (!isset(r)) return false;
+  } else if (!isset(l)||!isset(r)||r<l) return false;
+  if (isset(h)) {
+    if (h < 0) return false;
+    if (isset(t)) {
+      if (isset(b)&&e<Math.abs(h-(b-t))) return false;
+    } else if (!isset(b)) return false;
+  } else if (!isset(t)||!isset(b)||b<t) return false;
+  return true;
+};
+
 export const stdRect = (r) => {
-  if (isrect(r)) {
+  if (isRect(r)) {
     const {
-      top, right, bottom, left,
-      width = (right-left),
-      height = (bottom-top),
-      x = left,
-      y = top
+      x, y, right, bottom, width, height,
+      top = (isset(top) ?top :(isset(y) ?y :(bottom-height))),
+      left = (isset(left) ?left :(isset(x) ?x :(right-width))),
     } = r;
-    return { top, right, bottom, left, width, height, x, y };
+    return {
+      top, left,
+      x: (isset(x) ?x :left),
+      y: (isset(y) ?y :top),
+      right: (isset(right) ?right :(left+width)),
+      bottom: (isset(bottom) ?bottom :(top+height)),
+      width: (isset(width) ?width :(right-left)),
+      height: (isset(height) ?height :(bottom-top)),
+    };
   } else if (iselem(r)) {
     const { rect, border } = (r instanceof Element ?{
       rect: r.getBoundingClientRect(),

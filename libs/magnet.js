@@ -1,11 +1,8 @@
 'use strict';
 
-import {
-  isset, tobool, tonum, tostr, isarray, objForEach,
-  objMap, isrect, getStyle, stdDoms, isbool, iselem, isfunc
-} from './stdlib';
+import { isset, tobool, tonum, tostr, isarray, objForEach, objMap, getStyle, stdDoms, isbool, iselem, isfunc } from './stdlib';
 import EventHandler from './event-handler';
-import { stdRect, diffRect } from './rect';
+import { isRect, stdRect, diffRect } from './rect';
 import ALIGNMENT_PROPS from './alignment-props';
 
 const ALIGNMENT_OUTER = [ALIGNMENT_PROPS.tb, ALIGNMENT_PROPS.rl, ALIGNMENT_PROPS.bt, ALIGNMENT_PROPS.lr];
@@ -25,12 +22,13 @@ const EVENT = {
   magnetEnd: ['magnetend', 'magnetleave', 'end', 'leave'],
   mouseDown: ['mousedown', 'touchstart'],
   mouseMove: ['mousemove', 'touchmove'],
-  mouseUp: ['mouseup', 'mouseleave', 'touchend'],
+  mouseUp: ['mouseup', 'touchend'],
   keyDown: 'keydown',
   keyUp: 'keyup',
 };
 
-
+const toPx = (p) => `${p}px`;
+const toPreg = (p) => `${100*p}%`;
 const getEventXY = ({ clientX, clientY, touches: [{ clientX: x = clientX, clientY: y = clientY } = {}] = []}) => ({ x, y });
 const bindEventNames = (self, ...names) => {
   const { [MAGNET_PROPS.id]: id } = self;
@@ -61,6 +59,8 @@ const MAGNET_PROPS = {
   distance: '_distance',
   attractable: '_attractable',
   allowCtrlKey: '_allowCtrlKey',
+  allowDrag: '_allowDrag',
+  useRelativeUnit: '_useRelativeUnit',
   stayInParent: '_stayInParent',
   alignOuter: '_alignOuter',
   alignInner: '_alignInner',
@@ -72,6 +72,8 @@ export const MAGNET_DEFAULTS = {
   distance: 0,
   attractable: true,
   allowCtrlKey: true,
+  allowDrag: true,
+  useRelativeUnit: false,
   stayInParent: false,
   alignOuter: true,
   alignInner: true,
@@ -89,14 +91,16 @@ function Magnet(...doms) {
     [MAGNET_PROPS.targets]: { value: [], writable: true },
     [MAGNET_PROPS.eventHandler]: { value: new EventHandler(this) },
     [MAGNET_PROPS.manualHandler]: { value: {}, writable: true },
-    [MAGNET_PROPS.distance]: { value: 0, writable: true },
-    [MAGNET_PROPS.attractable]: { value: true, writable: true },
-    [MAGNET_PROPS.allowCtrlKey]: { value: true, writable: true },
-    [MAGNET_PROPS.stayInParent]: { value: false, writable: true },
-    [MAGNET_PROPS.alignOuter]: { value: true, writable: true },
-    [MAGNET_PROPS.alignInner]: { value: true, writable: true },
-    [MAGNET_PROPS.alignCenter]: { value: true, writable: true },
-    [MAGNET_PROPS.alignParentCenter]: { value: false, writable: true },
+    [MAGNET_PROPS.distance]: { value: MAGNET_DEFAULTS.distance, writable: true },
+    [MAGNET_PROPS.attractable]: { value: MAGNET_DEFAULTS.attractable, writable: true },
+    [MAGNET_PROPS.allowCtrlKey]: { value: MAGNET_DEFAULTS.allowCtrlKey, writable: true },
+    [MAGNET_PROPS.allowDrag]: { value: MAGNET_DEFAULTS.allowDrag, writable: true },
+    [MAGNET_PROPS.useRelativeUnit]: { value: MAGNET_DEFAULTS.useRelativeUnit, writable: true },
+    [MAGNET_PROPS.stayInParent]: { value: MAGNET_DEFAULTS.stayInParent, writable: true },
+    [MAGNET_PROPS.alignOuter]: { value: MAGNET_DEFAULTS.alignOuter, writable: true },
+    [MAGNET_PROPS.alignInner]: { value: MAGNET_DEFAULTS.alignInner, writable: true },
+    [MAGNET_PROPS.alignCenter]: { value: MAGNET_DEFAULTS.alignCenter, writable: true },
+    [MAGNET_PROPS.alignParentCenter]: { value: MAGNET_DEFAULTS.alignParentCenter, writable: true },
   });
   objForEach(MAGNET_DEFAULTS, (value, prop) => (isset(this[prop])&&this[prop](value)));
   if (doms.length) {
@@ -144,6 +148,35 @@ Magnet.prototype.setAllowCtrlKey = function(enabled) {
 Magnet.prototype.allowCtrlKey = function(enabled) {
   return (isset(enabled) ?this.setAllowCtrlKey(enabled) :this.getAllowCtrlKey());
 };
+
+// allow drag
+Magnet.prototype.getAllowDrag = function() {
+  return this[MAGNET_PROPS.allowDrag];
+};
+Magnet.prototype.setAllowDrag = function(enabled) {
+  this[MAGNET_PROPS.allowDrag] = tobool(enabled);
+  return this;
+};
+Magnet.prototype.allowDrag = function(enabled) {
+  return (isset(enabled) ?this.setAllowDrag(enabled) :this.getAllowDrag());
+};
+
+// use relative unit
+Magnet.prototype.getUseRelativeUnit = function() {
+  return this[MAGNET_PROPS.useRelativeUnit];
+};
+Magnet.prototype.setUseRelativeUnit = function(enabled) {
+  enabled = tobool(enabled);
+  if (this[MAGNET_PROPS.useRelativeUnit] !== enabled) {
+    stdDoms(this[MAGNET_PROPS.targets]).forEach((dom) => this.setMemberRectangle(dom));
+    this[MAGNET_PROPS.useRelativeUnit] = enabled;
+  }
+  return this;
+};
+Magnet.prototype.useRelativeUnit = function(enabled) {
+  return (isset(enabled) ?this.setUseRelativeUnit(enabled) :this.getUseRelativeUnit());
+};
+
 
 // stay in parent
 Magnet.prototype.getStayInParent = function() {
@@ -420,7 +453,7 @@ Magnet.prototype.handle = function(dom, refRect = stdRect(dom), toAttract = this
       current: currData,
       last: lastData,
     });
-    if (isrect(rect)) {
+    if (isRect(rect)) {
       targetRect = rect;
     } else if (isbool(rect) && false === rect) {
       targetRect = refRect;
@@ -454,10 +487,7 @@ Magnet.prototype.handle = function(dom, refRect = stdRect(dom), toAttract = this
     });
   } else {
     // move dom
-    dom.style.top = `${targetRect.top}px`;
-    dom.style.left = `${targetRect.left}px`;
-    dom.style.width = `${targetRect.width}px`;
-    dom.style.height = `${targetRect.height}px`;
+    this.setMemberRectangle(dom, targetRect);
   }
 
   // after attract
@@ -476,6 +506,46 @@ Magnet.prototype.handle = function(dom, refRect = stdRect(dom), toAttract = this
     _lastAttractedY: attractedY,
   };
 
+  return this;
+};
+
+
+// set member rectangle
+Magnet.prototype.setMemberRectangle = function(dom, rect = stdRect(dom), useRelativeUnit = this.getUseRelativeUnit()) {
+  if (!iselem(dom)) {
+    throw new Error(`Invalid DOM: ${tostr(dom)}`);
+  }
+  if (!this.hasMember(dom)) {
+    throw new Error(`Invalid member: ${tostr(dom)}`);
+  }
+  if (isbool(rect)) {
+    useRelativeUnit = rect;
+    rect = stdRect(dom);
+  }
+  //rect = stdRect(rect);
+  rect = stdRect({
+    right: rect.right,
+    bottom: rect.bottom,
+    width: rect.width,
+    height: rect.height,
+  });
+  console.log(rect);
+  const { top, left, width, height } = rect;
+  if (useRelativeUnit) {
+    const { width: parentWidth, height: parentHeight } = stdRect(getParent(dom));
+    dom.style.top = toPreg(top/parentHeight);
+    dom.style.left = toPreg(left/parentWidth);
+    dom.style.width = toPreg(width/parentWidth);
+    dom.style.height = toPreg(height/parentHeight);
+  } else {
+    dom.style.top = toPx(top);
+    dom.style.left = toPx(left);
+    dom.style.width = toPx(width);
+    dom.style.height = toPx(height);
+  }
+  dom.style.position = 'absolute';
+  dom.style.right = 'auto';
+  dom.style.bottom = 'auto';
   return this;
 };
 
@@ -510,6 +580,9 @@ Magnet.prototype.add = function(...doms) {
       return;
     }
     EventHandler.on(dom, bindEventNames(this, EVENT.mouseDown), (evt) => {
+      if (!this.getAllowDrag()) {
+        return;
+      }
       evt.preventDefault();
 
       let _toAttract = !evt.ctrlKey;
@@ -567,11 +640,9 @@ Magnet.prototype.add = function(...doms) {
         _lastEvent = evt;
       });
     });
-    dom.style.position = 'absolute';
-    dom.style.top = dom.offsetTop;
-    dom.style.left = dom.offsetLeft;
     this[MAGNET_PROPS.targets].push(dom);
     this[MAGNET_PROPS.temp].push({});
+    this.setMemberRectangle(dom);
   });
   return this;
 };
@@ -605,6 +676,8 @@ Magnet.prototype.removeFull = function(...doms) {
   removeMembers(this, ...doms).forEach((dom) => {
     dom.style.position = '';
     dom.style.top = '';
+    dom.style.right = '';
+    dom.style.bottom = '';
     dom.style.left = '';
     dom.style.width = '';
     dom.style.height = '';
@@ -631,6 +704,8 @@ Magnet.prototype.clearFull = function() {
   clearMembers(this).forEach((dom) => {
     dom.style.position = '';
     dom.style.top = '';
+    dom.style.right = '';
+    dom.style.bottom = '';
     dom.style.left = '';
     dom.style.width = '';
     dom.style.height = '';
@@ -640,7 +715,7 @@ Magnet.prototype.clearFull = function() {
 };
 
 
-Magnet.isRect = (rect) => isrect(rect);
+Magnet.isRect = (rect) => isRect(rect);
 Magnet.stdRect = (rect) => stdRect(rect);
 Magnet.measure = 
 Magnet.diffRect = (source, target, ...args) => diffRect(source, target, ...args);

@@ -13,9 +13,9 @@
     
     [
       'add', 'remove', 'removeFull', 'clear', 'clearFull',
-      'distance', 'attractable', 'allowCtrlKey', 'stayInParent',
-      'alignOuter', 'alignInner', 'alignCenter', 'alignParentCenter',
-      'check', 'handle',
+      'distance', 'attractable', 'allowCtrlKey', 'allowDrag', 'useRelativeUnit',
+      'stayInParent', 'alignOuter', 'alignInner', 'alignCenter', 'alignParentCenter',
+      'check', 'handle', 'setMemberRectangle',
       'on', 'off',
     ].forEach((prop) => {
       this[prop] = (...args) => {
