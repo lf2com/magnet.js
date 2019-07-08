@@ -41,15 +41,17 @@ npm install .
 > **CAUTION: Magnet.js is not tested on NodeJS environment. It uses `document` and `eventListener` related functions.**
 
 ```sh
+npm install @lf2com/magnet.js
+// Or
 npm install https://github.com/lf2com/magnet.js
 ```
 
 > #### Import
 >
 > ```js
-> import Magnet from './magnet';
+> import Magnet from '@lf2com/magnet.js';
 > // Or
-> const Magnet = require('./magnet');
+> const Magnet = require('@lf2com/magnet.js');
 > ```
 
 ### Build
