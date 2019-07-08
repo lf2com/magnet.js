@@ -42,7 +42,7 @@ npm install .
 
 ```sh
 npm install @lf2com/magnet.js
-// Or
+# Or
 npm install https://github.com/lf2com/magnet.js
 ```
 
