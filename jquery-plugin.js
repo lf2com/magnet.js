@@ -2,6 +2,7 @@
 
   const { isset, objForEach } = require('./libs/stdlib');
   const { default: Magnet, MAGNET_DEFAULTS } = require('./libs/magnet');
+  const { isRect, stdRect, diffRect } = require('./libs/rect');
 
   $.magnet = function(options = {}) {
     const magnet = new Magnet();
@@ -20,7 +21,11 @@
     ].forEach((prop) => {
       this[prop] = (...args) => {
         const result = magnet[prop](...args);
-        return (args.length ?this :result);
+        if (result || !args.length) {
+          return result;
+        } else {
+          return this;
+        }
       };
     });
 
@@ -41,6 +46,10 @@
 
     return this;
   };
+  $.magnet.isRect = (rect) => isRect(rect);
+  $.magnet.stdRect = (rect) => stdRect(rect);
+  $.magnet.measure = 
+  $.magnet.diffRect = (source, target, ...args) => diffRect(source, target, ...args);
 
   $.fn.magnet = function(...args) {
     const $magnet = $.magnet(...args);
