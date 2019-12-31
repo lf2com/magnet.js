@@ -5,7 +5,7 @@ import ALIGNMENT_PROPS from './alignment-props';
 
 export const isRect = (rect, e = 0.0000000001) => {
   if (!isset(rect)) return false;
-  const { x, y, top: t = (isset(t) ?t :y), right: r, bottom: b, left: l = (isset(l) ?l :x), width: w, height: h } = rect;
+  const { x, y, top: t = y, right: r, bottom: b, left: l = x, width: w, height: h } = rect;
   const isain = (n) => !(isset(n)&&!isnum(n)); // is set and is num
   if (!isain(t)||!isain(r)||!isain(b)||!isain(l)||!isain(w)||!isain(h)||!isain(x)||!isain(y)) {
     return false;
@@ -29,8 +29,8 @@ export const stdRect = (r) => {
   if (isRect(r)) {
     const {
       x, y, right, bottom, width, height,
-      top = (isset(top) ?top :(isset(y) ?y :(bottom-height))),
-      left = (isset(left) ?left :(isset(x) ?x :(right-width))),
+      top = (isset(y) ?y :(bottom-height)),
+      left = (isset(x) ?x :(right-width)),
     } = r;
     return {
       top, left,
