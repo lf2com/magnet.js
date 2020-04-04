@@ -529,7 +529,6 @@ Magnet.prototype.setMemberRectangle = function(dom, rect = stdRect(dom), useRela
     width: rect.width,
     height: rect.height,
   });
-  console.log(rect);
   const { top, left, width, height } = rect;
   if (useRelativeUnit) {
     const { width: parentWidth, height: parentHeight } = stdRect(getParent(dom));
