@@ -2,7 +2,7 @@
   "name": "@lf2com/magnet.js",
   "version": "1.0.8",
   "description": "Magnet.js is a JavaScript library that groups HTML elements and makes them attractable with each other",
-  "main": "index.js",
+  "main": "magnet.min.js",
   "scripts": {
     "build-debug": "browserify index.js -t [ babelify --presets [ es2015 stage-0 ] ] > magnet.min.js",
     "build": "browserify index.js -t [ babelify --presets [ es2015 stage-0 ] ] | uglifyjs -cm > magnet.min.js",
