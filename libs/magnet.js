@@ -120,7 +120,7 @@ Magnet.prototype.setScale = function (scale) {
 };
 
 Magnet.prototype.scale = function(scale) {
-  return (isset(scale) ? this.setScale(scale) : this.setScale());
+  return (isset(scale) ? this.setScale(scale) : this.getScale());
 };
 
 
