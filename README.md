@@ -257,6 +257,41 @@ magnet.clearFull();
 >
 > #### [$magnet.clearFull()](#clearfull)
 
+### Scale
+
+Synchronize mouse coordinates with the dragged block when the parent is scaled
+
+> _Default: `1`
+
+#### .scale(value?)
+
+Get/set scale
+
+```js
+magnet.scale(1.2); // set: value, return this
+magnet.scale(); // get: 1.2
+```
+
+> _Alias_
+>
+> #### .setScale(value)
+>
+> ```js
+> magnet.setScale(1.2); // set to 1.2
+> ```
+>
+> #### .getScale()
+>
+> ```js
+> magnet.getScale(); // get 1.2
+> ```
+>
+> _**jQuery**_
+>
+> #### [$magnet.scale(value?)](#scale)
+
+
+_
 ### Distance of Attraction
 
 Distance for elements to attract others in the same group

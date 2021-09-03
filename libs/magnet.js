@@ -70,6 +70,7 @@ const MAGNET_PROPS = {
 
 export const MAGNET_DEFAULTS = {
   distance: 0,
+  scale: 1,
   attractable: true,
   allowCtrlKey: true,
   allowDrag: true,
@@ -92,6 +93,7 @@ function Magnet(...doms) {
     [MAGNET_PROPS.eventHandler]: { value: new EventHandler(this) },
     [MAGNET_PROPS.manualHandler]: { value: {}, writable: true },
     [MAGNET_PROPS.distance]: { value: MAGNET_DEFAULTS.distance, writable: true },
+    [MAGNET_PROPS.scale]: { value: MAGNET_DEFAULTS.scale, writable: true },
     [MAGNET_PROPS.attractable]: { value: MAGNET_DEFAULTS.attractable, writable: true },
     [MAGNET_PROPS.allowCtrlKey]: { value: MAGNET_DEFAULTS.allowCtrlKey, writable: true },
     [MAGNET_PROPS.allowDrag]: { value: MAGNET_DEFAULTS.allowDrag, writable: true },
@@ -107,6 +109,20 @@ function Magnet(...doms) {
     this.add(doms);
   }
 }
+
+// scale
+Magnet.prototype.getScale = function () {
+  return this[MAGNET_PROPS.scale];
+};
+
+Magnet.prototype.setScale = function (scale) {
+  this[MAGNET_PROPS.scale] = scale;
+};
+
+Magnet.prototype.scale = function(scale) {
+  return (isset(scale) ? this.setScale(scale) : this.setScale());
+};
+
 
 // distance
 Magnet.prototype.getDistance = function() {
@@ -532,15 +548,15 @@ Magnet.prototype.setMemberRectangle = function(dom, rect = stdRect(dom), useRela
   const { top, left, width, height } = rect;
   if (useRelativeUnit) {
     const { width: parentWidth, height: parentHeight } = stdRect(getParent(dom));
-    dom.style.top = toPreg(top/parentHeight);
-    dom.style.left = toPreg(left/parentWidth);
-    dom.style.width = toPreg(width/parentWidth);
-    dom.style.height = toPreg(height/parentHeight);
+    dom.style.top = toPreg(top / parentHeight / this.getScale());
+    dom.style.left = toPreg(left / parentWidth / this.getScale());
+    dom.style.width = toPreg(width / parentWidth / this.getScale());
+    dom.style.height = toPreg(height / parentHeight / this.getScale());
   } else {
-    dom.style.top = toPx(top);
-    dom.style.left = toPx(left);
-    dom.style.width = toPx(width);
-    dom.style.height = toPx(height);
+    dom.style.top = toPx(top / this.getScale());
+    dom.style.left = toPx(left / this.getScale());
+    dom.style.width = toPx(width / this.getScale());
+    dom.style.height = toPx(height / this.getScale());
   }
   dom.style.position = 'absolute';
   dom.style.right = 'auto';
