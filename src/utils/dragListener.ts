@@ -25,6 +25,13 @@ const EVENT_DRAG_END = ['mouseup', 'touchend'];
 export type DragEvent = MouseEvent | TouchEvent;
 
 /**
+ * Returns false for unattractable magnet.
+ */
+function judgeOnUnattractable() {
+  return false;
+}
+
+/**
  * Returns true if the distance passes the judgement and the rectangle
  * is in its parent rectangle.
  */
@@ -94,21 +101,11 @@ function dragStartListener(
 
   const sourcePack = new Pack(this, this.magnetRect);
   const targetPacks = this.targetMagnetPacks;
-  const {
-    attractDistance,
-    alignTos,
-    alignToParents,
-    crossPrevents,
-    lastOffset,
-    unattractable,
-  } = this;
-  const alignments = Magnet.getAlignmentsFromAlignTo(alignTos);
-  const parentAlignments = Magnet.getAlignmentsFromAlignTo(alignToParents);
-  const crossPreventParent = crossPrevents.includes(CrossPrevent.parent);
-  const alignToParent = parentAlignments.length > 0;
-  const needParent = alignToParent || crossPreventParent;
-  const onJudgeDistance = this.judgeMagnetDistance.bind(this);
-  const onJudgeAttraction = this.judgeMagnetAttraction.bind(this);
+  const { lastOffset } = this;
+  const needParent = (
+    Magnet.getAlignmentsFromAlignTo(this.alignToParents).length > 0
+    || this.crossPrevents.includes(CrossPrevent.parent)
+  );
   const dragStartPoint = getEventXY(event);
   const startEventDetail: StartEventDetail = {
     source: sourcePack,
@@ -140,6 +137,25 @@ function dragStartListener(
   const dragMoveListener = (evt: DragEvent): void => {
     this.handleDragMove(evt);
 
+    const {
+      attractDistance,
+      alignTos,
+      alignToParents,
+      crossPrevents,
+      unattractable,
+    } = this;
+    const alignments = Magnet.getAlignmentsFromAlignTo(alignTos);
+    const parentAlignments = Magnet.getAlignmentsFromAlignTo(alignToParents);
+    const crossPreventParent = crossPrevents.includes(CrossPrevent.parent);
+    const alignToParent = parentAlignments.length > 0;
+    const onJudgeDistance = (unattractable
+      ? judgeOnUnattractable
+      : this.judgeMagnetDistance.bind(this)
+    );
+    const onJudgeAttraction = (unattractable
+      ? judgeOnUnattractable
+      : this.judgeMagnetAttraction.bind(this)
+    );
     const dragMovePoint = getEventXY(evt);
     const sourceRect = this.magnetRect;
     const parentPack = needParent ? this.parentMagnetPack : null;
@@ -208,12 +224,12 @@ function dragStartListener(
       return;
     }
 
-    if (unattractable) {
-      this.setMagnetOffset(nextOffset);
-      this.lastAttractionBest = null;
+    // if (unattractable) {
+    //   this.setMagnetOffset(nextOffset);
+    //   this.lastAttractionBest = null;
 
-      return;
-    }
+    //   return;
+    // }
 
     const attractionBest: AttractionBest = {};
 

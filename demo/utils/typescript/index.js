@@ -1,6 +1,5 @@
 (() => {
   /* eslint-disable no-console */
-  // const URL_TS = 'https://raw.githubusercontent.com/microsoft/TypeScript/main/lib/typescriptServices.js';
   const thisScript = document.head.lastChild;
   const styleLoading = document.createElement('style');
 
@@ -39,7 +38,6 @@
         const tsJsName = 'typescriptServices.js';
         const rootPath = thisScript.getAttribute('src').replace(/\/[^/]+?$/, '');
         const tsJsPath = `${rootPath}/${tsJsName}`;
-        // const tsJsPath = URL_TS;
         const tsScript = document.createElement('script');
 
         tsScript.src = tsJsPath;
