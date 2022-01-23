@@ -10,10 +10,10 @@ import CrossPrevent from './values/crossPrevent';
 import Event from './values/event';
 import Style from './values/style';
 import OffsetUnit from './values/offsetUnit';
+import { isNaN } from './utils/numeric';
 
 const nodeName = 'magnet-pack';
 
-const { isNaN } = globalThis;
 const template = document.createElement('template');
 const defaultValues = {
   [Attribute.disabled]: false,

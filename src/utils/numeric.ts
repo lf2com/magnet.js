@@ -1,5 +1,7 @@
 const { isNaN } = globalThis;
 
+export { isNaN };
+
 /**
  * Returns true if source is a number.
  */
