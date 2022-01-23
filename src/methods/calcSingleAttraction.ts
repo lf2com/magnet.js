@@ -41,12 +41,9 @@ function calcSingleAttraction(
   const singleAttraction = alignments.reduce<SingleAttraction>(
     (attraction, alignment) => {
       const distance = calcDistance(sourcePack, targetPack, alignment);
-      const judgementPassed = onJudgeDistance({
-        source: sourcePack,
-        target: targetPack,
-        alignment,
-        rawDistance: distance.rawDistance,
-        absDistance: distance.absDistance,
+      const judgementPassed = onJudgeDistance({ ...distance }, {
+        attractDistance,
+        alignTos,
       });
 
       if (judgementPassed) {
