@@ -107,12 +107,6 @@ const setOffsetWithAttraction: SetOffsetWithAttraction = function setOffsetWithA
 
     return;
   }
-  if (unattractable) {
-    this.setMagnetOffset(nextOffset);
-    this.lastAttractionBest = null;
-
-    return;
-  }
 
   const {
     attractDistance = this.attractDistance,
