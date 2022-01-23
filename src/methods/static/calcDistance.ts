@@ -1,7 +1,7 @@
-import Distance from '../types/Distance';
-import Pack, { getPack, Rectable } from '../types/Pack';
-import { getRect } from '../types/Rect';
-import Alignment from '../values/alignment';
+import Distance from '../../types/Distance';
+import Pack, { getPack, Rectable } from '../../types/Pack';
+import { getRect } from '../../types/Rect';
+import Alignment from '../../values/alignment';
 import calcDistanceOfAlignment from './calcDistanceOfAlignment';
 
 const { abs } = Math;

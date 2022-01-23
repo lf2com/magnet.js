@@ -1,7 +1,7 @@
-import Magnet from '..';
-import Distance from '../types/Distance';
-import Alignment from '../values/alignment';
-import AlignTo from '../values/alignTo';
+import Magnet from '../..';
+import Distance from '../../types/Distance';
+import Alignment from '../../values/alignment';
+import AlignTo from '../../values/alignTo';
 
 export interface JudgeDistanceOptions {
   attractDistance?: number;
@@ -13,11 +13,12 @@ export interface JudgeDistanceOptions {
  * distance would not be on the result list of attraction.
  */
 function judgeDistance(
+  this: Magnet | void,
   distance: Distance,
-  options: JudgeDistanceOptions | Magnet = {},
+  options?: JudgeDistanceOptions | Magnet,
 ): boolean {
-  const magnetOptions = options as Magnet;
-  const standOptions = options as JudgeDistanceOptions;
+  const magnetOptions = (options ?? this) as Magnet;
+  const standOptions = (options ?? {}) as JudgeDistanceOptions;
   const {
     attractDistance = magnetOptions.attractDistance ?? 0,
   } = standOptions;

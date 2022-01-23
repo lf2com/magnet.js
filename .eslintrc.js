@@ -29,6 +29,9 @@ module.exports = {
     'import/extensions': ['error', 'ignorePackages', {
       ts: 'never',
     }],
+
+    // method overload
+    'no-dupe-class-members': 'off',
   },
   settings: {
     'import/resolver': {

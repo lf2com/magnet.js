@@ -1,5 +1,5 @@
-import calcMultiAttractions from './methods/calcMultiAttractions';
-import calcSingleAttraction from './methods/calcSingleAttraction';
+import calcMultiAttractions from './methods/static/calcMultiAttractions';
+import calcSingleAttraction from './methods/static/calcSingleAttraction';
 import { getAttractionOffset } from './types/Attraction';
 import { getArrayFromAttributeValue, getAttributeValueFromArray } from './utils/multiAttributeValues';
 import registerElement from './utils/registerElement';

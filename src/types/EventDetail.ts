@@ -1,11 +1,10 @@
-import { MultiAttraction } from '../methods/calcMultiAttractions';
+import { MultiAttraction } from '../methods/static/calcMultiAttractions';
 import Distance from './Distance';
 import Pack from './Pack';
 
 export interface StartEventDetail {
   source: Pack;
   targets: Pack[];
-  parent: Pack | null;
   lastOffset: DOMPoint;
   startPoint: DOMPoint;
 }

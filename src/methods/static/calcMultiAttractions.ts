@@ -1,10 +1,10 @@
-import Magnet from '..';
-import MagnetPack from '../core';
-import Attraction from '../types/Attraction';
-import Pack, { getPack, Rectable } from '../types/Pack';
-import { getRect } from '../types/Rect';
-import Alignment from '../values/alignment';
-import AlignTo from '../values/alignTo';
+import Magnet from '../..';
+import MagnetPack from '../../core';
+import Attraction from '../../types/Attraction';
+import Pack, { getPack, Rectable } from '../../types/Pack';
+import { getRect } from '../../types/Rect';
+import Alignment from '../../values/alignment';
+import AlignTo from '../../values/alignTo';
 import calcSingleAttraction, { CalcSingleAttractionOptions } from './calcSingleAttraction';
 import judgeAttraction, { OnJudgeAttraction } from './judgeAttraction';
 import judgeDistance from './judgeDistance';
@@ -21,12 +21,13 @@ const { abs } = Math;
  * Returns result of attractions from source to targets on alignments.
  */
 function calcMultiAttractions(
+  this: Magnet | typeof Magnet | void,
   source: Rectable | Pack,
   targets: (Rectable | Pack)[],
-  options: CalcMultiAttractionsOptions | Magnet = {},
+  options?: CalcMultiAttractionsOptions | Magnet,
 ): MultiAttraction {
-  const magnetOptions = options as Magnet;
-  const standOptions = options as CalcMultiAttractionsOptions;
+  const magnetOptions = (options ?? this) as Magnet;
+  const standOptions = (options ?? {}) as CalcMultiAttractionsOptions;
   const sourcePack = getPack(source);
   const targetPacks = targets.map((target) => getPack(target));
   const {

@@ -1,4 +1,4 @@
-import Magnet from '..';
+import Magnet from '../..';
 import { SingleAttraction } from './calcSingleAttraction';
 
 export interface JudgeAttractionOptions {
@@ -10,11 +10,12 @@ export interface JudgeAttractionOptions {
  * attraction would not be on the result list of attractions.
  */
 function judgeAttraction(
+  this: Magnet | void,
   attraction: SingleAttraction,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  options: JudgeAttractionOptions | Magnet = {},
+  options?: JudgeAttractionOptions | Magnet,
 ): boolean {
-  const standOptinos = options as JudgeAttractionOptions;
+  const standOptinos = (options ?? {}) as JudgeAttractionOptions;
   const {
     onXYAxes = false,
   } = standOptinos;

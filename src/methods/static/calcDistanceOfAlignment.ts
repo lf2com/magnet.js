@@ -1,4 +1,4 @@
-import Alignment from '../values/alignment';
+import Alignment from '../../values/alignment';
 
 /**
  * Returns distance between source to target on specific alignment.

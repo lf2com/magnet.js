@@ -1,11 +1,11 @@
-import MagnetPack from '../core';
-import Attraction, { AttractionBest } from '../types/Attraction';
-import Pack, { getPack, Rectable } from '../types/Pack';
-import Alignment, { AlignmentXs, AlignmentYs } from '../values/alignment';
-import AlignTo from '../values/alignTo';
+import MagnetPack from '../../core';
+import Attraction, { AttractionBest } from '../../types/Attraction';
+import Pack, { getPack, Rectable } from '../../types/Pack';
+import Alignment, { AlignmentXs, AlignmentYs } from '../../values/alignment';
+import AlignTo from '../../values/alignTo';
 import calcDistance from './calcDistance';
 import judgeDistance, { OnJudgeDistance } from './judgeDistance';
-import Magnet from '..';
+import Magnet from '../..';
 
 export type SingleAttraction = Attraction<Pack>;
 
@@ -21,12 +21,13 @@ export interface CalcSingleAttractionOptions {
  * Returns result of attractions from source to target on alignments.
  */
 function calcSingleAttraction(
+  this: Magnet | typeof Magnet | void,
   source: Rectable | Pack,
   target: Rectable | Pack,
-  options: CalcSingleAttractionOptions | Magnet = {},
+  options?: CalcSingleAttractionOptions | Magnet,
 ): SingleAttraction {
-  const magnetOptions = options as Magnet;
-  const standOptions = options as CalcSingleAttractionOptions;
+  const magnetOptions = (options ?? this) as Magnet;
+  const standOptions = (options ?? {}) as CalcSingleAttractionOptions;
   const sourcePack = getPack(source);
   const targetPack = getPack(target);
   const {

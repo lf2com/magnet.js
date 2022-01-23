@@ -1,10 +1,10 @@
 import MagnetPack from './core';
-import appendOffsetWithAttraction, { SetOffsetWithAttractionOptions } from './methods/appendOffsetWithAttraction';
-import { CalcMultiAttractionsOptions } from './methods/calcMultiAttractions';
-import { CalcSingleAttractionOptions } from './methods/calcSingleAttraction';
-import judgeAttraction from './methods/judgeAttraction';
-import judgeDistance from './methods/judgeDistance';
-import judgeDistanceInParent from './methods/judgeDistanceInParent';
+import setOffsetWithAttraction, { SetOffsetWithAttractionOptions } from './methods/instance/setOffsetWithAttraction';
+import { CalcMultiAttractionsOptions } from './methods/static/calcMultiAttractions';
+import { CalcSingleAttractionOptions } from './methods/static/calcSingleAttraction';
+import judgeAttraction from './methods/static/judgeAttraction';
+import judgeDistance from './methods/static/judgeDistance';
+import judgeDistanceInParent from './methods/static/judgeDistanceInParent';
 import { AttractionBest } from './types/Attraction';
 import Pack, { getPack, Rectable } from './types/Pack';
 import { createPoint } from './types/Point';
@@ -275,30 +275,40 @@ class Magnet extends MagnetPack {
   }
 
   /**
-   * Offsets the magnet with checking the attraction.
+   * Sets the offset of magnet to (dx, dy) with checking the attraction.
    */
-  appendMagnetOffsetWithAttraction(
-    ...args: Parameters<typeof appendOffsetWithAttraction>
-  ): void {
-    this.lastAttractionBest = appendOffsetWithAttraction.call(this, ...args);
-  }
+  setMagnetOffsetWithAttraction = setOffsetWithAttraction
 
   /**
-   * Sets the magnet to (x, y) with checking the attraction.
+   * Appends the offset of magnet with (dx, dy) with checking the attraction.
    */
-  setMagnetOffsetWithAttraction(
-    ...[arg0, arg1, arg2]: Parameters<typeof appendOffsetWithAttraction>
-  ): void {
-    const offset = createPoint(arg0, arg1 as number);
+  appendMagnetOffsetWithAttraction(
+    point: DOMPoint,
+    options?: SetOffsetWithAttractionOptions,
+  ): ReturnType<typeof setOffsetWithAttraction>
+
+  appendMagnetOffsetWithAttraction(
+    dx: number,
+    dy: number,
+    options?: SetOffsetWithAttractionOptions,
+  ): ReturnType<typeof setOffsetWithAttraction>
+
+  appendMagnetOffsetWithAttraction(
+    arg0: DOMPoint | number,
+    arg1?: number | SetOffsetWithAttractionOptions,
+    arg2?: SetOffsetWithAttractionOptions,
+  ): ReturnType<typeof setOffsetWithAttraction> {
+    const offset = createPoint(arg0 as number, arg1 as number);
     const options = (arg0 instanceof DOMPoint
       ? arg1
       : arg2
     ) as SetOffsetWithAttractionOptions;
     const { lastOffset } = this;
 
-    this.appendMagnetOffsetWithAttraction(
-      offset.x - lastOffset.x,
-      offset.y - lastOffset.y,
+    return setOffsetWithAttraction.call(
+      this,
+      lastOffset.x + offset.x,
+      lastOffset.y + offset.y,
       options,
     );
   }
@@ -339,8 +349,12 @@ class Magnet extends MagnetPack {
   /**
    * Moves magnet element to (x, y).
    */
+  setMagnetOffset(x: number, y: number): void
+
+  setMagnetOffset(point: DOMPoint): void
+
   setMagnetOffset(x: DOMPoint | number, y?: number): void {
-    const offset = createPoint(x, y);
+    const offset = createPoint(x as number, y as number);
     const { offsetUnit } = this;
 
     switch (offsetUnit) {
