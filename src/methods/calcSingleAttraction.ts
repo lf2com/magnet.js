@@ -1,11 +1,11 @@
 import MagnetPack from '../core';
 import Attraction, { AttractionBest } from '../types/Attraction';
-import Distance from '../types/Distance';
 import Pack, { getPack, Rectable } from '../types/Pack';
-import getTrueAnyway from '../utils/getTrueAnyway';
 import Alignment, { AlignmentXs, AlignmentYs } from '../values/alignment';
 import AlignTo from '../values/alignTo';
 import calcDistance from './calcDistance';
+import judgeDistance, { OnJudgeDistance } from './judgeDistance';
+import Magnet from '..';
 
 export type SingleAttraction = Attraction<Pack>;
 
@@ -13,11 +13,9 @@ export interface CalcSingleAttractionOptions {
   attractDistance?: number;
   alignTos?: AlignTo[];
   alignments?: Alignment[];
-  onJudgeDistance?: (distance: Distance) => boolean;
+  onJudgeDistance?: OnJudgeDistance;
   attractionBest?: AttractionBest;
 }
-
-export type OnJudgeDistance = Required<CalcSingleAttractionOptions>['onJudgeDistance'];
 
 /**
  * Returns result of attractions from source to target on alignments.
@@ -25,17 +23,21 @@ export type OnJudgeDistance = Required<CalcSingleAttractionOptions>['onJudgeDist
 function calcSingleAttraction(
   source: Rectable | Pack,
   target: Rectable | Pack,
-  options: CalcSingleAttractionOptions = {},
+  options: CalcSingleAttractionOptions | Magnet = {},
 ): SingleAttraction {
+  const magnetOptions = options as Magnet;
+  const standOptions = options as CalcSingleAttractionOptions;
   const sourcePack = getPack(source);
   const targetPack = getPack(target);
   const {
-    attractDistance = Infinity,
+    attractDistance = magnetOptions.attractDistance ?? 0,
     alignTos,
-    alignments = MagnetPack.getAlignmentsFromAlignTo(alignTos ?? Object.values(AlignTo)),
-    onJudgeDistance = getTrueAnyway,
+    alignments = MagnetPack.getAlignmentsFromAlignTo(
+      alignTos ?? magnetOptions.alignTos ?? Object.values(AlignTo),
+    ),
+    onJudgeDistance = magnetOptions.judgeMagnetDistance ?? judgeDistance,
     attractionBest = {},
-  } = options;
+  } = standOptions;
   const singleAttraction = alignments.reduce<SingleAttraction>(
     (attraction, alignment) => {
       const distance = calcDistance(sourcePack, targetPack, alignment);

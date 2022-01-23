@@ -1,21 +1,19 @@
+import Magnet from '..';
 import MagnetPack from '../core';
 import Attraction from '../types/Attraction';
 import Pack, { getPack, Rectable } from '../types/Pack';
 import { getRect } from '../types/Rect';
-import getTrueAnyway from '../utils/getTrueAnyway';
 import Alignment from '../values/alignment';
 import AlignTo from '../values/alignTo';
-import calcSingleAttraction, {
-  CalcSingleAttractionOptions, SingleAttraction,
-} from './calcSingleAttraction';
+import calcSingleAttraction, { CalcSingleAttractionOptions } from './calcSingleAttraction';
+import judgeAttraction, { OnJudgeAttraction } from './judgeAttraction';
+import judgeDistance from './judgeDistance';
 
 export type MultiAttraction = Attraction<Pack[]>;
 
 export interface CalcMultiAttractionsOptions extends CalcSingleAttractionOptions {
-  onJudgeAttraction?: (attraction: SingleAttraction) => boolean;
+  onJudgeAttraction?: OnJudgeAttraction;
 }
-
-export type OnJudgeAttraction = Required<CalcMultiAttractionsOptions>['onJudgeAttraction'];
 
 const { abs } = Math;
 
@@ -25,19 +23,23 @@ const { abs } = Math;
 function calcMultiAttractions(
   source: Rectable | Pack,
   targets: (Rectable | Pack)[],
-  options: CalcMultiAttractionsOptions = {},
+  options: CalcMultiAttractionsOptions | Magnet = {},
 ): MultiAttraction {
+  const magnetOptions = options as Magnet;
+  const standOptions = options as CalcMultiAttractionsOptions;
   const sourcePack = getPack(source);
   const targetPacks = targets.map((target) => getPack(target));
   const {
-    attractDistance = Infinity,
+    attractDistance = magnetOptions.attractDistance ?? 0,
     alignTos,
-    alignments = MagnetPack.getAlignmentsFromAlignTo(alignTos ?? Object.values(AlignTo)),
-    onJudgeDistance = getTrueAnyway,
-    onJudgeAttraction = getTrueAnyway,
+    alignments = MagnetPack.getAlignmentsFromAlignTo(
+      alignTos ?? magnetOptions.alignTos ?? Object.values(AlignTo),
+    ),
+    onJudgeDistance = magnetOptions.judgeMagnetDistance ?? judgeDistance,
+    onJudgeAttraction = magnetOptions.judgeMagnetAttraction ?? judgeAttraction,
     attractionBest = {},
-  } = options;
-  const singleOptions = {
+  } = standOptions;
+  const singleAttractionOptions = {
     attractDistance,
     alignments,
     onJudgeDistance,
@@ -45,7 +47,11 @@ function calcMultiAttractions(
   };
   const multiAttraction = targetPacks.reduce<MultiAttraction>(
     (attraction, targetPack) => {
-      const singleAttraction = calcSingleAttraction(sourcePack, targetPack, singleOptions);
+      const singleAttraction = calcSingleAttraction(
+        sourcePack,
+        targetPack,
+        singleAttractionOptions,
+      );
       const {
         best: currentBest,
         results: currentResults,

@@ -49,8 +49,8 @@ function appendOffsetWithAttraction<
     parentAlignments = Magnet.getAlignmentsFromAlignTo(alignToParents ?? this.alignToParents),
     crossPrevents,
     crossPreventParent = (crossPrevents ?? this.crossPrevents).includes(CrossPrevent.parent),
-    onJudgeDistance = this.judgeMagnetDistance.bind(this),
-    onJudgeAttraction = this.judgeMagnetAttraction.bind(this),
+    onJudgeDistance = this.judgeMagnetDistance,
+    onJudgeAttraction = this.judgeMagnetAttraction,
     attractionBest,
   } = options;
   const targetPacks = this.targetMagnetPacks;

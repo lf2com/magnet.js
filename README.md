@@ -473,6 +473,17 @@ Returns all magnet elements that can be attracted by the magnet. That means the 
 
 Returns `true` if the input distance result passed the judgement.
 
+#### .judgeMagnetDistanceInParent(_distance_, _options?_)
+
+The same as [`.judgeMagnetDistance()`](#judgemagnetdistancedistance) but also consider a wrapper element.
+
+Properties of `options`:
+
+| Name | Type | Description |
+| -: | :-: | :- |
+| parent? | [_Pack_](#pack) \| _Rectable_ | Element as the wrapper of magnet. Default is `document.body` |
+| onJudgeDistance? | [`.judgeMagnetDistance`](#judgemagnetdistancedistance) |
+
 #### .judgeMagnetAttraction(_attraction_)
 
 Returns `true` if the input attraction result passed the judgement.

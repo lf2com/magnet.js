@@ -4,6 +4,7 @@ import { CalcMultiAttractionsOptions } from './methods/calcMultiAttractions';
 import { CalcSingleAttractionOptions } from './methods/calcSingleAttraction';
 import judgeAttraction from './methods/judgeAttraction';
 import judgeDistance from './methods/judgeDistance';
+import judgeDistanceInParent from './methods/judgeDistanceInParent';
 import { AttractionBest } from './types/Attraction';
 import Pack, { getPack, Rectable } from './types/Pack';
 import { createPoint } from './types/Point';
@@ -161,6 +162,11 @@ class Magnet extends MagnetPack {
   judgeMagnetDistance = judgeDistance
 
   /**
+   * The same as .judgeMagnetDisance but consider a wrapper element.
+   */
+  judgeMagnetDistanceInParent = judgeDistanceInParent
+
+  /**
    * Returns true if the attraction passes the judgement. Otherwise the
    * attraction would not be on the result list of attractions.
    */
@@ -176,7 +182,7 @@ class Magnet extends MagnetPack {
       attractDistance = this.attractDistance,
       alignTos,
       alignments = Magnet.getAlignmentsFromAlignTo(alignTos ?? this.alignToParents),
-      onJudgeDistance = this.judgeMagnetDistance.bind(this),
+      onJudgeDistance = this.judgeMagnetDistance,
       attractionBest = {},
     } = options;
 
@@ -220,7 +226,7 @@ class Magnet extends MagnetPack {
       attractDistance = this.attractDistance,
       alignTos,
       alignments = Magnet.getAlignmentsFromAlignTo(alignTos ?? this.alignTos),
-      onJudgeDistance = this.judgeMagnetDistance.bind(this),
+      onJudgeDistance = this.judgeMagnetDistance,
       attractionBest,
     } = options;
     const parentAttraction = this.calcMagnetParentAttraction({
@@ -247,8 +253,8 @@ class Magnet extends MagnetPack {
     const {
       alignTos,
       alignments = Magnet.getAlignmentsFromAlignTo(alignTos ?? this.alignTos),
-      onJudgeDistance = this.judgeMagnetDistance.bind(this),
-      onJudgeAttraction = this.judgeMagnetAttraction.bind(this),
+      onJudgeDistance = this.judgeMagnetDistance,
+      onJudgeAttraction = this.judgeMagnetAttraction,
       attractionBest,
     } = options;
     const parentAttraction = this.calcMagnetParentAttraction({

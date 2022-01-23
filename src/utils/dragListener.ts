@@ -1,5 +1,7 @@
 import Magnet from '..';
-import { OnJudgeDistance } from '../methods/calcSingleAttraction';
+import { OnJudgeAttraction } from '../methods/judgeAttraction';
+import { OnJudgeDistance } from '../methods/judgeDistance';
+import { OnJudgeDistanceInParent } from '../methods/judgeDistanceInParent';
 import { AttractionBest, getAttractionOffset } from '../types/Attraction';
 import Distance from '../types/Distance';
 import {
@@ -27,64 +29,7 @@ export type DragEvent = MouseEvent | TouchEvent;
 /**
  * Returns false for unattractable magnet.
  */
-function judgeOnUnattractable() {
-  return false;
-}
-
-/**
- * Returns true if the distance passes the judgement and the rectangle
- * is in its parent rectangle.
- */
-function judgeDistanceInParent(
-  this: Magnet,
-  oriJudgeDistance: OnJudgeDistance,
-  parentRect: DOMRect,
-  ...[distance]: Parameters<OnJudgeDistance>
-): ReturnType<OnJudgeDistance> {
-  if (!oriJudgeDistance(distance)) {
-    return false;
-  }
-
-  const { alignment, rawDistance, source } = distance;
-  const {
-    rect: sourceRect,
-  } = source;
-
-  switch (alignment) {
-    default:
-      return true;
-
-    case 'topToTop':
-    case 'topToBottom':
-    case 'bottomToTop':
-    case 'bottomToBottom':
-      return (
-        sourceRect.top + rawDistance >= parentRect.top
-        && sourceRect.bottom + rawDistance <= parentRect.bottom
-      );
-
-    case 'rightToRight':
-    case 'rightToLeft':
-    case 'leftToRight':
-    case 'leftToLeft':
-      return (
-        sourceRect.right + rawDistance <= parentRect.right
-        && sourceRect.left + rawDistance >= parentRect.left
-      );
-
-    case 'xCenterToXCenter':
-      return (
-        sourceRect.right + rawDistance <= parentRect.right
-        && sourceRect.left + rawDistance >= parentRect.left
-      );
-
-    case 'yCenterToYCenter':
-      return (
-        sourceRect.top + rawDistance >= parentRect.top
-        && sourceRect.bottom + rawDistance <= parentRect.bottom
-      );
-  }
-}
+const judgeOnUnattractable = () => false;
 
 /**
  * Handles dragstart event binded with mousedown/touchstart events.
@@ -150,11 +95,15 @@ function dragStartListener(
     const alignToParent = parentAlignments.length > 0;
     const onJudgeDistance = (unattractable
       ? judgeOnUnattractable
-      : this.judgeMagnetDistance.bind(this)
+      : this.judgeMagnetDistance
     );
-    const onJudgeAttraction = (unattractable
+    const onJudgeDistanceInParent: OnJudgeDistanceInParent = (unattractable
       ? judgeOnUnattractable
-      : this.judgeMagnetAttraction.bind(this)
+      : this.judgeMagnetDistanceInParent
+    );
+    const onJudgeAttraction: OnJudgeAttraction = (unattractable
+      ? judgeOnUnattractable
+      : this.judgeMagnetAttraction
     );
     const dragMovePoint = getEventXY(evt);
     const sourceRect = this.magnetRect;
@@ -250,11 +199,12 @@ function dragStartListener(
 
     const onJudgeMultiDistance: OnJudgeDistance = (keepInParent
       ? ((distance) => (
-        judgeDistanceInParent.call(
-          this,
-          onJudgeDistance,
-          getRect(parentPack),
+        onJudgeDistanceInParent(
           distance,
+          {
+            onJudgeDistance,
+            parent: parentPack,
+          },
         )
       ))
       : onJudgeDistance

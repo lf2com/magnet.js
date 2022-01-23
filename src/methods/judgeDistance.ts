@@ -1,24 +1,37 @@
 import Magnet from '..';
+import Distance from '../types/Distance';
 import Alignment from '../values/alignment';
 import AlignTo from '../values/alignTo';
-import { OnJudgeDistance } from './calcSingleAttraction';
+
+export interface JudgeDistanceOptions {
+  attractDistance?: number;
+  alignTos?: AlignTo[];
+}
 
 /**
  * Returns true if the distance passes the judgement. Otherwise the
  * distance would not be on the result list of attraction.
  */
 function judgeDistance(
-  this: Magnet,
-  ...[distance]: Parameters<OnJudgeDistance>
-): ReturnType<OnJudgeDistance> {
-  const { attractDistance } = this;
+  distance: Distance,
+  options: JudgeDistanceOptions | Magnet = {},
+): boolean {
+  const magnetOptions = options as Magnet;
+  const standOptions = options as JudgeDistanceOptions;
+  const {
+    attractDistance = magnetOptions.attractDistance ?? 0,
+  } = standOptions;
 
   if (distance.absDistance > attractDistance) {
     // too far, no consider
     return false;
   }
 
-  if (this.alignTos.includes(AlignTo.extend)) {
+  const {
+    alignTos = magnetOptions.alignTos ?? Object.values(AlignTo),
+  } = standOptions;
+
+  if (alignTos.includes(AlignTo.extend)) {
     // align to extended edges
     return true;
   }
@@ -66,5 +79,7 @@ function judgeDistance(
       return true;
   }
 }
+
+export type OnJudgeDistance = typeof judgeDistance;
 
 export default judgeDistance;
