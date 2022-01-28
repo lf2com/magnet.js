@@ -3,6 +3,7 @@ import MagnetPack from '../../core';
 import Attraction from '../../types/Attraction';
 import Pack, { getPack, Rectable } from '../../types/Pack';
 import { getRect } from '../../types/Rect';
+import { abs } from '../../utils/numeric';
 import Alignment from '../../values/alignment';
 import AlignTo from '../../values/alignTo';
 import calcSingleAttraction, { CalcSingleAttractionOptions } from './calcSingleAttraction';
@@ -14,8 +15,6 @@ export type MultiAttraction = Attraction<Pack[]>;
 export interface CalcMultiAttractionsOptions extends CalcSingleAttractionOptions {
   onJudgeAttraction?: OnJudgeAttraction;
 }
-
-const { abs } = Math;
 
 /**
  * Returns result of attractions from source to targets on alignments.

@@ -1,10 +1,9 @@
 import Distance from '../../types/Distance';
 import Pack, { getPack, Rectable } from '../../types/Pack';
 import { getRect } from '../../types/Rect';
+import { abs } from '../../utils/numeric';
 import Alignment from '../../values/alignment';
 import calcDistanceOfAlignment from './calcDistanceOfAlignment';
-
-const { abs } = Math;
 
 /**
  * Returns distance object from source to target on alignment.
