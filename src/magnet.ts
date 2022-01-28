@@ -180,8 +180,7 @@ class Magnet extends MagnetPack {
   ): ReturnType<typeof Magnet['calcMagnetAttraction']> | null {
     const {
       attractDistance = this.attractDistance,
-      alignTos,
-      alignments = Magnet.getAlignmentsFromAlignTo(alignTos ?? this.alignToParents),
+      alignments = Magnet.getAlignmentsFromAlignTo(options.alignTos ?? this.alignToParents),
       onJudgeDistance = this.judgeMagnetDistance,
       attractionBest = {},
     } = options;
@@ -224,8 +223,7 @@ class Magnet extends MagnetPack {
   ): ReturnType<typeof Magnet['calcMagnetAttraction']> {
     const {
       attractDistance = this.attractDistance,
-      alignTos,
-      alignments = Magnet.getAlignmentsFromAlignTo(alignTos ?? this.alignTos),
+      alignments = Magnet.getAlignmentsFromAlignTo(options.alignTos ?? this.alignTos),
       onJudgeDistance = this.judgeMagnetDistance,
       attractionBest,
     } = options;
@@ -252,8 +250,7 @@ class Magnet extends MagnetPack {
     const targetPacks = targets.map((target) => getPack(target));
     const {
       attractDistance = this.attractDistance,
-      alignTos,
-      alignments = Magnet.getAlignmentsFromAlignTo(alignTos ?? this.alignTos),
+      alignments = Magnet.getAlignmentsFromAlignTo(options.alignTos ?? this.alignTos),
       onJudgeDistance = this.judgeMagnetDistance,
       onJudgeAttraction = this.judgeMagnetAttraction,
       attractionBest,
