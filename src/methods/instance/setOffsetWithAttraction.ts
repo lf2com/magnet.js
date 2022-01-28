@@ -33,31 +33,14 @@ export interface SetOffsetWithAttractionOptions extends CalcMultiAttractionsOpti
 const getTrue = () => true;
 const getFalse = () => false;
 
-interface SetOffsetWithAttraction {
-  (
-    offset: DOMPoint,
-    options?: SetOffsetWithAttractionOptions,
-  ): void;
-  (
-    dx: number,
-    dy: number,
-    options?: SetOffsetWithAttractionOptions,
-  ): void;
-}
-
 /**
  * Moves magnet element to (x, y) with attraction options.
  */
-const setOffsetWithAttraction: SetOffsetWithAttraction = function setOffsetWithAttraction(
+function setOffsetWithAttraction(
   this: Magnet,
-  arg0: DOMPoint | number,
-  arg1?: number | SetOffsetWithAttractionOptions,
-  arg2?: SetOffsetWithAttractionOptions,
+  offset: DOMPoint = this.lastOffset,
+  options: SetOffsetWithAttractionOptions = {},
 ) {
-  const offset = createPoint(arg0 as number, arg1 as number);
-  const options = (
-    (arg0 instanceof DOMPoint ? arg1 : arg2) ?? {}
-  ) as SetOffsetWithAttractionOptions;
   const {
     alignToParents,
     parentAlignments = Magnet.getAlignmentsFromAlignTo(alignToParents ?? this.alignToParents),
@@ -378,6 +361,6 @@ const setOffsetWithAttraction: SetOffsetWithAttraction = function setOffsetWithA
     offset.y + attractionOffset.y + attractKeepInParentOffset.y,
   );
   this.lastAttractionBest = attraction.best;
-};
+}
 
 export default setOffsetWithAttraction;

@@ -279,13 +279,74 @@ class Magnet extends MagnetPack {
   /**
    * Sets the offset of magnet to (dx, dy) with checking the attraction.
    */
-  setMagnetOffsetWithAttraction = setOffsetWithAttraction
+  setMagnetOffsetWithAttraction(
+    offset?: DOMPoint,
+    options?: SetOffsetWithAttractionOptions,
+  ): ReturnType<typeof setOffsetWithAttraction>
+
+  setMagnetOffsetWithAttraction(
+    dx: number,
+    dy: number,
+    options?: SetOffsetWithAttractionOptions,
+  ): ReturnType<typeof setOffsetWithAttraction>
+
+  setMagnetOffsetWithAttraction<A0 extends DOMPoint | number>(
+    arg0?: A0,
+    arg1?: A0 extends DOMPoint ? SetOffsetWithAttractionOptions : number,
+    arg2?: A0 extends DOMPoint ? undefined : SetOffsetWithAttractionOptions,
+  ): ReturnType<typeof setOffsetWithAttraction> {
+    const offset = createPoint(arg0 as number, arg1 as number);
+    const options = (arg0 instanceof DOMPoint
+      ? arg1
+      : arg2
+    ) as SetOffsetWithAttractionOptions;
+    const result = setOffsetWithAttraction.call(this, offset, options);
+
+    this.resetMagnetRect();
+    this.resetParentMagnetPack();
+    this.resetTargetMagnets();
+
+    return result;
+  }
+
+  /**
+   * Sets the position of magnet to (x, y) with checking the attraction.
+   */
+  setMagnetPositionWithAttraction(
+    x: number,
+    y: number,
+    options?: SetOffsetWithAttractionOptions,
+  ): ReturnType<typeof setOffsetWithAttraction>
+
+  setMagnetPositionWithAttraction(
+    position?: DOMPoint,
+    options?: SetOffsetWithAttractionOptions,
+  ): ReturnType<typeof setOffsetWithAttraction>
+
+  setMagnetPositionWithAttraction<A0 extends DOMPoint | number>(
+    arg0?: A0,
+    arg1?: A0 extends DOMPoint ? SetOffsetWithAttractionOptions : number,
+    arg2?: A0 extends DOMPoint ? undefined : SetOffsetWithAttractionOptions,
+  ): ReturnType<typeof setOffsetWithAttraction> {
+    const sourceRect = this.magnetRect;
+    const position = createPoint((arg0 ?? sourceRect) as number, arg1 as number);
+    const offset = createPoint(
+      position.x - sourceRect.x,
+      position.y - sourceRect.y,
+    );
+    const options = (arg0 instanceof DOMPoint
+      ? arg1
+      : arg2
+    ) as SetOffsetWithAttractionOptions;
+
+    return this.setMagnetOffsetWithAttraction(offset, options);
+  }
 
   /**
    * Appends the offset of magnet with (dx, dy) with checking the attraction.
    */
   appendMagnetOffsetWithAttraction(
-    point: DOMPoint,
+    point?: DOMPoint,
     options?: SetOffsetWithAttractionOptions,
   ): ReturnType<typeof setOffsetWithAttraction>
 
@@ -296,7 +357,7 @@ class Magnet extends MagnetPack {
   ): ReturnType<typeof setOffsetWithAttraction>
 
   appendMagnetOffsetWithAttraction(
-    arg0: DOMPoint | number,
+    arg0?: DOMPoint | number,
     arg1?: number | SetOffsetWithAttractionOptions,
     arg2?: SetOffsetWithAttractionOptions,
   ): ReturnType<typeof setOffsetWithAttraction> {
@@ -307,8 +368,7 @@ class Magnet extends MagnetPack {
     ) as SetOffsetWithAttractionOptions;
     const { lastOffset } = this;
 
-    return setOffsetWithAttraction.call(
-      this,
+    return this.setMagnetOffsetWithAttraction(
       lastOffset.x + offset.x,
       lastOffset.y + offset.y,
       options,
@@ -353,9 +413,9 @@ class Magnet extends MagnetPack {
    */
   setMagnetOffset(x: number, y: number): void
 
-  setMagnetOffset(point: DOMPoint): void
+  setMagnetOffset(point?: DOMPoint): void
 
-  setMagnetOffset(x: DOMPoint | number, y?: number): void {
+  setMagnetOffset(x?: DOMPoint | number, y?: number): void {
     const offset = createPoint(x as number, y as number);
     const { offsetUnit } = this;
 
