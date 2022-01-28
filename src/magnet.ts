@@ -251,6 +251,7 @@ class Magnet extends MagnetPack {
   ): ReturnType<typeof Magnet['calcMultiMagnetAttractions']> {
     const targetPacks = targets.map((target) => getPack(target));
     const {
+      attractDistance = this.attractDistance,
       alignTos,
       alignments = Magnet.getAlignmentsFromAlignTo(alignTos ?? this.alignTos),
       onJudgeDistance = this.judgeMagnetDistance,
@@ -266,6 +267,7 @@ class Magnet extends MagnetPack {
       this,
       targetPacks,
       {
+        attractDistance,
         alignments,
         onJudgeDistance,
         onJudgeAttraction,
