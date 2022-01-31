@@ -2,16 +2,15 @@ import MagnetPack from '../../core';
 import Attraction, { AttractionBest } from '../../types/Attraction';
 import Pack, { getPack, Rectable } from '../../types/Pack';
 import Alignment, { AlignmentXs, AlignmentYs } from '../../values/alignment';
-import AlignTo from '../../values/alignTo';
-import calcDistance from './calcDistance';
+import AlignTo, { AlignToParent } from '../../values/alignTo';
 import judgeDistance, { OnJudgeDistance } from './judgeDistance';
 import Magnet from '../..';
 
 export type SingleAttraction = Attraction<Pack>;
 
-export interface CalcSingleAttractionOptions {
+export interface SingleAttractionToOptions {
   attractDistance?: number;
-  alignTos?: AlignTo[];
+  alignTos?: (AlignTo | AlignToParent)[];
   alignments?: Alignment[];
   onJudgeDistance?: OnJudgeDistance;
   attractionBest?: AttractionBest;
@@ -20,28 +19,25 @@ export interface CalcSingleAttractionOptions {
 /**
  * Returns result of attractions from source to target on alignments.
  */
-function calcSingleAttraction(
-  this: Magnet | typeof Magnet | void,
+function singleAttractionTo(
   source: Rectable | Pack,
   target: Rectable | Pack,
-  options?: CalcSingleAttractionOptions | Magnet,
+  options?: SingleAttractionToOptions,
 ): SingleAttraction {
-  const magnetOptions = (options ?? this) as Magnet;
-  const standOptions = (options ?? {}) as CalcSingleAttractionOptions;
+  const magnetOptions = (options ?? source) as Magnet;
+  const standOptions = (options ?? {}) as SingleAttractionToOptions;
   const sourcePack = getPack(source);
   const targetPack = getPack(target);
   const {
     attractDistance = magnetOptions.attractDistance ?? 0,
-    alignTos,
-    alignments = MagnetPack.getAlignmentsFromAlignTo(
-      alignTos ?? magnetOptions.alignTos ?? Object.values(AlignTo),
-    ),
+    alignTos = magnetOptions.alignTos ?? Object.values(AlignTo),
+    alignments = MagnetPack.getAlignmentsFromAlignTo(alignTos),
     onJudgeDistance = magnetOptions.judgeMagnetDistance ?? judgeDistance,
     attractionBest = {},
   } = standOptions;
   const singleAttraction = alignments.reduce<SingleAttraction>(
     (attraction, alignment) => {
-      const distance = calcDistance(sourcePack, targetPack, alignment);
+      const distance = Magnet.prototype.distanceTo.call(sourcePack, targetPack, alignment);
       const judgementPassed = onJudgeDistance({ ...distance }, {
         attractDistance,
         alignTos,
@@ -104,4 +100,4 @@ function calcSingleAttraction(
   return singleAttraction;
 }
 
-export default calcSingleAttraction;
+export default singleAttractionTo;

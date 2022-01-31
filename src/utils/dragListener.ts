@@ -7,11 +7,21 @@ import Event from '../values/event';
 import { addEventListeners, removeEventListeners, triggerEvent } from './eventHandler';
 import getEventXY from './getEventXY';
 
-const EVENT_DRAG_START = ['mousedown', 'touchstart'];
-const EVENT_DRAG_MOVE = ['mousemove', 'touchmove'];
-const EVENT_DRAG_END = ['mouseup', 'touchend'];
-
-export type DragEvent = MouseEvent | TouchEvent;
+const EVENT_DRAG_START = [
+  // 'pointerdown',
+  'touchstart',
+  'mousedown',
+];
+const EVENT_DRAG_MOVE = [
+  // 'pointermove',
+  'touchmove',
+  'mousemove',
+];
+const EVENT_DRAG_END = [
+  // 'pointerup',
+  'touchend',
+  'mouseup',
+];
 
 /**
  * Handles dragstart event binded with mousedown/touchstart events.
@@ -24,7 +34,9 @@ function dragStartListener(
     return;
   }
 
-  this.handleDragStart(event);
+  this.resetMagnetRect();
+  this.resetParentMagnetPack();
+  this.resetTargetMagnets();
 
   const sourcePack = new Pack(this, this.magnetRect);
   const targetPacks = this.targetMagnetPacks;
@@ -48,8 +60,6 @@ function dragStartListener(
   );
 
   if (!dragStartEventPassed) {
-    this.handleDragEnd(event);
-
     return;
   }
 
@@ -57,8 +67,6 @@ function dragStartListener(
    * Handles dragmove event binded with mousemove/touchmove events.
    */
   const dragMoveListener = (evt: DragEvent): void => {
-    this.handleDragMove(evt);
-
     const dragMovePoint = getEventXY(evt);
     const dragOffset = createPoint(
       dragMovePoint.x - dragStartPoint.x,
@@ -98,8 +106,11 @@ function dragStartListener(
   /**
    * Handles dragend event binded with mouseup/touchend events.
    */
-  const dragEndListener = (evt: DragEvent): void => {
-    this.handleDragEnd(evt);
+  const dragEndListener = (): void => {
+    this.resetMagnetRect();
+    this.resetParentMagnetPack();
+    this.resetTargetMagnets();
+    this.style.removeProperty('z-index');
     triggerEvent(this, Event.magnetend, {
       bubbles: true,
       cancelable: false,
@@ -109,6 +120,7 @@ function dragStartListener(
     removeEventListeners(document, EVENT_DRAG_END, dragEndListener);
   };
 
+  this.style.setProperty('z-index', '1');
   event.preventDefault();
   addEventListeners(document, EVENT_DRAG_MOVE, dragMoveListener);
   addEventListeners(document, EVENT_DRAG_END, dragEndListener);

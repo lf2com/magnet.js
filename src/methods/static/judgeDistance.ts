@@ -1,21 +1,33 @@
 import Magnet from '../..';
 import Distance from '../../types/Distance';
 import Alignment from '../../values/alignment';
-import AlignTo from '../../values/alignTo';
+import AlignTo, { AlignToParent } from '../../values/alignTo';
 
 export interface JudgeDistanceOptions {
   attractDistance?: number;
-  alignTos?: AlignTo[];
+  alignTos?: (AlignTo | AlignToParent)[];
 }
+
+export type MagnetJudgeDistanceOptionKeys = (
+  'attractDistance' | 'alignTos'
+);
+
+export type OnJudgeDistance = (
+  distance: Distance,
+  options?: (
+    JudgeDistanceOptions
+    | Pick<Magnet, MagnetJudgeDistanceOptionKeys>
+  ),
+) => boolean;
 
 /**
  * Returns true if the distance passes the judgement. Otherwise the
  * distance would not be on the result list of attraction.
  */
-function judgeDistance(
-  this: Magnet | void,
-  distance: Distance,
-  options?: JudgeDistanceOptions | Magnet,
+const judgeDistance: OnJudgeDistance = function judgeDistance(
+  this: Magnet,
+  distance,
+  options,
 ): boolean {
   const magnetOptions = (options ?? this) as Magnet;
   const standOptions = (options ?? {}) as JudgeDistanceOptions;
@@ -79,8 +91,6 @@ function judgeDistance(
 
       return true;
   }
-}
-
-export type OnJudgeDistance = typeof judgeDistance;
+};
 
 export default judgeDistance;

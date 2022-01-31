@@ -1,5 +1,4 @@
 import Magnet from '../..';
-import { getAttractionOffset } from '../../types/Attraction';
 import Distance from '../../types/Distance';
 import {
   AttractedEventDetail, AttractedmoveEventDetail, AttractEventDetail,
@@ -14,12 +13,12 @@ import Alignment from '../../values/alignment';
 import { AlignToParent } from '../../values/alignTo';
 import CrossPrevent from '../../values/crossPrevent';
 import Event from '../../values/event';
-import { CalcMultiAttractionsOptions } from '../static/calcMultiAttractions';
+import multiAttractionsTo, { MultiAttractionsToOptions } from '../static/multiAttractionsTo';
+import singleAttractionTo from '../static/singleAttractionTo';
 import { OnJudgeDistance } from '../static/judgeDistance';
+import { OnJudgeMovement } from '../static/judgeMovement';
 
-export type OnJudgeMovement = (pack: Pack, offset: DOMPoint) => boolean
-
-export interface SetOffsetWithAttractionOptions extends CalcMultiAttractionsOptions {
+export interface SetOffsetWithAttractionOptions extends MultiAttractionsToOptions {
   alignToParents?: AlignToParent[];
   parentAlignments?: Alignment[];
   crossPrevents?: CrossPrevent[];
@@ -28,9 +27,8 @@ export interface SetOffsetWithAttractionOptions extends CalcMultiAttractionsOpti
 }
 
 /**
- * Returns true/false for unattractable magnet.
+ * Returns false for unattractable magnet.
  */
-const getTrue = () => true;
 const getFalse = () => false;
 
 /**
@@ -48,7 +46,7 @@ function setOffsetWithAttraction(
     crossPreventParent = (crossPrevents ?? this.crossPrevents).includes(CrossPrevent.parent),
     onJudgeDistance: optionsOnJudgeDistance,
     onJudgeAttraction: optionsOnJudgeAttraction,
-    onJudgeMovement = getTrue,
+    onJudgeMovement = this.judgeMagnetMovement,
   } = options;
   const sourceRect = this.magnetRect;
   const { width, height } = sourceRect;
@@ -113,7 +111,7 @@ function setOffsetWithAttraction(
   );
 
   if (alignToParent && parentPack) {
-    const { best } = Magnet.calcMagnetAttraction(
+    const { best } = singleAttractionTo(
       nextSourceRawPack,
       parentPack,
       {
@@ -139,7 +137,7 @@ function setOffsetWithAttraction(
     ))
     : onJudgeDistance
   );
-  const attraction = Magnet.calcMultiMagnetAttractions(
+  const attraction = multiAttractionsTo(
     nextSourceRawPack,
     targetPacks,
     {
@@ -150,7 +148,7 @@ function setOffsetWithAttraction(
       attractionBest,
     },
   );
-  const attractionOffset = getAttractionOffset(attraction);
+  const attractionOffset = Magnet.getMagnetAttractionOffset(attraction);
   const attractKeepInParentOffset = (keepInParent
     ? getOffsetToKeepInRect(
       createRect(

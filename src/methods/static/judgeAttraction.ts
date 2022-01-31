@@ -1,17 +1,19 @@
 import Magnet from '../..';
-import { SingleAttraction } from './calcSingleAttraction';
+import { SingleAttraction } from './singleAttractionTo';
+
+export type OnJudgeAttraction = (
+  attraction: SingleAttraction,
+) => boolean;
 
 /**
  * Returns true if the attraction passes the judgement. Otherwise the
  * attraction would not be on the result list of attractions.
  */
-function judgeAttraction(
-  this: Magnet | void,
-  attraction: SingleAttraction,
+const judgeAttraction: OnJudgeAttraction = function judgeAttraction(
+  this: Magnet,
+  attraction,
 ): boolean {
   return Boolean(attraction.best.x ?? attraction.best.y);
-}
-
-export type OnJudgeAttraction = typeof judgeAttraction;
+};
 
 export default judgeAttraction;

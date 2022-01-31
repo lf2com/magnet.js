@@ -3,7 +3,7 @@ import Alignment from '../../values/alignment';
 /**
  * Returns distance between source to target on specific alignment.
  */
-function calcDistanceOfAlignment(
+function rawDistanceTo(
   sourceRect: DOMRect,
   targetRect: DOMRect,
   alignment: Alignment,
@@ -48,4 +48,4 @@ function calcDistanceOfAlignment(
   }
 }
 
-export default calcDistanceOfAlignment;
+export default rawDistanceTo;

@@ -6,27 +6,26 @@ import { getRect } from '../../types/Rect';
 import { abs } from '../../utils/numeric';
 import Alignment from '../../values/alignment';
 import AlignTo from '../../values/alignTo';
-import calcSingleAttraction, { CalcSingleAttractionOptions } from './calcSingleAttraction';
+import { SingleAttractionToOptions } from './singleAttractionTo';
 import judgeAttraction, { OnJudgeAttraction } from './judgeAttraction';
 import judgeDistance from './judgeDistance';
 
 export type MultiAttraction = Attraction<Pack[]>;
 
-export interface CalcMultiAttractionsOptions extends CalcSingleAttractionOptions {
+export interface MultiAttractionsToOptions extends SingleAttractionToOptions {
   onJudgeAttraction?: OnJudgeAttraction;
 }
 
 /**
  * Returns result of attractions from source to targets on alignments.
  */
-function calcMultiAttractions(
-  this: Magnet | typeof Magnet | void,
+function multiAttractionsTo(
   source: Rectable | Pack,
   targets: (Rectable | Pack)[],
-  options?: CalcMultiAttractionsOptions | Magnet,
+  options?: MultiAttractionsToOptions,
 ): MultiAttraction {
-  const magnetOptions = (options ?? this) as Magnet;
-  const standOptions = (options ?? {}) as CalcMultiAttractionsOptions;
+  const magnetOptions = (options ?? source) as Magnet;
+  const standOptions = (options ?? {}) as MultiAttractionsToOptions;
   const sourcePack = getPack(source);
   const targetPacks = targets.map((target) => getPack(target));
   const {
@@ -47,7 +46,7 @@ function calcMultiAttractions(
   };
   const multiAttraction = targetPacks.reduce<MultiAttraction>(
     (attraction, targetPack) => {
-      const singleAttraction = calcSingleAttraction(
+      const singleAttraction = Magnet.prototype.attractionTo.call(
         sourcePack,
         targetPack,
         singleAttractionOptions,
@@ -165,4 +164,4 @@ function calcMultiAttractions(
   return multiAttraction;
 }
 
-export default calcMultiAttractions;
+export default multiAttractionsTo;

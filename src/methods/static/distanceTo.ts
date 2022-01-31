@@ -3,12 +3,12 @@ import Pack, { getPack, Rectable } from '../../types/Pack';
 import { getRect } from '../../types/Rect';
 import { abs } from '../../utils/numeric';
 import Alignment from '../../values/alignment';
-import calcDistanceOfAlignment from './calcDistanceOfAlignment';
+import rawDistanceTo from './rawDistanceTo';
 
 /**
  * Returns distance object from source to target on alignment.
  */
-function calcDistance(
+function distanceTo(
   source: Rectable | Pack,
   target: Rectable | Pack,
   alignment: Alignment,
@@ -17,7 +17,7 @@ function calcDistance(
   const targetPack = getPack(target);
   const sourceRect = getRect(source);
   const targetRect = getRect(target);
-  const rawDistance = calcDistanceOfAlignment(sourceRect, targetRect, alignment);
+  const rawDistance = rawDistanceTo(sourceRect, targetRect, alignment);
   const absDistance = abs(rawDistance);
 
   return {
@@ -29,4 +29,4 @@ function calcDistance(
   };
 }
 
-export default calcDistance;
+export default distanceTo;

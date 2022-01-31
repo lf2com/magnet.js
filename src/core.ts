@@ -1,5 +1,3 @@
-import calcMultiAttractions from './methods/static/calcMultiAttractions';
-import calcSingleAttraction from './methods/static/calcSingleAttraction';
 import { getAttractionOffset } from './types/Attraction';
 import { getArrayFromAttributeValue, getAttributeValueFromArray } from './utils/multiAttributeValues';
 import registerElement from './utils/registerElement';
@@ -8,12 +6,10 @@ import AlignTo, { AlignToParent } from './values/alignTo';
 import Attribute from './values/attribute';
 import CrossPrevent from './values/crossPrevent';
 import Event from './values/event';
-import Style from './values/style';
 import OffsetUnit from './values/offsetUnit';
 import { isNaN } from './utils/numeric';
 
 const nodeName = 'magnet-pack';
-
 const template = document.createElement('template');
 const defaultValues = {
   [Attribute.disabled]: false,
@@ -43,12 +39,7 @@ const defaultValues = {
 template.innerHTML = `
   <style>
     :host {
-      --x: var(${Style.offsetX}, 0);
-      --y: var(${Style.offsetY}, 0);
-
       position: relative;
-      top: var(--y);
-      left: var(--x);
       display: inline-block;
     }
   </style>
@@ -60,9 +51,8 @@ class MagnetPack extends HTMLElement {
   constructor() {
     super();
 
-    const shadowRoot = this.attachShadow({ mode: 'open' });
-
-    shadowRoot.append(template.content.cloneNode(true));
+    this.attachShadow({ mode: 'open' });
+    (this.shadowRoot as ShadowRoot).append(template.content.cloneNode(true));
   }
 
   static get ALIGNMENT() {
@@ -117,16 +107,6 @@ class MagnetPack extends HTMLElement {
 
     return alignments;
   }
-
-  /**
-   * Returns result of attractions from source to target on alignments.
-   */
-  static calcMagnetAttraction = calcSingleAttraction
-
-  /**
-   * Returns result of attraction from source to targets on alignments.
-   */
-  static calcMultiMagnetAttractions = calcMultiAttractions
 
   /**
    * Returns the offset of attraction result.
@@ -306,6 +286,20 @@ class MagnetPack extends HTMLElement {
         : getArrayFromAttributeValue(alignToParents, AlignToParent)
       )),
     );
+  }
+
+  /**
+   * Returns magnet alignments for attraction.
+   */
+  get alignments(): Alignment[] {
+    return MagnetPack.getAlignmentsFromAlignTo(this.alignTos);
+  }
+
+  /**
+   * Returns magnet alignments for parent attraction.
+   */
+  get parentAlignments(): Alignment[] {
+    return MagnetPack.getAlignmentsFromAlignTo(this.alignToParents);
   }
 
   /**

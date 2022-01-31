@@ -1,4 +1,4 @@
-import { MultiAttraction } from '../methods/static/calcMultiAttractions';
+import { MultiAttraction } from '../methods/static/multiAttractionsTo';
 import Distance from './Distance';
 import Pack from './Pack';
 
