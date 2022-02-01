@@ -4,19 +4,24 @@ import { getRect } from './Rect';
 interface CreatePoint {
   (x: number, y: number): DOMPoint;
   (point: DOMPoint): DOMPoint;
+  (rect: DOMRect): DOMPoint;
 }
 
 /**
  * Returns point object from a point or (x, y).
  */
 export const createPoint: CreatePoint = function createPoint(
-  x: DOMPoint | number,
+  x: number | DOMPoint | DOMRect,
   y?: number,
 ) {
-  return (x instanceof DOMPoint
-    ? DOMPoint.fromPoint(x)
-    : new DOMPoint(x, y)
-  );
+  if (x instanceof DOMPoint) {
+    return DOMPoint.fromPoint(x);
+  }
+  if (x instanceof DOMRect) {
+    return new DOMPoint(x.x, x.y);
+  }
+
+  return new DOMPoint(x, y);
 };
 
 /**
