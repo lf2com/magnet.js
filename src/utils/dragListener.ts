@@ -28,7 +28,7 @@ const EVENT_DRAG_END = [
  */
 function dragStartListener(
   this: Magnet,
-  event: DragEvent,
+  event: PointerEvent,
 ): void {
   if (this.disabled || this.unmovable) {
     return;
@@ -66,7 +66,7 @@ function dragStartListener(
   /**
    * Handles dragmove event binded with mousemove/touchmove events.
    */
-  const dragMoveListener = (evt: DragEvent): void => {
+  const dragMoveListener = (evt: PointerEvent): void => {
     const dragMovePoint = getEventXY(evt);
     const dragOffset = createPoint(
       dragMovePoint.x - dragStartPoint.x,
