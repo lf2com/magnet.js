@@ -40,10 +40,14 @@ function setOffsetWithAttraction(
   options: SetOffsetWithAttractionOptions = {},
 ) {
   const {
-    alignToParents,
-    parentAlignments = Magnet.getAlignmentsFromAlignTo(alignToParents ?? this.alignToParents),
-    crossPrevents,
-    crossPreventParent = (crossPrevents ?? this.crossPrevents).includes(CrossPrevent.parent),
+    parentAlignments = Magnet.getAlignmentsFromAlignTo(
+      options.alignToParents
+      ?? this.alignToParents,
+    ),
+    crossPreventParent = (
+      options.crossPrevents
+      ?? this.crossPrevents
+    ).includes(CrossPrevent.parent),
     onJudgeDistance: optionsOnJudgeDistance,
     onJudgeAttraction: optionsOnJudgeAttraction,
     onJudgeMovement = this.judgeMagnetMovement,
