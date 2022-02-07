@@ -331,7 +331,7 @@ class MagnetPack extends HTMLElement {
   /**
    * Returns unit of offset.
    */
-  get offsetUnit(): string {
+  protected get offsetUnit(): string {
     const value = this.traceMagnetAttributeValue(Attribute.offsetUnit);
 
     return (value === null
@@ -343,7 +343,7 @@ class MagnetPack extends HTMLElement {
   /**
    * Sets the unit of offset.
    */
-  set offsetUnit(offsetUnit: string | null) {
+  protected set offsetUnit(offsetUnit: string | null) {
     if (offsetUnit === null) {
       this.removeAttribute(Attribute.offsetUnit);
     } else if (!Object.values(OffsetUnit).includes(offsetUnit as OffsetUnit)) {
