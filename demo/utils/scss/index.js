@@ -129,6 +129,7 @@
 
       await loadNextScss(0);
       console.log('All Sass files done');
+      window.dispatchEvent(new CustomEvent('SassLoad'));
     } catch (error) {
       console.warn(error.message);
     }

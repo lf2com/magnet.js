@@ -124,6 +124,7 @@
 
       await loadNextTs(0);
       console.log('All TypeScript files done');
+      window.dispatchEvent(new CustomEvent('TsLoad'));
     } catch (error) {
       console.warn(error.message);
     }
