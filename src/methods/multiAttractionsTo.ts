@@ -1,18 +1,20 @@
-import Magnet from '../..';
-import MagnetPack from '../../core';
-import Attraction from '../../types/Attraction';
-import Pack, { getPack, Rectable } from '../../types/Pack';
-import { getRect } from '../../types/Rect';
-import { abs } from '../../utils/numeric';
-import Alignment from '../../values/alignment';
-import AlignTo from '../../values/alignTo';
+import Magnet from '..';
+import MagnetPack, { defaultAttributeValues } from '../core';
+import Attraction, { AttractionBest } from '../types/Attraction';
+import Pack, { getPack, Rectable } from '../types/Pack';
+import { getRect } from '../types/Rect';
+import { abs } from '../utils/numeric';
+import Alignment from '../values/alignment';
 import { SingleAttractionToOptions } from './singleAttractionTo';
-import judgeAttraction, { OnJudgeAttraction } from './judgeAttraction';
-import judgeDistance from './judgeDistance';
+import { OnJudgeAttraction } from './judgeAttraction';
+import { returnTrue } from '../utils/returnTrueFalse';
+import Attribute from '../values/attribute';
+import { distanceBetweenXCentersOfRects, distanceBetweenYCentersOfRects } from '../utils/distanceBetweenRects';
 
 export type MultiAttraction = Attraction<Pack[]>;
 
 export interface MultiAttractionsToOptions extends SingleAttractionToOptions {
+  attractionBest?: AttractionBest;
   onJudgeAttraction?: OnJudgeAttraction;
 }
 
@@ -22,27 +24,23 @@ export interface MultiAttractionsToOptions extends SingleAttractionToOptions {
 function multiAttractionsTo(
   source: Rectable | Pack,
   targets: (Rectable | Pack)[],
-  options?: MultiAttractionsToOptions,
+  options: MultiAttractionsToOptions = {},
 ): MultiAttraction {
-  const magnetOptions = (options ?? source) as Magnet;
-  const standOptions = (options ?? {}) as MultiAttractionsToOptions;
   const sourcePack = getPack(source);
   const targetPacks = targets.map((target) => getPack(target));
   const {
-    attractDistance = magnetOptions.attractDistance ?? 0,
-    alignTos,
-    alignments = MagnetPack.getAlignmentsFromAlignTo(
-      alignTos ?? magnetOptions.alignTos ?? Object.values(AlignTo),
-    ),
-    onJudgeDistance = magnetOptions.judgeMagnetDistance ?? judgeDistance,
-    onJudgeAttraction = magnetOptions.judgeMagnetAttraction ?? judgeAttraction,
+    attractDistance = defaultAttributeValues[Attribute.attractDistance],
+    alignTos = defaultAttributeValues[Attribute.alignTo],
+    alignments = MagnetPack.getAlignmentsFromAlignTo(alignTos),
+    onJudgeDistance = returnTrue,
+    onJudgeAttraction = returnTrue,
     attractionBest = {},
-  } = standOptions;
-  const singleAttractionOptions = {
+  } = options;
+  const singleAttractionOptions: SingleAttractionToOptions = {
     attractDistance,
+    alignTos,
     alignments,
     onJudgeDistance,
-    attractionBest,
   };
   const multiAttraction = targetPacks.reduce<MultiAttraction>(
     (attraction, targetPack) => {
@@ -55,10 +53,10 @@ function multiAttractionsTo(
         best: currentBest,
         results: currentResults,
       } = singleAttraction;
-      const judgementPassed = onJudgeAttraction({
+      const passJudgement = onJudgeAttraction({
         source: sourcePack,
         target: targetPack,
-        results: currentResults.concat(),
+        results: [...currentResults],
         best: {
           x: currentBest.x,
           y: currentBest.y,
@@ -67,7 +65,7 @@ function multiAttractionsTo(
 
       attraction.target.push(targetPack);
 
-      if (judgementPassed) {
+      if (passJudgement) {
         const { results, best } = attraction;
 
         results.push(...currentResults);
@@ -78,8 +76,10 @@ function multiAttractionsTo(
             best.x = currentBest.x;
           } else if (best.x.absDistance === currentBest.x.absDistance) {
             const sourceRect = getRect(sourcePack);
-            const currentDiffY = abs(currentBest.x.target.rect.y - sourceRect.y);
-            const diffY = abs(best.x.target.rect.y - sourceRect.y);
+            const targetRect = currentBest.x.target.rect;
+            const lastBestRect = best.x.target.rect;
+            const currentDiffY = distanceBetweenYCentersOfRects(sourceRect, targetRect);
+            const diffY = distanceBetweenYCentersOfRects(sourceRect, lastBestRect);
 
             if (currentDiffY < diffY) {
               best.x = currentBest.x;
@@ -117,8 +117,10 @@ function multiAttractionsTo(
             best.y = currentBest.y;
           } else if (best.y.absDistance === currentBest.y.absDistance) {
             const sourceRect = getRect(sourcePack);
-            const currentDiffX = abs(currentBest.y.target.rect.x - sourceRect.x);
-            const diffX = abs(best.y.target.rect.x - sourceRect.x);
+            const targetRect = currentBest.y.target.rect;
+            const lastBestRect = best.y.target.rect;
+            const currentDiffX = distanceBetweenXCentersOfRects(sourceRect, targetRect);
+            const diffX = distanceBetweenXCentersOfRects(sourceRect, lastBestRect);
 
             if (currentDiffX < diffX) {
               best.y = currentBest.y;
@@ -157,7 +159,7 @@ function multiAttractionsTo(
       source: sourcePack,
       target: [],
       results: [],
-      best: {},
+      best: { ...attractionBest },
     },
   );
 

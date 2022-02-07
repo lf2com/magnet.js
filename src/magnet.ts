@@ -1,13 +1,12 @@
 import MagnetPack from './core';
-import setOffsetWithAttraction, { SetOffsetWithAttractionOptions } from './methods/instance/setOffsetWithAttraction';
-import distanceTo from './methods/static/distanceTo';
-import rawDistanceTo from './methods/static/rawDistanceTo';
-import multiAttractionsTo, { StandardCalcMultiAttractionsOptions } from './methods/static/multiAttractionsTo';
-import singleAttractionTo, { SingleAttractionToOptions, StandardCalcSingleAttractionOptions } from './methods/static/singleAttractionTo';
-import judgeAttraction from './methods/static/judgeAttraction';
-import judgeDistance from './methods/static/judgeDistance';
-import judgeDistanceInParent from './methods/static/judgeDistanceInParent';
-import judgeMovement from './methods/static/judgeMovement';
+import distanceTo from './methods/distanceTo';
+import rawDistanceTo from './methods/rawDistanceTo';
+import multiAttractionsTo, { MultiAttractionsToOptions } from './methods/multiAttractionsTo';
+import singleAttractionTo, { SingleAttractionToOptions } from './methods/singleAttractionTo';
+import judgeAttraction from './methods/judgeAttraction';
+import judgeDistance from './methods/judgeDistance';
+import judgeDistanceInParent from './methods/judgeDistanceInParent';
+import judgeMovement from './methods/judgeMovement';
 import { AttractionBest } from './types/Attraction';
 import Pack, { getPack, Rectable } from './types/Pack';
 import { createPoint } from './types/Point';
@@ -18,6 +17,8 @@ import Alignment from './values/alignment';
 import Attribute from './values/attribute';
 import OffsetUnit from './values/offsetUnit';
 import Style from './values/style';
+import { AlignToParent } from './values/alignTo';
+import attractionResultOfPosition, { AttractionResultOfPositionOptions } from './methods/attractionResultOfPosition';
 
 const nodeName = 'magnet-block';
 const template = document.createElement('template');
@@ -107,15 +108,13 @@ class Magnet extends MagnetPack {
   }
 
   /**
-   * Returns pack object of magnet parent if existing.
+   * Returns pack object of parent if existing.
    */
-  get parentMagnetPack(): Pack | null {
-    const { parentElement } = this;
+  get parentPack(): Pack {
+    const parent = this.parentElement ?? document.body;
 
-    if (parentElement) {
-      if (!this.#parentPack) {
-        this.#parentPack = getPack(parentElement);
-      }
+    if (!this.#parentPack) {
+      this.#parentPack = getPack(parent);
     }
 
     return this.#parentPack;
@@ -124,7 +123,7 @@ class Magnet extends MagnetPack {
   /**
    * Resets the pack object of the parent of magnet.
    */
-  resetParentMagnetPack(): void {
+  resetParentPack(): void {
     this.#parentPack = null;
   }
 
@@ -143,7 +142,7 @@ class Magnet extends MagnetPack {
   /**
    * Resets the pack objects of target magnets.
    */
-  resetTargetMagnets(): void {
+  resetTargetMagnetPacks(): void {
     this.#targetMagnetPacks = null;
   }
 
@@ -182,12 +181,42 @@ class Magnet extends MagnetPack {
    * Returns true if the distance passes the judgement. Otherwise the
    * distance would not be listed on the attraction result.
    */
-  judgeMagnetDistance = judgeDistance
+  judgeMagnetDistance(...[
+    distance,
+    options = {},
+  ]: Parameters<typeof judgeDistance>) {
+    const {
+      attractDistance = this.attractDistance,
+      alignTos = this.alignTos,
+    } = options;
+
+    return judgeDistance(distance, {
+      attractDistance,
+      alignTos,
+    });
+  }
 
   /**
    * The same as .judgeMagnetDisance but consider a wrapper element.
    */
-  judgeMagnetDistanceInParent = judgeDistanceInParent
+  judgeMagnetDistanceInParent(...[
+    distance,
+    options = {},
+  ]: Parameters<typeof judgeDistanceInParent>) {
+    const {
+      attractDistance = this.attractDistance,
+      alignTos = this.alignTos,
+      onJudgeDistance = this.judgeMagnetDistance,
+    } = options;
+    const parent = options.parent ?? this.parentPack;
+
+    return judgeDistanceInParent(distance, {
+      attractDistance,
+      alignTos,
+      parent,
+      onJudgeDistance,
+    });
+  }
 
   /**
    * Returns true if the attraction passes the judgement. Otherwise the
@@ -232,12 +261,23 @@ class Magnet extends MagnetPack {
     target: Rectable | Pack,
     options: SingleAttractionToOptions = {},
   ) {
-    const parentAttraction = Magnet.prototype.attractionToParent.call(this, options);
+    const {
+      attractDistance = this.attractDistance,
+      alignTos = this.alignTos,
+      alignments,
+      onJudgeDistance = this.judgeMagnetDistance,
+    } = options;
 
-    return singleAttractionTo(this, target, {
-      ...options,
-      attractionBest: parentAttraction?.best,
-    });
+    return singleAttractionTo(
+      this,
+      target,
+      {
+        attractDistance,
+        alignTos,
+        alignments,
+        onJudgeDistance,
+      },
+    );
   }
 
   /**
@@ -246,25 +286,21 @@ class Magnet extends MagnetPack {
   attractionToParent(
     options: SingleAttractionToOptions = {},
   ) {
-    const alignTos = this.alignToParents;
     const {
-      alignments = Magnet.getAlignmentsFromAlignTo(alignTos ?? this.alignToParents),
-    } = options as StandardCalcSingleAttractionOptions;
-    const parent = (this instanceof Magnet
-      ? this.parentMagnetPack
-      : (this as HTMLElement).offsetParent
-    );
-
-    if (alignments.length === 0 || !parent) {
-      return null;
-    }
+      attractDistance = this.attractDistance,
+      alignTos = this.alignToParents,
+      alignments,
+      onJudgeDistance = this.judgeMagnetDistance,
+    } = options;
 
     return singleAttractionTo(
       this,
-      parent,
+      this.parentPack,
       {
-        ...options,
+        attractDistance,
         alignTos,
+        alignments,
+        onJudgeDistance,
       },
     );
   }
@@ -274,21 +310,24 @@ class Magnet extends MagnetPack {
    */
   multiAttractionsTo(
     targets: (Rectable | Pack)[],
-    options: StandardCalcMultiAttractionsOptions = {},
+    options: MultiAttractionsToOptions & {
+      alignToParents?: AlignToParent[];
+    } = {},
   ) {
     const {
       attractDistance = this.attractDistance,
-      alignTos,
-      alignments = Magnet.getAlignmentsFromAlignTo(alignTos ?? this.alignTos),
+      alignTos = this.alignTos,
+      alignToParents = this.alignToParents,
+      alignments,
       onJudgeDistance = this.judgeMagnetDistance,
-      onJudgeAttraction = this.judgeMagnetAttraction,
       attractionBest,
+      onJudgeAttraction = this.judgeMagnetAttraction,
     } = options;
     const parentAttraction = Magnet.prototype.attractionToParent.call(
       this,
       {
         attractDistance,
-        alignTos,
+        alignTos: alignToParents,
         alignments,
         onJudgeDistance,
         attractionBest,
@@ -300,6 +339,7 @@ class Magnet extends MagnetPack {
       targets,
       {
         attractDistance,
+        alignTos,
         alignments,
         onJudgeDistance,
         onJudgeAttraction,
@@ -309,102 +349,76 @@ class Magnet extends MagnetPack {
   }
 
   /**
-   * Sets the offset of magnet to (dx, dy) with checking the attraction.
+   * Returns final available position and attraction on specific position.
    */
-  setMagnetOffsetWithAttraction(
-    dx: number,
-    dy: number,
-    options?: SetOffsetWithAttractionOptions,
-  ): ReturnType<typeof setOffsetWithAttraction>
+  getMagnetAttractionResultOfPosition(
+    position: DOMPoint,
+    options?: AttractionResultOfPositionOptions,
+  ): ReturnType<typeof attractionResultOfPosition>
 
-  setMagnetOffsetWithAttraction(
-    offset?: DOMPoint,
-    options?: SetOffsetWithAttractionOptions,
-  ): ReturnType<typeof setOffsetWithAttraction>
-
-  setMagnetOffsetWithAttraction<A0 extends DOMPoint | number>(
-    arg0?: A0,
-    arg1?: A0 extends DOMPoint ? SetOffsetWithAttractionOptions : number,
-    arg2?: A0 extends DOMPoint ? undefined : SetOffsetWithAttractionOptions,
-  ): ReturnType<typeof setOffsetWithAttraction> {
-    const offset = createPoint(arg0 as number, arg1 as number);
-    const options = (arg0 instanceof DOMPoint
-      ? arg1
-      : arg2
-    ) as SetOffsetWithAttractionOptions;
-    const result = setOffsetWithAttraction.call(this, offset, options);
-
-    this.resetMagnetRect();
-    this.resetParentMagnetPack();
-    this.resetTargetMagnets();
-
-    return result;
-  }
-
-  /**
-   * Sets the position of magnet to (x, y) with checking the attraction.
-   */
-  setMagnetPositionWithAttraction(
+  getMagnetAttractionResultOfPosition(
     x: number,
     y: number,
-    options?: SetOffsetWithAttractionOptions,
-  ): ReturnType<typeof setOffsetWithAttraction>
+    options?: AttractionResultOfPositionOptions,
+  ): ReturnType<typeof attractionResultOfPosition>
 
-  setMagnetPositionWithAttraction(
-    position?: DOMPoint,
-    options?: SetOffsetWithAttractionOptions,
-  ): ReturnType<typeof setOffsetWithAttraction>
-
-  setMagnetPositionWithAttraction<A0 extends DOMPoint | number>(
-    arg0?: A0,
-    arg1?: A0 extends DOMPoint ? SetOffsetWithAttractionOptions : number,
-    arg2?: A0 extends DOMPoint ? undefined : SetOffsetWithAttractionOptions,
-  ): ReturnType<typeof setOffsetWithAttraction> {
-    const sourceRect = this.magnetRect;
-    const position = createPoint((arg0 ?? sourceRect) as number, arg1 as number);
-    const offset = createPoint(
-      position.x - sourceRect.x,
-      position.y - sourceRect.y,
+  getMagnetAttractionResultOfPosition<A0 extends DOMPoint | number>(
+    arg0: A0,
+    arg1?: A0 extends DOMPoint ? AttractionResultOfPositionOptions : number,
+    arg2?: A0 extends DOMPoint ? undefined : AttractionResultOfPositionOptions,
+  ) {
+    const position = createPoint(arg0 as number, arg1 as number);
+    const options = (
+      arg0 instanceof DOMPoint ? arg1 : arg2
+    ) as AttractionResultOfPositionOptions;
+    const { width, height } = this.magnetRect;
+    const sourceRect = createRect(
+      position.x,
+      position.y,
+      width,
+      height,
     );
-    const options = (arg0 instanceof DOMPoint
-      ? arg1
-      : arg2
-    ) as SetOffsetWithAttractionOptions;
-
-    return this.setMagnetOffsetWithAttraction(offset, options);
-  }
-
-  /**
-   * Appends the offset of magnet with (dx, dy) with checking the attraction.
-   */
-  appendMagnetOffsetWithAttraction(
-    dx: number,
-    dy: number,
-    options?: SetOffsetWithAttractionOptions,
-  ): ReturnType<typeof setOffsetWithAttraction>
-
-  appendMagnetOffsetWithAttraction(
-    point?: DOMPoint,
-    options?: SetOffsetWithAttractionOptions,
-  ): ReturnType<typeof setOffsetWithAttraction>
-
-  appendMagnetOffsetWithAttraction(
-    arg0?: DOMPoint | number,
-    arg1?: number | SetOffsetWithAttractionOptions,
-    arg2?: SetOffsetWithAttractionOptions,
-  ): ReturnType<typeof setOffsetWithAttraction> {
-    const offset = createPoint(arg0 as number, arg1 as number);
-    const options = (arg0 instanceof DOMPoint
-      ? arg1
-      : arg2
-    ) as SetOffsetWithAttractionOptions;
-    const { lastOffset } = this;
-
-    return this.setMagnetOffsetWithAttraction(
-      lastOffset.x + offset.x,
-      lastOffset.y + offset.y,
-      options,
+    const sourcePack = new Pack(this, sourceRect);
+    const {
+      ignoreEvent,
+      unattractable = this.unattractable,
+      attractDistance = this.attractDistance,
+      alignTos = this.alignTos,
+      alignments,
+      alignToParents = this.alignToParents,
+      crossPrevents = this.crossPrevents,
+      parentPack = this.parentPack,
+      lastAttractionBest = this.lastAttractionBest,
+      onJudgeDistance = this.judgeMagnetDistance,
+      onJudgeDistanceInParent = this.judgeMagnetDistanceInParent,
+      onJudgeAttraction = this.judgeMagnetAttraction,
+      onJudgeMovement = this.judgeMagnetMovement,
+    } = options;
+    const result = attractionResultOfPosition(
+      sourcePack,
+      this.targetMagnetPacks,
+      {
+        ignoreEvent,
+        unattractable,
+        attractDistance,
+        alignTos,
+        alignments,
+        alignToParents,
+        crossPrevents,
+        parentPack,
+        lastAttractionBest,
+        onJudgeDistance,
+        onJudgeDistanceInParent,
+        onJudgeAttraction,
+        onJudgeMovement,
+      },
     );
+
+    this.resetMagnetRect();
+    this.resetParentPack();
+    this.resetTargetMagnetPacks();
+
+    return result;
   }
 
   /**
@@ -441,14 +455,17 @@ class Magnet extends MagnetPack {
   }
 
   /**
-   * Moves magnet element to (x, y).
+   * Offsets magnet movement with (dx, dy).
    */
-  setMagnetOffset(x: number, y: number): void
+  setMagnetOffset(dx: number, dy: number): void
 
-  setMagnetOffset(point?: DOMPoint): void
+  setMagnetOffset(offset?: DOMPoint): void
 
-  setMagnetOffset(x?: DOMPoint | number, y?: number): void {
-    const offset = createPoint(x as number, y as number);
+  setMagnetOffset<DX extends DOMPoint | number>(
+    dx: DX = this.lastOffset as DX,
+    dy?: DX extends DOMPoint ? undefined : number,
+  ): void {
+    const offset = createPoint(dx as number, dy as number);
     const { offsetUnit } = this;
 
     switch (offsetUnit) {
@@ -494,7 +511,28 @@ class Magnet extends MagnetPack {
       }
     }
 
-    this.lastOffset = offset;
+    this.lastOffset = createPoint(offset);
+  }
+
+  /**
+   * Moves magnet movement to (x, y).
+   */
+  setMagnetPosition(x: number, y: number): void
+
+  setMagnetPosition(position?: DOMPoint): void
+
+  setMagnetPosition<X extends DOMPoint | number>(
+    x: X = createPoint(this.magnetRect) as X,
+    y?: X extends DOMPoint ? undefined : number,
+  ) {
+    const position = createPoint(x as number, y as number);
+    const sourceRect = this.magnetRect;
+
+    this.setMagnetOffset(
+      position.x - sourceRect.x,
+      position.y - sourceRect.y,
+    );
+    this.resetMagnetRect();
   }
 
   /**

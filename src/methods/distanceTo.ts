@@ -1,8 +1,8 @@
-import Distance from '../../types/Distance';
-import Pack, { getPack, Rectable } from '../../types/Pack';
-import { getRect } from '../../types/Rect';
-import { abs } from '../../utils/numeric';
-import Alignment from '../../values/alignment';
+import Distance from '../types/Distance';
+import Pack, { getPack, Rectable } from '../types/Pack';
+import { getRect } from '../types/Rect';
+import { abs } from '../utils/numeric';
+import Alignment from '../values/alignment';
 import rawDistanceTo from './rawDistanceTo';
 
 /**

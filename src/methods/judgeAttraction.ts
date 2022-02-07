@@ -1,4 +1,3 @@
-import Magnet from '../..';
 import { SingleAttraction } from './singleAttractionTo';
 
 export type OnJudgeAttraction = (
@@ -10,7 +9,6 @@ export type OnJudgeAttraction = (
  * attraction would not be on the result list of attractions.
  */
 const judgeAttraction: OnJudgeAttraction = function judgeAttraction(
-  this: Magnet,
   attraction,
 ): boolean {
   return Boolean(attraction.best.x ?? attraction.best.y);

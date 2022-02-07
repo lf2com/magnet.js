@@ -1,25 +1,17 @@
-import Magnet from '../..';
-import Distance from '../../types/Distance';
-import Pack, { Rectable } from '../../types/Pack';
-import { getRect } from '../../types/Rect';
-import judgeDistance, { JudgeDistanceOptions, MagnetJudgeDistanceOptionKeys, OnJudgeDistance } from './judgeDistance';
+import Distance from '../types/Distance';
+import Pack, { Rectable } from '../types/Pack';
+import { getRect } from '../types/Rect';
+import { returnTrue } from '../utils/returnTrueFalse';
+import { JudgeDistanceOptions, OnJudgeDistance } from './judgeDistance';
 
 export interface JudgeDistanceInParentOptions extends JudgeDistanceOptions {
-  parent?: Pack | Rectable;
+  parent?: Pack | Rectable | null;
   onJudgeDistance?: OnJudgeDistance;
 }
 
-type MagnetJudgeDistanceInParentOptionKeys = (
-  MagnetJudgeDistanceOptionKeys
-  & 'parentMagnetPack' | 'judgeMagnetDistance' | 'offsetParent'
-);
-
 export type OnJudgeDistanceInParent = (
   distance: Distance,
-  options?: (
-    JudgeDistanceInParentOptions
-    | Pick<Magnet, MagnetJudgeDistanceInParentOptionKeys>
-  ),
+  options?: JudgeDistanceInParentOptions,
 ) => boolean;
 
 /**
@@ -27,33 +19,24 @@ export type OnJudgeDistanceInParent = (
  * distance would not be on the result list of attraction.
  */
 const judgeDistanceInParent: OnJudgeDistanceInParent = function judgeDistanceInParent(
-  this: Magnet,
   distance,
-  options,
+  options = {},
 ) {
-  const magnetOptions = (options ?? this) as Magnet;
-  const standOptions = (options ?? {}) as JudgeDistanceInParentOptions;
   const {
-    attractDistance,
-    alignTos,
-    onJudgeDistance = magnetOptions.judgeMagnetDistance ?? judgeDistance,
-  } = standOptions;
-  const passJudgeDistance = onJudgeDistance(distance, {
-    attractDistance,
-    alignTos,
-  });
+    onJudgeDistance = returnTrue,
+    ...judgeDistanceOptions
+  } = options;
+  const passJudgeDistance = onJudgeDistance(distance, judgeDistanceOptions);
 
   if (!passJudgeDistance) {
     return false;
   }
 
-  const {
-    parent = (
-      magnetOptions.parentMagnetPack
-      ?? magnetOptions.offsetParent
-      ?? document.body
-    ),
-  } = standOptions;
+  /**
+   * If options.parent is `null`, use `document.body` instead.
+   */
+  const parent = options.parent ?? document.body;
+
   const parentRect = getRect(parent);
   const { alignment, rawDistance, source } = distance;
   const {

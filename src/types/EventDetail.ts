@@ -1,4 +1,4 @@
-import { MultiAttraction } from '../methods/static/multiAttractionsTo';
+import { MultiAttraction } from '../methods/multiAttractionsTo';
 import Distance from './Distance';
 import Pack from './Pack';
 
@@ -35,9 +35,5 @@ export interface AttractedmoveEventDetail extends AttractedEventDetail {}
 
 export interface UnattractEventDetail extends AttractEventDetail {}
 
-export interface UnattractedEventDetail {
-  source: Pack;
-  target: Pack;
-  sourceNextRect: DOMRect;
-  nextTarget: Pack | null;
+export interface UnattractedEventDetail extends Omit<AttractedEventDetail, 'distance'> {
 }

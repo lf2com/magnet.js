@@ -1,23 +1,17 @@
-import Magnet from '../..';
-import Distance from '../../types/Distance';
-import Alignment from '../../values/alignment';
-import AlignTo, { AlignToParent } from '../../values/alignTo';
+import { defaultAttributeValues } from '../core';
+import Distance from '../types/Distance';
+import Alignment from '../values/alignment';
+import AlignTo, { AlignToParent } from '../values/alignTo';
+import Attribute from '../values/attribute';
 
 export interface JudgeDistanceOptions {
   attractDistance?: number;
   alignTos?: (AlignTo | AlignToParent)[];
 }
 
-export type MagnetJudgeDistanceOptionKeys = (
-  'attractDistance' | 'alignTos'
-);
-
 export type OnJudgeDistance = (
   distance: Distance,
-  options?: (
-    JudgeDistanceOptions
-    | Pick<Magnet, MagnetJudgeDistanceOptionKeys>
-  ),
+  options?: JudgeDistanceOptions,
 ) => boolean;
 
 /**
@@ -25,15 +19,12 @@ export type OnJudgeDistance = (
  * distance would not be on the result list of attraction.
  */
 const judgeDistance: OnJudgeDistance = function judgeDistance(
-  this: Magnet,
   distance,
-  options,
+  options = {},
 ): boolean {
-  const magnetOptions = (options ?? this) as Magnet;
-  const standOptions = (options ?? {}) as JudgeDistanceOptions;
   const {
-    attractDistance = magnetOptions.attractDistance ?? 0,
-  } = standOptions;
+    attractDistance = defaultAttributeValues[Attribute.attractDistance],
+  } = options;
 
   if (distance.absDistance > attractDistance) {
     // too far, no consider
@@ -41,8 +32,8 @@ const judgeDistance: OnJudgeDistance = function judgeDistance(
   }
 
   const {
-    alignTos = magnetOptions.alignTos ?? Object.values(AlignTo),
-  } = standOptions;
+    alignTos = defaultAttributeValues[Attribute.alignTo],
+  } = options;
 
   if (alignTos.includes(AlignTo.extend)) {
     // align to extended edges
