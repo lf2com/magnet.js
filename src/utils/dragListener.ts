@@ -1,32 +1,100 @@
 import Magnet from '..';
-import setOffsetWithAttraction from '../methods/instance/setOffsetWithAttraction';
+import attractionResultOfPosition from '../methods/attractionResultOfPosition';
+import { OnJudgeMovement } from '../methods/judgeMovement';
 import { MoveEventDetail, StartEventDetail } from '../types/EventDetail';
 import Pack from '../types/Pack';
-import { createPoint } from '../types/Point';
+import createPoint from '../types/Point';
+import createRect from '../types/Rect';
 import Event from '../values/event';
 import { addEventListeners, removeEventListeners, triggerEvent } from './eventHandler';
 import getEventXY from './getEventXY';
 
-const EVENT_DRAG_START = [
-  // 'pointerdown',
-  'touchstart',
-  'mousedown',
-];
-const EVENT_DRAG_MOVE = [
-  // 'pointermove',
-  'touchmove',
-  'mousemove',
-];
-const EVENT_DRAG_END = [
-  // 'pointerup',
-  'touchend',
-  'mouseup',
-];
+const EVENT_DRAG_START = ['pointerdown'];
+const EVENT_DRAG_MOVE = ['pointermove'];
+const EVENT_DRAG_END = ['pointerup'];
 
 /**
- * Handles dragstart event binded with mousedown/touchstart events.
+ * Resets magnet caches.
  */
-function dragStartListener(
+function resetMagnetCaches(magnet: Magnet): void {
+  magnet.resetMagnetRect();
+  magnet.resetParentPack();
+  magnet.resetTargetMagnetPacks();
+}
+
+/**
+ * Event listener of drag move event.
+ */
+function moveListener(
+  this: Magnet,
+  startPoint: DOMPoint,
+  startLastOffset: DOMPoint,
+  event: PointerEvent,
+): void {
+  const movePoint = getEventXY(event);
+  const {
+    magnetRect: sourceRect,
+    targetMagnetPacks: targetPacks,
+    judgeMagnetMovement,
+  } = this;
+  const onJudgeMovement: OnJudgeMovement = (nextSourcePack) => {
+    if (!judgeMagnetMovement(nextSourcePack)) {
+      return false;
+    }
+
+    const moveEventDetail: MoveEventDetail = {
+      source: nextSourcePack,
+      targets: targetPacks,
+      startPoint: createPoint(startPoint),
+      movePoint: createPoint(movePoint),
+    };
+    const passMoveEvent = triggerEvent<MoveEventDetail>(
+      this,
+      Event.magnetmove,
+      {
+        bubbles: true,
+        cancelable: true,
+        composed: true,
+        detail: moveEventDetail,
+      },
+    );
+
+    return passMoveEvent;
+  };
+  const { position, attractionBest } = attractionResultOfPosition(
+    new Pack(this, createRect(
+      sourceRect.x + movePoint.x - startPoint.x,
+      sourceRect.y + movePoint.y - startPoint.y,
+      sourceRect.width,
+      sourceRect.height,
+    )),
+    targetPacks,
+    {
+      ignoreEvent: false,
+      unattractable: this.unattractable,
+      attractDistance: this.attractDistance,
+      alignTos: this.alignTos,
+      alignToParents: this.alignToParents,
+      crossPrevents: this.crossPrevents,
+      parentPack: this.parentPack,
+      lastAttractionBest: this.lastAttractionBest,
+      onJudgeDistance: this.judgeMagnetDistance,
+      onJudgeDistanceInParent: this.judgeMagnetDistanceInParent,
+      onJudgeAttraction: this.judgeMagnetAttraction,
+      onJudgeMovement,
+    },
+  );
+  this.setMagnetOffset(
+    (position?.x ?? sourceRect.x) - sourceRect.x + startLastOffset.x,
+    (position?.y ?? sourceRect.y) - sourceRect.y + startLastOffset.y,
+  );
+  this.lastAttractionBest = attractionBest;
+}
+
+/**
+ * Event listener of drag start event.
+ */
+function startListener(
   this: Magnet,
   event: PointerEvent,
 ): void {
@@ -34,21 +102,21 @@ function dragStartListener(
     return;
   }
 
-  this.resetMagnetRect();
-  this.resetParentMagnetPack();
-  this.resetTargetMagnets();
+  const startPoint = getEventXY(event);
 
-  const sourcePack = new Pack(this, this.magnetRect);
-  const targetPacks = this.targetMagnetPacks;
-  const { lastOffset } = this;
-  const dragStartPoint = getEventXY(event);
+  resetMagnetCaches(this);
+
+  const {
+    magnetRect: sourceRect,
+    targetMagnetPacks: targetPacks,
+  } = this;
+  const sourcePack = new Pack(this, sourceRect);
   const startEventDetail: StartEventDetail = {
     source: sourcePack,
     targets: targetPacks,
-    lastOffset,
-    startPoint: dragStartPoint,
+    startPoint: createPoint(startPoint),
   };
-  const dragStartEventPassed = triggerEvent<StartEventDetail>(
+  const passStartEvent = triggerEvent<StartEventDetail>(
     this,
     Event.magnetstart,
     {
@@ -59,68 +127,22 @@ function dragStartListener(
     },
   );
 
-  if (!dragStartEventPassed) {
+  if (!passStartEvent) {
     return;
   }
 
-  /**
-   * Handles dragmove event binded with mousemove/touchmove events.
-   */
-  const dragMoveListener = (evt: PointerEvent): void => {
-    const dragMovePoint = getEventXY(evt);
-    const dragOffset = createPoint(
-      dragMovePoint.x - dragStartPoint.x,
-      dragMovePoint.y - dragStartPoint.y,
-    );
-
-    setOffsetWithAttraction.call(
-      this,
-      dragOffset,
-      {
-        onJudgeMovement: (nextSourcePack, nextOffset) => {
-          const moveEventDetail: MoveEventDetail = {
-            source: nextSourcePack,
-            targets: targetPacks,
-            lastOffset,
-            startPoint: dragStartPoint,
-            nextOffset,
-            movePoint: dragMovePoint,
-          };
-          const dragMoveEventPassed = triggerEvent<MoveEventDetail>(
-            this,
-            Event.magnetmove,
-            {
-              bubbles: true,
-              cancelable: true,
-              composed: true,
-              detail: moveEventDetail,
-            },
-          );
-
-          return dragMoveEventPassed;
-        },
-      },
-    );
-  };
-
-  /**
-   * Handles dragend event binded with mouseup/touchend events.
-   */
-  const dragEndListener = (): void => {
-    this.resetMagnetRect();
-    this.resetParentMagnetPack();
-    this.resetTargetMagnets();
-    this.style.removeProperty('z-index');
+  const dragMoveListener = moveListener.bind(this, startPoint, this.lastOffset);
+  const dragEndListener = () => {
+    removeEventListeners(document, EVENT_DRAG_MOVE, dragMoveListener);
+    removeEventListeners(document, EVENT_DRAG_END, dragEndListener);
+    resetMagnetCaches(this);
     triggerEvent(this, Event.magnetend, {
       bubbles: true,
       cancelable: false,
       composed: true,
     });
-    removeEventListeners(document, EVENT_DRAG_MOVE, dragMoveListener);
-    removeEventListeners(document, EVENT_DRAG_END, dragEndListener);
   };
 
-  this.style.setProperty('z-index', '1');
   event.preventDefault();
   addEventListeners(document, EVENT_DRAG_MOVE, dragMoveListener);
   addEventListeners(document, EVENT_DRAG_END, dragEndListener);
@@ -130,14 +152,14 @@ function dragStartListener(
  * Adds basic drag event listeners of magnet.
  */
 function addBasicDragListeners(magnet: Magnet): void {
-  addEventListeners(magnet, EVENT_DRAG_START, dragStartListener);
+  addEventListeners(magnet, EVENT_DRAG_START, startListener);
 }
 
 /**
  * Removes basic drag event listeners of magnet.
  */
 function removeBasicDragListeners(magnet: Magnet): void {
-  removeEventListeners(magnet, EVENT_DRAG_START, dragStartListener);
+  removeEventListeners(magnet, EVENT_DRAG_START, startListener);
 }
 
 /**
@@ -151,4 +173,4 @@ export function checkDragListeners(magnet: Magnet): void {
   }
 }
 
-export default dragStartListener;
+export default startListener;

@@ -5,12 +5,10 @@ import Pack from './Pack';
 export interface StartEventDetail {
   source: Pack;
   targets: Pack[];
-  lastOffset: DOMPoint;
   startPoint: DOMPoint;
 }
 
 export interface MoveEventDetail extends StartEventDetail {
-  nextOffset: DOMPoint;
   movePoint: DOMPoint;
 }
 
