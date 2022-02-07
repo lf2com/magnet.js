@@ -11,10 +11,11 @@ import { isNaN } from './utils/numeric';
 
 const nodeName = 'magnet-pack';
 const template = document.createElement('template');
-const defaultValues = {
+
+export const defaultAttributeValues = {
   [Attribute.disabled]: false,
-  [Attribute.group]: undefined,
-  [Attribute.attractDistance]: 10,
+  [Attribute.group]: null,
+  [Attribute.attractDistance]: 0,
   [Attribute.unattractable]: false,
   [Attribute.unmovable]: false,
   get [Attribute.alignTo]() {
@@ -218,7 +219,7 @@ class MagnetPack extends HTMLElement {
     const value = this.traceMagnetAttributeValue(Attribute.attractDistance);
 
     return (value === null
-      ? defaultValues[Attribute.attractDistance]
+      ? defaultAttributeValues[Attribute.attractDistance]
       : Number(value)
     );
   }
@@ -245,7 +246,7 @@ class MagnetPack extends HTMLElement {
     const value = this.traceMagnetAttributeValue(Attribute.alignTo);
 
     return (value === null
-      ? defaultValues[Attribute.alignTo]
+      ? defaultAttributeValues[Attribute.alignTo]
       : getArrayFromAttributeValue(value, AlignTo)
     );
   }
@@ -270,7 +271,7 @@ class MagnetPack extends HTMLElement {
     const value = this.traceMagnetAttributeValue(Attribute.alignToParent);
 
     return (value === null
-      ? defaultValues[Attribute.alignToParent]
+      ? defaultAttributeValues[Attribute.alignToParent]
       : getArrayFromAttributeValue(value, AlignToParent)
     );
   }
@@ -309,7 +310,7 @@ class MagnetPack extends HTMLElement {
     const value = this.traceMagnetAttributeValue(Attribute.crossPrevent);
 
     return (value === null
-      ? defaultValues[Attribute.crossPrevent]
+      ? defaultAttributeValues[Attribute.crossPrevent]
       : getArrayFromAttributeValue(value, CrossPrevent)
     );
   }
@@ -334,7 +335,7 @@ class MagnetPack extends HTMLElement {
     const value = this.traceMagnetAttributeValue(Attribute.offsetUnit);
 
     return (value === null
-      ? defaultValues[Attribute.offsetUnit]
+      ? defaultAttributeValues[Attribute.offsetUnit]
       : value
     );
   }
