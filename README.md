@@ -1,6 +1,6 @@
 # Magnet.js
 
-Magnet.js is a JavaScript library making HTML elements attractable to other magnet elements.
+Magnet.js is a JavaScript library making HTML elements attractable to each other.
 
 ## Demo
 
@@ -29,82 +29,93 @@ require('@lf2com/magnet.js');
 
 ### Browser
 
-We can add the script file to the HTML file and use magnet.js directly:
+Add the `.js` file to your HTML file and use magnet.js directly:
 
 ```html
 <script src="PATH/TO/magnet.js"></script>
 
-<!-- create magnet -->
+<!-- use magnet -->
 <magnet-block>
-  A magnet block
+  magnet
 </magnet-block>
 
+<!-- or wrap an element -->
 <magnet-block>
   <div>
-    Or wrap an element
+    some text
   </div>
 </magnet-block>
 ```
 
 ## Build
 
-We can build magnet.js by the command:
+Build magnet.js by the command:
 
 ```sh
 npm run build
 ```
 
-### Magnet DOMs
+The built would be at `./dist/magnet.min.js`.
+
+### Magnet Nodes
 
 There are 2 DOMs of magnet elements: [\<magnet-block\>](#magnet-block) and [\<magnet-pack\>](#magnet-pack).
 
 #### \<magnet-block\>
 
-Wraps element for being dragged and attracted by other magnet elements.
+**Magnet block** is an HTML element that can be dragged and attracted by other magnets.
 
 ```html
 <magnet-block>
   <div style="padding: 1em; background-color: #eee;">
-    Draggable element
+    magnet
   </div>
 </magnet-block>
 
 <!-- or directly use <magnet-block> -->
 <magnet-block style="padding: 1em; background-color: #eee;">
-  Draggable element
+  magnet
 </magnet-block>
 ```
 
 #### \<magnet-pack\>
 
-Defines the default settings of children magnet elements if they don't have assigned the corresponding values.
+**Magnet pack** is unable to be dragged but it defines the default values for it's sub magnets. The sub manget blocks would reference to the nearest parent magnet pack for the attribute value if it doesn't have assigned the corresponding values.
 
 ```html
 <magnet-pack attract-distance="20">
-  <!-- reference to the nearest magnet parent which has the magnet setting -->
-  <magnet-block>
-    Attract in 20
-  </magnet-block>
-  
-  <!-- apply the magnet setting of itself -->
+  <!-- distance of attraction is 10 -->
   <magnet-block attract-distance="10">
-    Attract in 10
+    10
+  </magnet-block>
+
+  <!-- distance of attraction is 20 -->
+  <magnet-block>
+    default
   </magnet-block>
 </magnet-pack>
 ```
 
 ## Properties
 
-Properties are defined as the settings of magnet element. If the magnet in active has no specific magnet setting, it would look up to the nearest magnet parent node which has the value. Or the setting would be the global default one.
+Settable properties are defined as the confuration values of magnet element. If the magnet has no some magnet settings, it would reference to the nearest [parent magnet](#parentmagnet) having the value. Otherwise the value would be the default one.
+
+### Multiple Values
+
+If a property accepts multiple values. Use any of the following character as separator: `|`, `,`, `;`, or **space**.
 
 ### .disabled
 
-Disables to be dragging and attracted. If set, the magnet would be as a normal element.
+> Type of getting value: _`boolean`_
+>
+> Default: _`false`_
+
+If set, the magnet would be unable to be dragging and attracted.
 
 ```html
-<!-- disable magnet -->
+<!-- disabled magnet -->
 <magnet-block disabled>
-  Disabled magnet
+  magnet
 </magnet-block>
 ```
 
@@ -122,18 +133,22 @@ console.log('Disabled:', magnet.hasAttribute('disabled'));
 
 ### .group
 
-The group of magnet elemnt. Once the magnet is assigned a group, it would only attract magnets with the same group. If no group is assigned, the magnet can attract any magnets even the target magnet belongs to any group.
+> Type of getting value: _`string` | `null`_
+>
+> Default: _`null`_ as ungrouped
+
+The group of magnet element. Once we assign a group for a magnet, it would only attract magnets in the same group. If no group is assigned, the magnet can attract all magnets including grouped ones.
 
 ```html
 <!-- set group -->
 <magnet-block group="alpha">
-  Attract alpha magnets
+  alpha
 </magnet-block>
 <magnet-block group="beta">
-  Attract beta magnets
+  beta
 </magnet-block>
 <magnet-block>
-  Attract any magnet
+  ungrouped
 </magnet-block>
 ```
 
@@ -151,9 +166,11 @@ console.log('Group:', magnet.getAttribute('group'));
 
 ### .parentMagnet
 
-Returns the nearest parent magnet node.
+> Type of getting value: [_`Magnet`_](#magnet-nodes)
 
-> **If the child magnet has group, the result would be the nearest parent magnet without any group or with the same group as child magnet.**
+Returns the nearest parent [magnet node](#magnet-nodes).
+
+> **The `.parentMagnet` of grouped magnet would be the nearest parent magnet in the same group or ungrouped one.**
 
 ```js
 // get parent magnet
@@ -162,12 +179,16 @@ console.log('Nearest parent magnet:', magnet.parentMagnet);
 
 ### .unattractable
 
-Set true to disallow magnet from being attracted.
+> Type of getting value: _`boolean`_
+>
+> Default: _`false`_
+
+If set, the magnet would not be attracted.
 
 ```html
 <!-- set unattractable -->
 <magnet-block unattractable>
-  Unattractable magnet
+  magnet
 </magnet-block>
 ```
 
@@ -185,12 +206,16 @@ console.log('Unattractable:', magnet.hasAttribute('unattractable'));
 
 ### .unmovable
 
-Set true to disallow magnet from being dragged.
+> Type of getting value: _`boolean`_
+>
+> Default: _`false`_
+
+If set, the magnet would not be dragged.
 
 ```html
 <!-- set unmovable -->
 <magnet-block unmovable>
-  Unmovable magnet
+  magnet
 </magnet-block>
 ```
 
@@ -208,14 +233,23 @@ console.log('Unmovable:', magnet.hasAttribute('unmovable'));
 
 ### .attractDistance
 
-Attraction distance of dragged magnet.
+> Type of getting value: _`number`_
+>
+> Default: _`0`_
 
-> **We don't define the distance of how a magnet be attracted. We only define the distance of a magnet attracting others.**
+Distance for magnet being dragged to attract other magnets.
+
+> **We don't define the distance for magnet being attracted.**
 
 ```html
 <!-- set distance of attraction -->
 <magnet-block attract-distance="20">
-  Attract in 20
+  magnet 20
+</magnet-block>
+
+<!-- default distance of attraction -->
+<magnet-block>
+  magnet default
 </magnet-block>
 ```
 
@@ -225,29 +259,33 @@ magnet.attractDistance = 20;
 // or
 magnet.setAttribute('attract-distance', '20');
 
-// get distance of attracion
+// get distance of attracion in number
 console.log('Attraction distance:', magnet.attractDistance);
-// or in string type
+// or in string
 console.log('Attraction distance:', magnet.getAttribute('attract-distance'));
 ```
 
 ### .alignTos
 
-The target alignment edge bases such as `outer`, `inner`, `center` and `extend`:
+> Type of getting value: _`string[]`_
+>
+> Default: `['outer', 'inner', 'center', 'extend']`
+>
+> Accepts [multiple values](#multiple-values).
+
+Sides of rectangle that can be converted to [alignments](#alignments) for magnet aligning to other magnets:
 
 | Name | Description |
 | -: | :- |
-| outer | Align to target from outer edges |
-| inner | Align to target from inner edges |
-| center | Align on center lines of target |
-| extend | Align to the defined edge bases on extended line. **Align to nothing if only set `extend`** |
-
-> **Use `|` as separator for multiple values when assigning the value with single string.**
+| outer | Align to the outer sides of target |
+| inner | Align to the inner sides of target |
+| center | Align to the center lines of target |
+| extend | Align to extended line of assigned alignment including `outer`, `inner` and `center` |
 
 ```html
 <!-- set align to -->
 <magnet-block align-to="outer|extend">
-  Align on outer anywhere
+  magnet
 </magnet-block>
 ```
 
@@ -259,29 +297,31 @@ magnet.alignTos = 'outer|extend';
 // oe
 magnet.setAttribute('align-to', 'outer|extend');
 
-// get align to
+// get align-to in array
 console.log('Align to:', magnet.alignTos);
-// or in raw string
+// or in string
 console.log('Align to:', magnet.getAttribute('align-to'));
 ```
 
 ### .alignToParents
 
-The target alignment edge bases of parent node of magnet element such as `inner` and `center`:
+> Type of getting value: _`string[]`_
+>
+> Default: `[]`
+>
+> Accepts [multiple values](#multiple-values).
+
+Sides of rectangle that can be converted to [alignments](#alignments) for magnet aligning to it's parent element.
 
 | Name | Description |
 | -: | :- |
-| inner | Align to target from inner edges |
-| center | Align on center lines of target |
-
-> **Only allow `inner` and `center` due to the magnet aligns to its parent inside.**
->
-> **Use `|` as separator for multiple values when assigning the value with single string.**
+| inner | Align to the inner sides of target |
+| center | Align to the center lines of target |
 
 ```html
 <!-- set align to parent -->
 <magnet-block align-to-parent="inner|center">
-  Align on inner
+  magnet
 </magnet-block>
 ```
 
@@ -293,406 +333,17 @@ magnet.alignToParents = 'inner|center';
 // oe
 magnet.setAttribute('align-to-parent', 'inner|center');
 
-// get align to
+// get align-to-parent in array
 console.log('Align to parent:', magnet.alignToParents);
-// or in raw string
+// or in string
 console.log('Align to parent:', magnet.getAttribute('align-to-parent'));
 ```
 
-### .crossPrevents
+### .alignments
 
-Prevents magnet from crossing specific targets such as `parent`:
+> Type of getting value: _`string[]`_
 
-| Name | Description |
-| -: | :- |
-| parent | The parent node of magnet |
-
-> **Currently only support `parent`.**
-
-```html
-<!-- set cross prevent -->
-<magnet-block cross-prevent="parent">
-  Not across parent
-</magnet-block>
-```
-
-```js
-// set cross prevent
-magnet.crossPrevents = ['parent'];
-// or
-magnet.crossPrevents = 'parent';
-// or
-magnet.setAttribute('cross-prevent', 'parent');
-
-// get cross prevent
-console.log('Cross prevent:', magnet.crossPrevents);
-// or in raw string
-console.log('Cross prevent:', magnet.getAttribute('cross-prevent'));
-```
-
-### .magnetRect
-
-Returns the [rect object](#rect) of temporarily created magnet.
-
-```js
-console.log('Magnet rect:', magnet.magnetRect);
-```
-
-### .parentMagnetPack
-
-Returns the [pack object](#pack) of the temporarily created parent of magnet.
-
-> **This property only exists on \<magnet-block\> elements.**
-
-```js
-const parentPack = magnet.parentMagnetPack;
-
-if (parentPack) {
-  console.log('Parent rect:', parentPack.rect);
-}
-```
-
-### .targetMagnetPacks
-
-Returns the [pack objects](#pack) of the temporarily created target magnets.
-
-```js
-console.log('Attractable magnets:', magnet.targetMagnetPacks);
-```
-
-### .lastMagnetOffset
-
-Returns the last offset of magnet in [_Point_](#point).
-
-> **This property only exists on \<magnet-block\> elements.**
-
-```js
-const lastOffset = magnet.lastMagnetOffset;
-
-console.log(`Last offset: (${lastOffset.x}, ${lastOffset.y})`);
-```
-
-### .bestAttraction
-
-Returns the result of best attraction as [_AttractionBest_](#attractionbest) on the last time.
-
-> **This property only exists on \<magnet-block\> elements.**
-
-```js
-const bestAttraction = magnet.bestAttraction;
-
-console.log('Best attraction:', bestAttraction);
-```
-
-## Methods
-
-There are several methods for magnet elements to handle magnet related stuffs.
-
-### Static
-
-#### Magnet.calcMagnetAttraction(_source_, _target_, _options?_)
-
-Returns the [attraction result](#attraction) of `source` attracting to `target` with `options`. The `source` and `target` should be a DOM or an object that can be converted to rectangle.
-
-Properties of `options`:
-
-| Name | Type | Description |
-| -: | :-: | :- |
-| attractDistance? | _number_ | Distance of attraction. Default is `Infinity` |
-| alignTos? | [_AlignTo_](#aligntos) | The target alignment edge bases. Default is all edge bases |
-| alignments? | [_Alignment_](#alignments) | Alignment types of attraction. Default is the alignments of _alignTos_ |
-| onJudgeDistance? | (disatnce: [_Distance_](#distance)) => _boolean_ | A function returning `true` if the input distance result passed the judgement, then the distance would be added to the result list |
-| attractionBest? | [_AttractionBest_](#attractionbest) | An initial best result for comparison of all the alignments of attraction |
-
-#### Magnet.calcMultiMagnetAttraction(_source_, _targets_, _options?_)
-
-Returns the attraction result of `source` attracting `targets` with `options`. The `targets` is an array composed with DOMs or objects that can be converted to rectangles.
-
-The properties of `options` extends those of [`Magnet.calcMagnetAttraction()`](#magnetcalcmagnetattractionsource-target-options):
-
-| Name | Type | Description |
-| -: | :-: | :- |
-| onJudgeAttraction? | (attraction: [_Attraction_](#attraction)) => _boolean_ | A function returning `true` if the input attraction result passed the judgement, then the distance results of attraction would be added to the result list |
-
-#### Magnet.getMagnetAttractionOffset(_attraction_)
-
-Returns the offset of the attraction result in [_Point_](#point).
-
-### Prototype
-
-#### .traceMagnetAttributeValue(_attrName_)
-
-Returns the specific attribute value for the magnet element. If the magnet doesn't have the value, it would look up to the [parent magnet](#parentmagnet) which has the value. Or return `null`.
-
-> **By default all the above properties of magnet return the traced value.**
-
-```js
-// get group
-const group = magnet.traceMagnetAttributeValue('group');
-// equals to
-const group = magnet.group;
-```
-
-```html
-<!-- or we can define custom attribute -->
-<magnet-pack some-attr="some-value">
-  <magnet-block id="magnet">
-    ...
-  </magnet-block>
-</magnet-pack>
-
-<script>
-  const magnet = document.getElementById('magnet');
-
-  // and trace the custom attribute
-  magnet.traceMagnetAttributeValue('some-attr'); // 'some-value'
-</script>
-```
-
-#### .resetMagnetRect()
-
-Removes the temporarily created [rect object](#rect) of the magnet.
-
-#### .resetParentMagnetPack()
-
-Removes the temporarily created [pack object](#pack) of the parent of magnet.
-
-#### .resetTargetMagnets()
-
-Removes the temporarily created [pack objects](#pack) of the target magnets.
-
-#### .getOtherMagnets()
-
-Returns all magnet elements except the magnet itself.
-
-#### .getAttractableMagnets()
-
-Returns all magnet elements that can be attracted by the magnet. That means the returned magnets are **NOT** [_disabled_](#disabled) or [_unattractable_](#unattractable) and already considered their relationship of [_group_](#group).
-
-#### .judgeMagnetDistance(_distance_)
-
-Returns `true` if the input distance result passed the judgement.
-
-#### .judgeMagnetDistanceInParent(_distance_, _options?_)
-
-The same as [`.judgeMagnetDistance()`](#judgemagnetdistancedistance) but also consider a wrapper element.
-
-Properties of `options`:
-
-| Name | Type | Description |
-| -: | :-: | :- |
-| parent? | [_Pack_](#pack) \| _Rectable_ | Element as the wrapper of magnet. Default is `document.body` |
-| onJudgeDistance? | [`.judgeMagnetDistance`](#judgemagnetdistancedistance) |
-
-#### .judgeMagnetAttraction(_attraction_)
-
-Returns `true` if the input attraction result passed the judgement.
-
-#### .calcMagnetParentAttraction(_options?_)
-
-The same as [`.calcMagnetAttraction()`](#calcmagnetattractiontarget-options) but the `target` is assigned to be the parent element of magnet.
-
-#### .calcMagnetAttraction(_target_, _options?_)
-
-The same as [`Magnet.calcMagnetAttraction()`](#magnetcalcmagnetattractionsource-target-options) but the `source` is assigned to be the magnet and the following default values of properties are different:
-
-| Name | Default Value |
-| -: | :- |
-| attractDistance | [`.attractDistance`](#attractdistance) |
-| alignTos | [`.alignTos`](#aligntos) |
-| alignments | The alignments of `alignTos` |
-| onJudgeDistance | [`.judgeMagnetDistance`](#judgemagnetdistancedistance) |
-
-#### .calcMagnetMultiAttractions(_targets_, _options?_)
-
-The same as [`Magnet.calcMultiMagnetAttraction()`](#magnetcalcmultimagnetattractionsource-targets-options) but the `source` is assigned to be the magnet and the following default values of properties are different:
-
-| Name | Default Value |
-| -: | :- |
-| onJudgeAttraction | [`.judgeMagnetAttraction`](#judgemagnetattractionattraction) |
-
-#### .appendMagnetOffsetWithAttraction(_x_, _y_, _options?_)
-
-Offsets the magnet to (`x`, `y`) and checking its attraction result with `options`.
-
-The properties of `options` extends those of [`Magnet.calcMultiMagnetAttraction()`](#magnetcalcmultimagnetattractionsource-targets-options):
-
-| Name | Type | Description |
-| -: | :-: | :- |
-| alignToParents? | [_AlignToParents_](#aligntoparents) | The target alignment edge bases of parent. Default is [`.alignToParents`](#aligntoparents) |
-| parentAlignments? | [_Alignment_](#alignments) | Alignment types of attraction to the parent of magnet. Default is the alignments of `alignToParents` |
-| crossPrevents? | [_CrossPrevents_](#crossprevents) | Prevents magnet from crossing specific targets. Default is [`.crossPrevents`](#crossprevents) |
-| crossPreventParent? | _boolean_ | Set `true` to prevent magnet from crossing parent. Default is the setting for target parent of `crossPrevents` |
-
-#### .appendMagnetOffsetWithAttraction(_point_, _options?_)
-
-The same as [`.appendMagnetOffsetWithAttraction()`](#appendmagnetoffsetwithattractionx-y-options) but the input is a [_Point_](#point).
-
-#### .setMagnetOffsetWithAttraction(_x_, _y_, _options?_)
-
-Sets the magnet to (`x`, `y`) and checking its attracion result with `options`.
-
-The properties of `options` are the same as [`.appendMagnetOffsetWithAttraction()`].
-
-#### .setMagnetOffsetWithAttraction(_point_, _options?_)
-
-The same as [`.setMagnetOffsetWithAttraction()`](#setmagnetoffsetwithattractionx-y-options) but the input is a [_Point_](#point).
-
-#### .resetMagnetOffset()
-
-Removes the offsets of magnet.
-
-#### .setMagnetOffset(_x_, _y_)
-
-Sets the offsets of magnet to (`x`, `y`).
-
-#### .setMagnetOffset(_point_)
-
-The same as [.setMagnetOffset()](#setmagnetoffsetx-y) but the input is a [_Point_](#point).
-
-#### .handleDragStart(_event_)
-
-Handles mousedown/touchstart event before [magnetstart](#magnetstart) event of magnet.
-
-#### .handleDragMove(_event_)
-
-Handles mousemove/touchmove event before [magnetmove](#magnetmove) event of magnet.
-
-#### .handleDragEnd(_event_)
-
-Handles mouseup/touchend event before [magnetend](#magnetend) event of magnet.
-
-## Events
-
-Magnet action events.
-
-### magnetstart
-
-> **Cancelable: `true`**
->
-> If we cancel the event, the magnet would not be dragged.
-
-Fires on magnet start to be dragged, always triggers right after mousedown/touchstart event of magnet. Event detail:
-
-| Name | Type | Description |
-| -: | :-: | :- |
-| source | [_Pack_](#pack) | The magnet self |
-| targets | [_Pack_](#pack)[] | Attractable target magnets |
-| parent | [_Pack_](#pack) \| `null` | Parent element of magnet only exists when any of [`alignToParent`](#aligntoparents) or [`crossPrevent`](#crossprevents) = `parent` is set |
-| lastOffset | [_Point_](#point) | Last offset of magnet |
-| startPoint | [_Point_](#point) | The mousedown/touchstart point of event |
-
-### magnetmove
-
-> **Cancelable: `false`**
->
-> If we cancel the event, the magnet would not move at that moment of firing event.
-
-Fires on magnet being dragged and moving, always triggers right after mousemove/touchmove event of magnet. Event detail extended the properties of [magnetstart](#magnetstart):
-
-| Name | Type | Description |
-| -: | :-: | :- |
-| nextOffset | [_Point_](#point) | The next offset of magnet after moving |
-| movePoint | [_Point_](#point) | The mousemove/touchmove point of event |
-
-### magnetend
-
-> **Cancelable: `false`**
-
-Fires on the end of magnet being dragged, always triggers right after mouseup/touchend event of magnet.
-
-### attract
-
-> **Cancelable: `true`**
->
-> If we cancel the event, the magnet would not attract the target magnet.
-
-Fires on the magnet attracts other magnet target. Event detail:
-
-| Name | Type | Description |
-| -: | :-: | :- |
-| source | [_Pack_](#pack) | The magnet self |
-| nextRect | [_Rect_](#rect) | The next rectangle of magnet after attracting |
-| attraction | [_Attraction_](#attraction) | Attraction result from `source` to targets |
-
-### attracted
-
-> **Cancelable: `false`**
-
-Fires on the magnet is attracted by other magnet. Event detail:
-
-| Name | Type | Description |
-| -: | :-: | :- |
-| source | [_Pack_](#pack) | The other magnet attracting to this magnet |
-| target | [_Pack_](#pack) | The magnet self |
-| sourceNextRect | [_Rect_](#rect) | The next rectangle of `source` after attracting |
-| distance | [_Distance_](#distance) | Distance detail from `source` to `target` |
-
-### attractmove
-
-> **Cancelable: `false`**
-
-Fires on the magnet attracts a magnet and is still on moving. Event detail is the same as [attract](#attract).
-
-### attractedmove
-
-> **Cancelable: `false`**
-
-Fires on the magnet is attracted by another magnet and the source is still on moving. Event detail is the same as [attracted](#attracted).
-
-### unattract
-
-> **Cancelable: `false`**
-
-Fires on the magnet unattracts a magnet, which means the target magnet is out of the distance of the magnet's attraction. Event detail is the same as [attract](#attract).
-
-### unattracted
-
-> **Cancelable: `false`**
-
-Fires on the magnet is unattracted by a magnet. Event detail:
-
-| Name | Type | Description |
-| -: | :-: | :- |
-| source | [_Pack_](#pack) | The other magnet attracting to this magnet |
-| target | [_Pack_](#pack) | The magnet self |
-| sourceNextRect | [_Rect_](#rect) | The next rectangle of `source` after attracting |
-| nextTarget | [_Pack_](#pack) \| `null` | The next attracted target magnet of `source` |
-
-## Types
-
-[url-dompoint]: https://developer.mozilla.org/en-US/docs/Web/API/DOMPoint
-[url-domrect]: https://developer.mozilla.org/en-US/docs/Web/API/DOMRect
-
-### Point
-
-Here we use [_DOMPoint_][url-dompoint] as the type of point.
-
-> **We only use `.x` and `.y`, `.z` and `.w` are not used in magnet.js.**
-
-### Rectangle
-
-We use [_DOMRect_][url-domrect] as the type of rectangle.
-
-### Pack
-
-Pack is a class used to wrap the source and its rectangle.
-
-#### new Pack(_source_, _rect_?)
-
-Creates a pack object of `source`. `source` should be rectable and `rect` would be the rectangle object for the source. By default `rect` is the rectangle of `source`.
-
-#### .raw
-
-Returns the `source` of the pack object.
-
-#### .rect
-
-Returns the rectangle of the `source` of the pack object.
-
-### Alignment
-
-Alignment describes how the source aligns to the target:
+Returns the side-to-side alignments from magnet to other magnets. The values are converted from [`.alignTos`](#aligntos).
 
 | Name | Align to | Description |
 | -: | :-: | :- |
@@ -707,32 +358,597 @@ Alignment describes how the source aligns to the target:
 | xCenterToXCenter | _center_ | The center of source left and right to the center of target left and right |
 | yCenterToYCenter | _center_ | The center of source top and bottom to the center of target top and bottom |
 
-### Distance
+```js
+// get alignments
+console.log('Alignments:', magnet.alignments);
+```
 
-Distance is an object recording the detail from source to target including the following properties:
+### .parentAlignments
+
+> Type of getting value: _`string[]`_
+
+Returns the side-to-side alignments from magnet to it's parent element. The values are converted from [`.alignToParents`](#aligntoparents).
+
+```js
+// get alignments to parent
+console.log('Alignments to parent:', magnet.parentAlignments);
+```
+
+### .crossPrevents
+
+> Type of getting value: _`string[]`_
+>
+> Default: `[]`
+>
+> Accepts [multiple values](#multiple-values).
+
+Prevents magnet from crossing specific targets such as `parent`:
+
+| Name | Description |
+| -: | :- |
+| parent | The parent element of magnet |
+
+```html
+<!-- set cross prevent -->
+<magnet-block cross-prevent="parent">
+  magnet
+</magnet-block>
+```
+
+```js
+// set cross prevent
+magnet.crossPrevents = ['parent'];
+// or
+magnet.crossPrevents = 'parent';
+// or
+magnet.setAttribute('cross-prevent', 'parent');
+
+// get cross-prevent in array
+console.log('Cross prevent:', magnet.crossPrevents);
+// or in string
+console.log('Cross prevent:', magnet.getAttribute('cross-prevent'));
+```
+
+### .magnetRect
+
+Returns temporarily created [rectangle](#rectangle) of magnet.
+
+> **`.magnetRect` would not be updated util calling [`.resetMagnetRect`](#resetmagnetrect)**
+
+```js
+// get rectangle
+console.log('Magnet rect:', magnet.magnetRect);
+```
+
+### .parentPack
+
+Returns temporarily created [pack](#pack) of the parent element of magnet.
+
+> **`.parentPack` would not be updated util calling [`.resetParentPack`](#resetparentpack)**
+
+```js
+const parentPack = magnet.parentPack;
+
+// get parent element
+console.log('Parent element:', parentPack.raw);
+// get parent rectangle
+console.log('Parent rect:', parentPack.rect);
+```
+
+### .targetMagnetPacks
+
+Returns temporarily created [packs](#pack) of [attractable magnets](#getattractablemagnets).
+
+> **`.targetMagnetPacks` would not be updated util calling [`.resetTargetMagnetPacks`](#resettargetmagnetpacks)**
+
+```js
+// get target magnet packs
+console.log('Attractable magnet packs:', magnet.targetMagnetPacks);
+```
+
+### .lastMagnetOffset
+
+Returns the last offset in [point](#point) of magnet.
+
+```js
+const { x, y } = magnet.lastMagnetOffset;
+
+// get last offset
+console.log(`Last offset: (${x}, ${y})`);
+```
+
+### .bestAttraction
+
+Returns the [best attraction](#bestattraction) in the last attraction.
+
+```js
+const { x, y } = magnet.bestAttraction;
+
+// get best attraction result
+console.log('Best attraction on x-axis:', x);
+console.log('Best attraction on y-axis:', y);
+```
+
+## Methods
+
+Magnet methods handle stuffs related to magnet such as alignment, distance, attraction, and position.
+
+### Static
+
+#### Magnet.getAlignmentsFromAlignTo(_alignTo_)
+
+| Argument | Type | Description |
+| -: | :-: | :- |
+| alignTo | _string \| string[]_ | Value(s) of sides to align |
+
+Returns the array of [alignments](#alignments) converted from [`alignTo`](#aligntos) values.
+
+```js
+// get alignments of align-to
+console.log('Alignments:', Magnet.getAlignmentsFromAlignTo('inner'));
+
+// get alignments of align-tos
+console.log('Alignments:', Magnet.getAlignmentsFromAlignTo(['outer', 'inner']));
+```
+
+#### Magnet.getMagnetAttractionOffset(_attraction_)
+
+| Argument | Type | Description |
+| -: | :-: | :- |
+| attraction | _[Attraction](#attraction)_ | Result of magnet attraction |
+
+Returns the offset in [point](#point) from `attraction` result.
+
+### Instance
+
+#### .traceMagnetAttributeValue(_attrName_)
+
+| Argument | Type | Description |
+| -: | :-: | :- |
+| attrName | _string_ | Attribute name |
+
+Returns the value of specific attribute name of magnet. If the magnet doesn't have the value, it would reference to the nearest [parent magnet](#parentmagnet) having the value. Or return _`null`_ rather than global default value.
+
+```js
+// get group
+const group = magnet.traceMagnetAttributeValue('group');
+// equals to (due to the default value is `null` too)
+const group = magnet.group;
+```
+
+```html
+<!-- custom attribute -->
+<magnet-pack some-attr="some-value">
+  <magnet-block id="magnet">
+    magnet
+  </magnet-block>
+</magnet-pack>
+
+<script>
+  const magnet = document.getElementById('magnet');
+
+  // trace the custom attribute
+  magnet.traceMagnetAttributeValue('some-attr'); // 'some-value'
+</script>
+```
+
+#### .resetMagnetRect()
+
+Removes the temporarily created [rectangle](#rectangle) of the magnet.
+
+#### .resetparentPack()
+
+Removes the temporarily created [pack](#pack) of the magnet parent element.
+
+#### .resetTargetMagnetPacks()
+
+Removes the temporarily created [packs](#pack) of the magnet attractable targets.
+
+#### .getOtherMagnets()
+
+Returns all other [magnet nodes](#magnet-nodes) except [magnet packs](#magnet-pack) and the magnet caller.
+
+#### .getAttractableMagnets()
+
+Returns all magnet elements attractable to the magnet caller.
+
+Consideration:
+
+| Property | Description |
+| -: | :- |
+| [disabled](#disabled) | Should be _`false`_ |
+| [unattractable](#unattractable) | Should be _`false`_ |
+| [group](#group) | Should be seen as attractable group magnet as the magnet caller |
+
+#### .judgeMagnetDistance(_distance_, _options?_)
+
+| Argument | Type | Description |
+| -: | :-: | :- |
+| distance | _[Distance](#distance)_ | Result of distance from `distance.source` to `distance.target` on `distance.alignment` |
+| options? | _object_ | Options for judgement |
+
+Returns _`true`_ if `distance` passes the judgement.
+
+> **This method would be called for judging distance result on any method related to attraction.**
+
+Properties of `options`:
 
 | Name | Type | Description |
 | -: | :-: | :- |
-| source | [_Pack_](#pack) | Source |
-| target | [_Pack_](#pack) | Target |
-| alignment | [_Alignment_](#alignment) | Alignment from source to target |
-| rawDistance | _number_ | Raw distance from source to target |
+| attractDistance? | _number_ | Distance of attraction. _(Default [`.attractDistance`](#attractdistance))_ |
+| alignTos? | [_AlignTo_](#aligntos) | The target alignment sides. _(Default [`.alignTos`](#aligntos))_ |
+
+#### .judgeMagnetDistanceInParent(_distance_, _options?_)
+
+The same as [`.judgeMagnetDistance`](#judgemagnetdistancedistance) but also consider a wrapper as the parent.
+
+Properties of `options`:
+
+| Name | Type | Description |
+| -: | :-: | :- |
+| parent? | [_Pack_](#pack) \| _Rectable_ \| _null_ | Wrapper as the parent. If `parent` is _`null`_ or _`undefined`_, it would be default as [`.parentPack`](#parentpack) |
+| onJudgeDistance? | [`.judgeMagnetDistance`](#judgemagnetdistancedistance) | Function for judging the distance result. _(Default [`.judgeMagnetDistance`](#judgemagnetdistancedistance))_ |
+
+#### .judgeMagnetAttraction(_attraction_)
+
+| Argument | Type | Description |
+| -: | :-: | :- |
+| attraction | _[Attraction](#attraction)_ | Result of attraction from `attraction.source` to `attraction.target` |
+
+Returns `true` if `attraction` passes the judgement.
+
+#### .judgeMagnetMovement(_pack_)
+
+| Argument | Type | Description |
+| -: | :-: | :- |
+| pack | _[Pack](#pack)_ | Pack with the next movement as `pack.rect` for `pack.raw` |
+
+Returns _`true`_ if the movement of `pack` passes the judgement.
+
+#### .rawDistanceTo(_target_, _alignment_)
+
+| Argument | Type | Description |
+| -: | :-: | :- |
+| target | _[Rectable](#rectable) \| [Pack](#pack)_ | Target for calculating the distance from magnet caller |
+| alignment | _[Alignment](#alignments)_ | Alignment of distance |
+
+Returns the value of distance from magnet caller to `target` on specific `alignment`.
+
+#### .distanceTo(_target_, _alignment_)
+
+| Argument | Type | Description |
+| -: | :-: | :- |
+| target | _[Rectable](#rectable) \| [Pack](#pack)_ | Target for calculating the distance from magnet caller |
+| alignment | _[Alignment](#alignments)_ | Alignment of distance |
+
+Returns the result of distance from magnet caller to `target` on specific `alignment`.
+
+#### .attractionTo(_target_, _options?_)
+
+| Argument | Type | Description |
+| -: | :-: | :- |
+| target | _[Rectable](#rectable) \| [Pack](#pack)_ | Target for calculating the attraction from magnet caller |
+| options? | _object_ | Options for attraction |
+
+Returns the result of attraction from magnet caller to `target`.
+
+Properties of `options`:
+
+| Name | Type | Description |
+| -: | :-: | :- |
+| attractDistance? | _number_ | Distance of attraction. _(Default [`.attractDistance`](#attractdistance))_ |
+| alignTos? | [_AlignTo_](#aligntos) | Target alignment sides. _(Default [`.alignTos`](#aligntos))_ |
+| alignments? | [_Alignment_](#alignments) | Alignments of attraction. _(Default [`Magnet.getAlignmentsFromAlignTo(alignTos)`](#magnetgetalignmentsfromaligntoalignto))_ |
+| onJudgeDistance? | [`.judgeMagnetDistance`](#judgemagnetdistancedistance) | Function for judging the distance result. _(Default [`.judgeMagnetDistance`](#judgemagnetdistancedistance))_ |
+
+#### .attractionToParent(_options?_)
+
+The same as [`.attractionTo`](#attractiontotarget-options) but `target` is [the parent of magnet caller](#parentpack).
+
+Different default values of `options`:
+
+| Name | Default Value |
+| -: | :- |
+| alignTos | [`.alignToParents`](#aligntoparents) |
+
+#### .multiAttractionsTo(_targets_, _options?_)
+
+| Argument | Type | Description |
+| -: | :-: | :- |
+| targets | _([Rectable](#rectable) \| [Pack](#pack))[]_ | Targets for calculating the attraction from magnet caller |
+| options? | _object_ | Options for attraction |
+
+Returns the results of attractions from magnet caller to `targets`.
+
+The properties of `options` extends that of [`.attractionTo`](#attractiontotarget-options):
+
+| Name | Type | Description |
+| -: | :-: | :- |
+| alignToParents? | _[AlignToParent](#aligntoparents)[]_ | Target alignment sides to the parent of magnet caller. _(Default [`.alignToParents`](#aligntoparents))_ |
+| attractionBest? | [_AttractionBest_](#attractionbest) | Initial result of attraction joining the comparison of other attraction results |
+| onJudgeAttraction? | [`.judgeMagnetAttraction`](#judgemagnetattractionattraction) | Function for judging the attraction result. _(Default [`.judgeMagnetAttraction`](#judgemagnetattractionattraction))_ |
+
+#### .getMagnetAttractionResultOfPosition(_position_, _options?_)
+
+| Argument | Type | Description |
+| -: | :-: | :- |
+| position | _[Point](#point)_ | Target position for magnet caller to move to |
+| options? | _object_ | Options for attraction |
+
+Returns the result of final position and attraction after considering `position` and `options`:
+
+| Name | Type | Description |
+| -: | :-: | :- |
+| position | _[Point](#point) \| null_ | Final position of magnet caller. If the movement doesn't pass the judgement, the value would be _`null`_ |
+| attractionBest | _[AttractionBest](#attractionbest) \| null_ | Attraction result. If the attraction doesn't pass the judgement, the value would be _`null`_ |
+
+Properties of `options`:
+
+| Name | Type | Description |
+| -: | :-: | :- |
+| ignoreEvent? | _boolean_ | Set _`true`_ to ignore dispatching [attraction related events](#events) to magnets. _(Default `true` only if magnet caller is **HTMLElement**)_ |
+| unattractable? | _boolean_ | Set _`true`_ to disallow attraction but consider `options.crossPrevents`. _(Default [`.unattractable`](#unattractable))_ |
+| attractDistance? | _number_ | Distance of attraction. _(Default [`.attractDistance`](#attractdistance))_ |
+| alignTos? | [_AlignTo_](#aligntos) | Target alignment sides. _(Default [`.alignTos`](#aligntos))_ |
+| alignments? | [_Alignment_](#alignments) | Alignments of attraction. _(Default the alignments converted from `alignTos`)_ |
+| alignToParents? | _[AlignToParent](#aligntoparents)[]_ | Target alignment sides to the parent of magnet caller. _(Default [`.alignToParents`](#aligntoparents))_ |
+| crossPrevents? | _[CrossPrevent](#crossprevents)[]_ | Prevent from crossing specific objectives. _(Default [`.crossPrevents](#crossprevents))_ |
+| parentPack? | _[Pack](#pack)_ | Parent of magnet caller. _(Default [`.parentPack`](#parentpack))_ |
+| lastAttractionBest? | _[AttractionBest](#attractionbest)_ | Reference result of attraction for [attraction related events](#events) |
+| onJudgeDistance? | [`.judgeMagnetDistance`](#judgemagnetdistancedistance) | Function for judging the distance result. _(Default [`.judgeMagnetDistance`](#judgemagnetdistancedistance))_ |
+| onJudgeDistanceInParent? | [`.judgeMagnetDistanceInParent`](#judgemagnetdistanceinparentdistance-options) | Function for judging the distance result to the parent of magnet caller. _(Default [`.judgeMagnetDistanceInParent`](#judgemagnetdistanceinparentdistance-options))_ |
+| onJudgeAttraction? | [`.judgeMagnetAttraction`](#judgemagnetattractionattraction) | Function for judging the attraction result. _(Default [`.judgeMagnetAttraction`](#judgemagnetattractionattraction))_ |
+| onJudgeMovement? | [`.judgeMagnetMovement`](#judgemagnetmovementpack) | Function for judging the movement result. _(Default [`.judgeMagnetAttraction`](#judgemagnetattractionattraction))_ |
+
+#### .getMagnetAttractionResultOfPosition(_x_, _y_, _options?_)
+
+| Argument | Type | Description |
+| -: | :-: | :- |
+| x | _number_ | Value on x-axis |
+| y | _number_ | Value on y-axis |
+| options? | _object_ | Options for attraction |
+
+The same as [`.getMagnetAttractionResultOfPosition(point, options?)`](#getmagnetattractionresultofpositionposition-options) but the input is (`x`, `y`).
+
+#### .resetMagnetOffset()
+
+Resets the offset of magnet to (_`0`_, _`0`_).
+
+#### .setMagnetOffset(_dx_, _dy_)
+
+| Argument | Type | Description |
+| -: | :-: | :- |
+| dx | _number_ | Offset value on x-axis |
+| dy | _number_ | Offset value on y-axis |
+
+Sets the offset of magnet to (`dx`, `dy`).
+
+#### .setMagnetOffset(_offset_)
+
+| Argument | Type | Description |
+| -: | :-: | :- |
+| offset | _[Point](#point)_ | Offset of magnet |
+
+The same as [.setMagnetOffset](#setmagnetoffsetdx-dy) but the input is [_Point_](#point).
+
+#### .setMagnetPosition(_x_, _y_)
+
+| Argument | Type | Description |
+| -: | :-: | :- |
+| x | _number_ | Value on x-axis |
+| y | _number_ | Value on y-axis |
+
+Sets the position of magnet to (`x`, `y`) without any judgement.
+
+#### .setMagnetPosition(_point_)
+
+| Argument | Type | Description |
+| -: | :-: | :- |
+| point | _[Point](#point)_ | Position of magnet |
+
+The same as [.setMagnetPosition](#setmagnetpositionx-y) but the input is [_Point_](#point).
+
+## Events
+
+Events for magnet elements.
+
+### magnetstart
+
+> **Cancelable: `true`**
+>
+> Magnet would not be dragged if the event is canceled.
+
+Dispatches on starting to drag a magnet.
+
+Properties of `event.detail`:
+
+| Name | Type | Description |
+| -: | :-: | :- |
+| source | [_Pack_](#pack) | Current magnet info |
+| targets | _[Pack](#pack)[]_ | Attractable magnets |
+| startPoint | [_Point_](#point) | The start point of dragging |
+
+### magnetmove
+
+> **Cancelable: `true`**
+>
+> Magnet would not move at that step if the event is canceled.
+
+Dispatches on dragging a magnet.
+
+Properties of `event.detail` extend those of [magnetstart](#magnetstart):
+
+| Name | Type | Description |
+| -: | :-: | :- |
+| movePoint | [_Point_](#point) | The move point of dragging |
+
+### magnetend
+
+> **Cancelable: `false`**
+
+Dispatches on the end of dragging a magnet.
+
+### attract
+
+> **Cancelable: `true`**
+>
+> The magnet would not attract the target magnet if the event is canceled.
+
+Dispatches on the magnet attracting other magnet.
+
+Properties of `event.detail`:
+
+| Name | Type | Description |
+| -: | :-: | :- |
+| source | [_Pack_](#pack) | Current magnet info |
+| nextRect | [_Rect_](#rect) | The rectangle of magnet after attracting |
+| attraction | [_Attraction_](#attraction) | Attraction result from `source` to targets |
+
+### attracted
+
+> **Cancelable: `false`**
+
+Dispatches on the magnet being attracted by other magnet.
+
+Properties of `event.detail`:
+
+| Name | Type | Description |
+| -: | :-: | :- |
+| source | [_Pack_](#pack) | The info of magnet attracting `target` |
+| target | [_Pack_](#pack) | the info of magnet being attracted by `source` |
+| sourceNextRect | [_Rect_](#rect) | The rectangle of `source` after attracting |
+| distance | [_Distance_](#distance) | Distance detail from `source` to `target` |
+
+### attractmove
+
+> **Cancelable: `false`**
+
+Dispatches on the magnet already attracting a magnet and still on moving.
+
+Properties of `event.detail` are the same as [attract](#attract).
+
+### attractedmove
+
+> **Cancelable: `false`**
+
+Dispatches on the magnet being attracted by other magnet and it's still on moving.
+
+Properties of `event.detail` are the same as [attract](#attract).
+
+### unattract
+
+> **Cancelable: `false`**
+
+Dispatches on the magnet unattracting a magnet.
+
+Properties of `event.detail` are the same as [attract](#attract).
+
+### unattracted
+
+> **Cancelable: `false`**
+
+Dispatches on the magnet being unattracted by other magnet.
+
+Properties of `event.detail`:
+
+| Name | Type | Description |
+| -: | :-: | :- |
+| source | [_Pack_](#pack) | The info of magnet attracting `target` |
+| target | [_Pack_](#pack) | the info of magnet being attracted by `source` |
+| sourceNextRect | [_Rect_](#rect) | The rectangle of `source` after attracting |
+
+## Types
+
+[url-dompoint]: https://www.w3.org/TR/geometry-1/#DOMPoint
+[url-domrect]: https://www.w3.org/TR/geometry-1/#DOMRect
+[url-htmlelement]: https://www.w3.org/TR/2012/WD-html-markup-20121025/elements.html
+
+### Rectable
+
+Defines objects that are able to be converted to [rectangle](#rectangle):
+
+* _[DOMRect][url-domrect]_
+* _[HTMLElement][url-htmlelement]_
+* `document`
+* `window`
+
+### Point
+
+Uses [_DOMPoint_][url-dompoint] as the type of point (`x`, `y`).
+
+Properties of point:
+
+| Name | Type | Description |
+| -: | :-: | :- |
+| x | _number_ | Value on x-axis |
+| y | _number_ | Value on y-axis |
+
+### Rectangle
+
+Uses [_DOMRect_][url-domrect] as the type of rectangle.
+
+Properties of rectangle:
+
+| Name | Type | Description |
+| -: | :-: | :- |
+| top | _number_ | Value on y-axis. Always greater than or equal to `bottom` |
+| right | _number_ | Value on x-axis. Always greater than or equal to `left` |
+| bottom | _number_ | Value on y-axis. Always lesser than or equal to `top` |
+| right | _number_ | Value on x-axis. Always lesser than or equal to `right` |
+| x | _number_ | The same as `left` |
+| y | _number_ | The same as `top` |
+| width | _number_ | Value of `right` minuses `left` |
+| height | _number_ | Value of `bottom` minuses `top` |
+
+### Pack
+
+Wraps the source and its rectangle.
+
+#### new Pack(_source_, _rect_?)
+
+`rect` represents the rectangle of `source` since the rectangle may not be the same as the current one of `source`.
+
+> **If `rect` is _`undefined`_, `source` must be [rectable](#rectable) so that the `rect` could be generated from `source`.**
+
+Properties of pack object:
+
+| Name | Type | Description |
+| -: | :-: | :- |
+| raw | _any_ | Returns `source` |
+| rect | [_Rectangle_](#rectangle) | Returns `rect` of the stage on creation. Default is the rectangle based on `source` |
+
+### Distance
+
+Wraps the info from source to target.
+
+Properties of distance object:
+
+| Name | Type | Description |
+| -: | :-: | :- |
+| source | [_Pack_](#pack) | Source info |
+| target | [_Pack_](#pack) | Target info |
+| alignment | [_Alignment_](#alignments) | Alignment from source to target |
+| rawDistance | _number_ | Distance from source to target |
 | absDistance | _number_ | Absolute distance from source to target |
 
 ### Attraction
 
-Attraction is an object storing the result of source attracting to target(s) including the following properties:
+Wraps the result(s) of source attracting to target(s).
+
+Properties of attraction object:
 
 | Name | Type | Description |
 | -: | :-: | :- |
-| source | [_Pack_](#pack) | Source |
-| target | [_Pack_](#pack) \| [_Pack_](#pack)[] | Target or targets in array |
-| results | [_Distance_](#distance)[] | Distances from source to target on different alignments |
+| source | [_Pack_](#pack) | Source info |
+| target | [_Pack_](#pack) \| _[Pack](#pack)[]_ | Target info for [`.attractionTo`](#attractiontotarget-options). Targets infos in array for [`.multiAttractionsTo`](#multiattractiontotargets-options) |
+| results | _[Distance](#distance)[]_ | Distance results from source to target on alignments |
 | best | [_AttractionBest_](#attractionbest) | The best attraction result |
 
 ### AttractionBest
 
-AttractionBest is an object of the best distance results on axes of x and y:
+Wraps the best distance results on axes of x and y.
+
+Properties of best attraction object:
 
 | Name | Type | Description |
 | -: | :-: | :- |
