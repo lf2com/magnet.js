@@ -9,7 +9,7 @@ import judgeDistanceInParent from './methods/judgeDistanceInParent';
 import judgeMovement from './methods/judgeMovement';
 import { AttractionBest } from './types/Attraction';
 import Pack, { getPack, Rectable } from './types/Pack';
-import { createPoint } from './types/Point';
+import createPoint from './types/Point';
 import createRect, { getRect } from './types/Rect';
 import { checkDragListeners } from './utils/dragListener';
 import registerElement from './utils/registerElement';
@@ -369,7 +369,7 @@ class Magnet extends MagnetPack {
   ) {
     const position = createPoint(arg0 as number, arg1 as number);
     const options = (
-      arg0 instanceof DOMPoint ? arg1 : arg2
+      (arg0 instanceof DOMPoint ? arg1 : arg2) ?? {}
     ) as AttractionResultOfPositionOptions;
     const { width, height } = this.magnetRect;
     const sourceRect = createRect(
@@ -526,11 +526,18 @@ class Magnet extends MagnetPack {
     y?: X extends DOMPoint ? undefined : number,
   ) {
     const position = createPoint(x as number, y as number);
-    const sourceRect = this.magnetRect;
+    const {
+      lastOffset,
+      magnetRect: sourceRect,
+    } = this;
+    const origin = createPoint(
+      sourceRect.x - lastOffset.x,
+      sourceRect.y - lastOffset.y,
+    );
 
     this.setMagnetOffset(
-      position.x - sourceRect.x,
-      position.y - sourceRect.y,
+      position.x - origin.x,
+      position.y - origin.y,
     );
     this.resetMagnetRect();
   }
