@@ -1,64 +1,22 @@
 (() => {
   /* eslint-disable no-console */
   const thisScript = document.head.lastChild;
-  const styleLoading = document.createElement('style');
 
-  styleLoading.innerHTML = `
-    body::before {
-      content: 'Loading .scss files';
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-family: arial;
-      z-index: 10;
-    }
-
-    body::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      right: 0;
-      bottom: 0;
-      left: 0;
-      background-color: #fff;
-      z-index: 1;
-    }
-  `;
-  document.head.appendChild(styleLoading);
-
-  window.addEventListener('load', async () => {
+  window.scriptLoader.push(async (scriptLoader) => {
     try {
-      const Sass = await new Promise((resolve, reject) => {
-        if (window.Sass) {
-          resolve(window.Sass);
-          return;
-        }
+      const { loadScript } = scriptLoader;
+      const rootPath = thisScript.getAttribute('src').replace(/\/[^/]+?$/, '');
+      const sassJsPath = `${rootPath}/sass.js`;
 
-        const sassJsName = 'sass.js';
-        const rootPath = thisScript.getAttribute('src').replace(/\/[^/]+?$/, '');
-        const sassJsPath = `${rootPath}/${sassJsName}`;
-        const sassScript = document.createElement('script');
+      await loadScript(sassJsPath);
 
-        sassScript.src = sassJsPath;
-        document.head.appendChild(sassScript);
-        sassScript.addEventListener('error', () => {
-          reject(new Error('Loading Sass JS failed'));
-        });
-        sassScript.addEventListener('load', () => {
-          console.info('Loaded Sass JS');
-          resolve(window.Sass);
-        });
-        console.log(`Loading Sass JS: ${sassJsPath}`);
-      });
-
-      if (!Sass) {
+      if (!window.Sass) {
         throw new ReferenceError(
           'Sass is not defined. Not going to load .scss files',
         );
       }
 
-      const sass = new Sass();
+      const sass = new window.Sass();
       const selector = '[type="text/scss"]';
       const scssDoms = document.querySelectorAll(selector);
 
@@ -129,11 +87,8 @@
 
       await loadNextScss(0);
       console.log('All Sass files done');
-      window.dispatchEvent(new CustomEvent('SassLoad'));
     } catch (error) {
       console.warn(error.message);
     }
-
-    styleLoading.remove();
   });
 })();

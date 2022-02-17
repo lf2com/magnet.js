@@ -91,7 +91,7 @@
   `;
   document.head.append(domStyle);
 
-  window.addEventListener('load', () => {
+  window.addEventListener('ready', () => {
     const MagnetPack = customElements.get('magnet-pack');
     const Magnet = customElements.get('magnet-block');
     const domDetail = document.createElement('div');

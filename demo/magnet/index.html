@@ -6,18 +6,13 @@
     <title>Magnet.js Demo - Magnet</title>
     <link href="./style.scss" type="text/scss" rel="stylesheet" />
     <link href="../utils/root.scss" type="text/scss" rel="stylesheet" />
+    <script src="../utils/scriptLoader.js"></script>
+    <script src="../utils/magnet.js" module="axis,attraction,group,resize,detail,control"></script>
     <script src="../utils/scss/index.js"></script>
-    <script src="../utils/axis.js"></script>
-    <script src="../utils/attraction.js"></script>
-    <script src="../utils/group.js"></script>
-    <script src="../utils/resize.js"></script>
-    <script src="../utils/detail.js"></script>
-    <script src="../utils/control.js"></script>
-    <!-- <script src="../../dist/magnet.min.js"></script> -->
     <script src="../utils/typescript/index.js"></script>
   </head>
   <body>
-    <magnet-pack id="panel">
+    <magnet-pack id="panel" attract-distance="10">
       <magnet-block cross-prevent="parent">
         <div>Child A</div>
       </magnet-block>
@@ -28,7 +23,12 @@
         <div>Child C</div>
       </magnet-block>
     </magnet-pack>
-    <magnet-pack group="a" style="padding: 1em; background-color: #eee;">
+    <magnet-pack
+      group="a"
+      attract-distance="10"
+      align-to="inner|extend"
+      style="padding: 1em; background-color: #eee;"
+    >
       <magnet-block>
         <div>Block A</div>
       </magnet-block>
@@ -36,14 +36,5 @@
         <div>Block B</div>
       </magnet-block>
     </magnet-pack>
-    
-    <script>
-      window.addEventListener('load', () => {
-        const magnet = document.getElementById('magnet');
-      
-        magnet.addEventListener('attract', (event) => {
-        });
-      });
-    </script>
   </body>
 </html>

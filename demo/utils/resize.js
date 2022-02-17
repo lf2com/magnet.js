@@ -16,7 +16,7 @@
   `;
   document.head.append(domStyle);
 
-  window.addEventListener('load', () => {
+  window.addEventListener('ready', () => {
     const Magnet = customElements.get('magnet-block');
 
     /**

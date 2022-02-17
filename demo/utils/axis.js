@@ -131,7 +131,7 @@
     domAxisVert.classList.remove('show');
   });
 
-  window.addEventListener('load', () => {
+  window.addEventListener('ready', () => {
     domAxes.append(domAxisHori);
     domAxes.append(domAxisVert);
     document.body.append(domAxes);

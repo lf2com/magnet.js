@@ -1,5 +1,5 @@
 (() => {
-  window.addEventListener('load', () => {
+  window.addEventListener('ready', () => {
     const Magnet = customElements.get('magnet-block');
 
     /**
@@ -16,8 +16,6 @@
           } else if (originAttractable) {
             magnet.removeAttribute('unattractable');
           }
-
-          magnet.setMagnetOffsetWithAttraction(magnet.lastMagnetOffset);
         };
 
         document.addEventListener('keydown', onKeyChange);
