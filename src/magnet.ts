@@ -30,8 +30,7 @@ template.innerHTML = `
       --y: var(${Style.offsetY}, 0);
 
       position: relative;
-      top: var(--y);
-      left: var(--x);
+      transform: translate(var(--x), var(--y));
       touch-action: none;
       display: inline-block;
     }
@@ -57,7 +56,6 @@ class Magnet extends MagnetPack {
     super();
 
     (this.shadowRoot as ShadowRoot).append(template.content.cloneNode(true));
-    this.setMagnetOffset(0, 0);
     checkDragListeners(this);
   }
 
