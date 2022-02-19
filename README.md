@@ -4,7 +4,9 @@ Magnet.js is a JavaScript library making HTML elements attractable to each other
 
 ## Demo
 
+[url-demo-blocks]: https://lf2com.github.io/magnet.js/demo/blocks/index.html
 
+**[Blocks][url-demo-blocks]** - An example of magnet blocks in different groups
 
 ## Usage
 
