@@ -12,7 +12,7 @@
       }
 
       &.attracted {
-        outline: 0.1em solid #f66 !important;
+        outline: 0.2em solid #f66 !important;
       }
     }
   `;
@@ -22,7 +22,7 @@
     const Magnet = customElements.get('magnet-block');
 
     /**
-     * Sets attract distance on mouse entering.
+     * Sets attract distance on pointer entering.
      */
     function onMouseEnter({ target }) {
       target.style.setProperty('--attract-distance', `${target.attractDistance}px`);
@@ -32,18 +32,18 @@
      * Setups magnet style.
      */
     function initMagnetStyle(magnet) {
-      magnet.addEventListener('mouseenter', onMouseEnter);
+      magnet.addEventListener('pointerenter', onMouseEnter);
     }
 
     const observer = new MutationObserver((mutationRecords) => {
       mutationRecords.forEach((mutation) => {
-        const { target } = mutation;
+        const { addedNodes } = mutation;
 
-        if (!(target instanceof Magnet)) {
-          return;
-        }
-
-        initMagnetStyle(target);
+        addedNodes.forEach((target) => {
+          if ((target instanceof Magnet)) {
+            initMagnetStyle(target);
+          }
+        });
       });
     });
 

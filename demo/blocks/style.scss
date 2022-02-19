@@ -1,0 +1,29 @@
+magnet-block {
+  box-shadow: inset 0 0 0 0.1em rgba(0, 0, 0, 0.1);
+}
+
+#magnet-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  margin: 1em;
+  box-shadow: 0 0 0.5em #999;
+  background-color: #fff;
+}
+
+#group-list {
+  margin-block-end: 1em;
+  display: flex;
+  flex-flow: row;
+  user-select: none;
+
+  &:before {
+    content: 'Group:';
+  }
+
+  * {
+    vertical-align: middle;
+  }
+}

@@ -15,7 +15,8 @@ module.exports = (env, options) => {
     output: {
       filename: (PRODUCTION_MODE
         ? 'magnet.min.js'
-        : 'bundle.[contenthash].js'
+        // : 'bundle.[contenthash].js'
+        : 'magnet.dev.js'
       ),
       path: path.resolve(__dirname, BUILD_PATH),
       clean: true,

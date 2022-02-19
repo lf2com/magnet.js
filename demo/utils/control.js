@@ -32,13 +32,13 @@
 
     const observer = new MutationObserver((mutationRecords) => {
       mutationRecords.forEach((mutation) => {
-        const { target } = mutation;
+        const { addedNodes } = mutation;
 
-        if (!(target instanceof Magnet)) {
-          return;
-        }
-
-        initMagnetControl(target);
+        addedNodes.forEach((target) => {
+          if ((target instanceof Magnet)) {
+            initMagnetControl(target);
+          }
+        });
       });
     });
 

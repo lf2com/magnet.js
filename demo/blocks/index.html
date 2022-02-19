@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=1" />
+    <title>Magnet.js Demo - Magnet</title>
+    <link href="./style.scss" type="text/scss" rel="stylesheet" />
+    <link href="../utils/root.scss" type="text/scss" rel="stylesheet" />
+    <script src="../utils/scriptLoader.js" module="scss/index,typescript/index"></script>
+    <script src="../utils/magnet.js" module="axis,attraction,control,dialog"></script>
+  </head>
+  <body>
+    <magnet-pack
+      id="magnet-panel"
+      cross-prevent="parent"
+    ></magnet-pack>
+    <div id="control-panel-body">
+      <section id="group-list">
+      </section>
+      <footer>
+        <button id="add">
+          Add
+        </button>
+        <button id="clean">
+          Clean
+        </button>
+      </footer>
+    </div>
+  </body>
+  <script src="./main.js"></script>
+</html>

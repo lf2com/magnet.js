@@ -9,15 +9,7 @@
         z-index: 0;
         
         &.focus {
-          &::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            right: 0;
-            bottom: 0;
-            left: 0;
-            border: 0.25em solid rgba(0, 0, 0, 0.25);
-          }
+          box-shadow: inset 0 0 0 0.25em rgba(0, 0, 0, 0.25);
         }
 
         &::after {
@@ -101,11 +93,14 @@
     /**
      * Returns the nearest parent that is magnet-pack or magnet-block.
      */
-    function getNearestMagnetParent(dom) {
+    function getNearestMagnetParent(dom, onlyBlock = false) {
       if (!dom) {
         return null;
       }
-      if (dom instanceof Magnet || dom instanceof MagnetPack) {
+      if (
+        dom instanceof Magnet
+        || (!onlyBlock && dom instanceof MagnetPack)
+      ) {
         return dom;
       }
 
@@ -215,7 +210,7 @@
      * Sets detail of magnet.
      */
     function setDetail(magnet, { x, y }) {
-      const domInner = magnet.firstElementChild;
+      const domInner = magnet;
       const toggleValues = (allValues, values, targetValue) => (
         allValues.filter((value) => {
           const checked = values.includes(value);
@@ -495,16 +490,15 @@
       setDetail(magnetNode, { x, y });
     });
 
-    ['mousedown', 'touchstart'].forEach((type) => {
-      document.addEventListener(type, () => {
-        document.querySelectorAll('.focus').forEach((dom) => {
-          dom.classList.remove('focus');
-        });
-        setDetailVisible(false);
+    document.addEventListener('pointerdown', () => {
+      document.querySelectorAll('.focus').forEach((dom) => {
+        dom.classList.remove('focus');
       });
-      domDetail.addEventListener(type, (event) => {
-        event.stopPropagation();
-      });
+      setDetailVisible(false);
+    });
+
+    domDetail.addEventListener('pointerdown', (event) => {
+      event.stopPropagation();
     });
 
     document.body.append(domDetail);

@@ -1,6 +1,11 @@
-(() => {
+(async () => {
   /* eslint-disable no-console */
+  const thisScript = document.head.lastChild;
   const styleLoading = document.createElement('style');
+  const rootPath = thisScript.getAttribute('src').replace(/\/[^/]+?$/, '');
+  const modules = (thisScript.getAttribute('module') ?? '')
+    .split(/[|;,\s]/)
+    .map((s) => s.trim());
 
   styleLoading.innerHTML = `
     body::before {
@@ -29,6 +34,20 @@
   let loadDone = false;
   const queue = [];
   const currentPath = () => document.head.lastChild.getAttribute('src').replace(/\/[^/]+?$/, '');
+  const verifyQueueValue = (target) => {
+    if (loadDone) {
+      throw new Error('scriptLoader is done');
+    }
+
+    switch (typeof target) {
+      case 'string':
+      case 'function':
+        break;
+
+      default:
+        throw new TypeError(`Invalid type: ${typeof target}`);
+    }
+  };
   const scriptLoader = Object.defineProperties({}, {
     queue: {
       get() { return [...queue]; },
@@ -37,15 +56,43 @@
       get() { return queue.length; },
     },
     push: {
-      value(func) {
-        if (this.done) {
-          throw new Error('scriptLoader is done');
-        }
-        if (typeof func !== 'function') {
-          throw new TypeError(`Invalid type: ${typeof func}`);
-        }
+      value(target) {
+        verifyQueueValue(target);
 
-        queue.push(func);
+        switch (typeof target) {
+          case 'string':
+            queue.push(async () => {
+              await this.loadScript(target);
+            });
+            break;
+
+          case 'function':
+            queue.push(target);
+            break;
+
+          default:
+            break;
+        }
+      },
+    },
+    insert: {
+      value(target) {
+        verifyQueueValue(target);
+
+        switch (typeof target) {
+          case 'string':
+            queue.unshift(async () => {
+              await this.loadScript(target);
+            });
+            break;
+
+          case 'function':
+            queue.unshift(target);
+            break;
+
+          default:
+            break;
+        }
       },
     },
     done: {
@@ -77,15 +124,24 @@
 
   window.addEventListener('load', async () => {
     const runNext = async (index = 0) => {
-      if (queue.length > 0) {
-        console.log(`Loading script[${index}]`);
-        await queue.shift()(scriptLoader);
-        console.log(`\`- Loaded script[${index}]`);
-        await runNext(index + 1);
+      if (queue.length === 0) {
+        return index;
       }
+
+      console.log(`Initializing script[${index}]`);
+      await queue.shift()(scriptLoader);
+      console.log(`\`- Initialized script[${index}]`);
+      await runNext(index + 1);
+
+      return index + 1;
     };
 
-    await runNext(0);
+    const lastIndex = await runNext();
+
+    modules.forEach((module) => {
+      scriptLoader.push(`${rootPath}/${module}.js`);
+    });
+    await runNext(lastIndex);
     console.info('Loaded all scripts');
     styleLoading.remove();
     loadDone = true;

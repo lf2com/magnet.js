@@ -6,7 +6,7 @@
     magnet {
       &-block {
         &.same-group {
-          outline: 0.1em solid rgba(0, 0, 0, 0.25);
+          outline: 0.2em solid rgba(0, 0, 0, 0.25);
         }
       }
 
@@ -26,7 +26,7 @@
             font-size: 0.5rem;
             line-height: 1.5em;
             text-align: start;
-            z-index: 1;
+            z-index: 0;
           }
         }
       }
@@ -41,7 +41,7 @@
      * Setups magnet group.
      */
     function initMagnetGroup(magnet) {
-      magnet.addEventListener('mouseenter', ({ target }) => {
+      magnet.addEventListener('pointerenter', ({ target }) => {
         const { group } = target;
         const magnets = Array.from(document.querySelectorAll('magnet-block'))
           .filter((dom) => (
@@ -52,7 +52,7 @@
         magnets.forEach((dom) => {
           dom.classList.add('same-group');
         });
-        target.addEventListener('mouseleave', () => {
+        target.addEventListener('pointerleave', () => {
           magnets.forEach((dom) => {
             dom.classList.remove('same-group');
           });
@@ -62,13 +62,13 @@
 
     const observer = new MutationObserver((mutationRecords) => {
       mutationRecords.forEach((mutation) => {
-        const { target } = mutation;
+        const { addedNodes } = mutation;
 
-        if (!(target instanceof Magnet)) {
-          return;
-        }
-
-        initMagnetGroup(target);
+        addedNodes.forEach((target) => {
+          if ((target instanceof Magnet)) {
+            initMagnetGroup(target);
+          }
+        });
       });
     });
 

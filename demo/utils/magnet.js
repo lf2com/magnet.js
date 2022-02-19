@@ -2,21 +2,35 @@
   /* eslint-disable no-console */
   /* eslint-disable no-alert */
   const thisScript = document.head.lastChild;
+  const { scriptLoader } = window;
   const rootPath = thisScript.getAttribute('src').replace(/\/[^/]+?$/, '');
-  const modules = (thisScript.getAttribute('module') ?? '').split(/[|;,\s]/);
+  const modules = (thisScript.getAttribute('module') ?? '')
+    .split(/[|;,\s]/)
+    .map((s) => s.trim());
 
-  window.scriptLoader.push(async (scriptLoader) => {
+  scriptLoader.push(async () => {
     const { loadScript } = scriptLoader;
 
     if (!customElements.get('magnet-block')) {
-      try {
-        const magnetJsPath = `${rootPath}/../../dist/magnet.min.js`;
+      console.log('Loading magnet');
 
-        console.log('Loading magnet');
+      try {
+        // try to load development .js
+        const magnetJsPath = '/magnet.dev.js';
+
         await loadScript(magnetJsPath);
       } catch (error) {
-        console.warn(error.message);
-        alert(error.message);
+        try {
+          const magnetJsPath = `${rootPath}/../../dist/magnet.min.js`;
+
+          console.log('Loading magnet');
+          await loadScript(magnetJsPath);
+        } catch (err) {
+          const detail = `Failed to load magnet: ${err.message}`;
+
+          console.warn(detail);
+          alert(detail);
+        }
       }
     }
 
