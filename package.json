@@ -1,15 +1,13 @@
 {
   "name": "@lf2com/magnet.js",
-  "version": "1.0.9",
+  "version": "2.0.0-alpha",
   "description": "Magnet.js is a JavaScript library that groups HTML elements and makes them attractable with each other",
   "main": "index.js",
   "scripts": {
-    "build:debug": "browserify index.js -t [ babelify --presets [ es2015 stage-0 ] ] > magnet.min.js",
-    "build": "browserify index.js -t [ babelify --presets [ es2015 stage-0 ] ] | uglifyjs -cm > magnet.min.js",
-    "build:jquery:debug": "browserify jquery-plugin.js -t [ babelify --presets [ es2015 stage-0 ] ] > jquery-magnet.min.js",
-    "build:jquery": "browserify jquery-plugin.js -t [ babelify --presets [ es2015 stage-0 ] ] | uglifyjs -cm > jquery-magnet.min.js",
-    "build:all:debug": "npm run build-debug & npm run jquery-build-debug",
-    "build:all": "npm run build & npm run jquery-build"
+    "dev": "webpack serve --mode development --progress",
+    "dev:public": "npm run dev -- --env public=true",
+    "build": "webpack --mode production",
+    "lint": "eslint src/**/*.ts"
   },
   "author": "Wan Wan",
   "repository": {
@@ -25,11 +23,19 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "babel-core": "^6.26.3",
-    "babel-preset-es2015": "^6.24.1",
-    "babel-preset-stage-0": "^6.24.1",
-    "babelify": "^8.0.0",
-    "browserify": "^16.2.3",
-    "uglify-js": "^3.3.2"
+    "@babel/core": "^7.15.0",
+    "@babel/preset-env": "^7.15.0",
+    "@babel/preset-typescript": "^7.15.0",
+    "@typescript-eslint/eslint-plugin": "^4.29.3",
+    "@typescript-eslint/parser": "^4.29.3",
+    "babel-loader": "^8.2.2",
+    "eslint": "^7.32.0",
+    "eslint-config-airbnb": "^18.2.1",
+    "eslint-plugin-import": "^2.24.2",
+    "html-webpack-plugin": "^5.3.2",
+    "typescript": "^4.4.2",
+    "webpack": "^5.51.1",
+    "webpack-cli": "^4.8.0",
+    "webpack-dev-server": "^4.0.0"
   }
 }
