@@ -56,8 +56,11 @@ function attractionResultOfPosition(
     alignToParents = defaultAttributeValues[Attribute.alignToParent],
     crossPrevents = defaultAttributeValues[Attribute.crossPrevent],
     parentPack,
+    lastAttractionBest,
     onJudgeMovement = returnTrue,
   } = options;
+  const lastBestX = lastAttractionBest?.x;
+  const lastBestY = lastAttractionBest?.y;
   const parentAlignments = Magnet.getAlignmentsFromAlignTo(alignToParents);
   const alignToParent = parentAlignments.length > 0;
   const crossPreventParent = crossPrevents.includes(CrossPrevent.parent);
@@ -92,7 +95,104 @@ function attractionResultOfPosition(
   const sourceInParentPack = new Pack(sourceRaw, sourceInParentRect);
   const passJudgeMovement = onJudgeMovement(sourceInParentPack);
 
+  /**
+   * Records for those targets need to dispatch event.
+   */
+  const attractResults: Distance[] = [];
+  const unattractResults: Distance[] = [];
+  const attractmoveResults: Distance[] = [];
+
+  const dispatchAttractEvents = (sourceNextRect: DOMRect) => {
+    if (ignoreEvent) {
+      return;
+    }
+
+    attractResults.forEach((attractResult) => {
+      const targetPack = attractResult.target;
+      const targetElem = targetPack.raw as HTMLElement;
+      const attractedEventDetail: AttractedEventDetail = {
+        source: sourceInParentPack,
+        target: targetPack,
+        sourceNextRect,
+        distance: attractResult,
+      };
+
+      triggerEvent<AttractedEventDetail>(
+        targetElem,
+        Event.attracted,
+        {
+          bubbles: true,
+          cancelable: false,
+          composed: true,
+          detail: attractedEventDetail,
+        },
+      );
+    });
+  };
+  const dispatchUnattractEvents = (sourceNextRect: DOMRect) => {
+    if (ignoreEvent) {
+      return;
+    }
+
+    unattractResults.forEach((unattractResult) => {
+      const targetPack = unattractResult.target;
+      const targetElem = targetPack.raw as HTMLElement;
+      const unattractedEventDetail: UnattractedEventDetail = {
+        source: sourceInParentPack,
+        target: targetPack,
+        sourceNextRect,
+      };
+
+      triggerEvent<UnattractedEventDetail>(
+        targetElem,
+        Event.unattracted,
+        {
+          bubbles: true,
+          cancelable: false,
+          composed: true,
+          detail: unattractedEventDetail,
+        },
+      );
+    });
+  };
+  const dispatchAttractmoveEvents = (sourceNextRect: DOMRect) => {
+    if (ignoreEvent) {
+      return;
+    }
+
+    attractmoveResults.forEach((attractmoveResult) => {
+      const targetPack = attractmoveResult.target;
+      const targetElem = targetPack.raw as HTMLElement;
+      const attractedmoveEventDetail: AttractedmoveEventDetail = {
+        source: sourceInParentPack,
+        target: targetPack,
+        sourceNextRect,
+        distance: attractmoveResult,
+      };
+
+      triggerEvent<AttractedmoveEventDetail>(
+        targetElem,
+        Event.attractedmove,
+        {
+          bubbles: true,
+          cancelable: false,
+          composed: true,
+          detail: attractedmoveEventDetail,
+        },
+      );
+    });
+  };
+
   if (!passJudgeMovement) {
+    if (lastBestX) {
+      unattractResults.push(lastBestX);
+    }
+    if (lastBestY) {
+      unattractResults.push(lastBestY);
+    }
+
+    dispatchUnattractEvents(sourceInParentRect);
+
     return {
       position: null,
       attractionBest: null,
@@ -109,7 +209,6 @@ function attractionResultOfPosition(
     attractDistance = defaultAttributeValues[Attribute.attractDistance],
     alignTos = defaultAttributeValues[Attribute.alignTo],
     alignments = Magnet.getAlignmentsFromAlignTo(alignTos),
-    lastAttractionBest,
     onJudgeDistanceInParent = returnTrue,
   } = options;
   const sourceRawPack = new Pack(sourceRaw, sourceRawRect);
@@ -181,19 +280,10 @@ function attractionResultOfPosition(
   );
 
   if (!ignoreEvent) {
-    /**
-     * Records for those targets need to dispatch event.
-     */
-    const attractResults: Distance[] = [];
-    const unattractResults: Distance[] = [];
-    const attractmoveResults: Distance[] = [];
-
     const {
       x: currentBestX,
       y: currentBestY,
     } = sourceAttractionBest;
-    const lastBestX = lastAttractionBest?.x;
-    const lastBestY = lastAttractionBest?.y;
     const lastTargetX = lastBestX?.target;
     const lastTargetY = lastBestY?.target;
     const currentTargetX = currentBestX?.target;
@@ -261,6 +351,13 @@ function attractionResultOfPosition(
       );
 
       if (!passAttractEvent) {
+        if (lastBestX) {
+          unattractResults.push(lastBestX);
+        }
+        if (lastBestY) {
+          unattractResults.push(lastBestY);
+        }
+
         return {
           position: createPoint(
             sourceRawRect.x + sourceInParentOffset.x,
@@ -270,28 +367,6 @@ function attractionResultOfPosition(
         };
       }
     }
-
-    attractResults.forEach((attractResult) => {
-      const targetPack = attractResult.target;
-      const targetElem = targetPack.raw as HTMLElement;
-      const attractedEventDetail: AttractedEventDetail = {
-        source: sourceInParentPack,
-        target: targetPack,
-        sourceNextRect: sourceAttractionInParentRect,
-        distance: attractResult,
-      };
-
-      triggerEvent<AttractedEventDetail>(
-        targetElem,
-        Event.attracted,
-        {
-          bubbles: true,
-          cancelable: false,
-          composed: true,
-          detail: attractedEventDetail,
-        },
-      );
-    });
 
     if (unattractResults.length > 0) {
       const unattractEventDetail: UnattractEventDetail = {
@@ -310,26 +385,6 @@ function attractionResultOfPosition(
           detail: unattractEventDetail,
         },
       );
-      unattractResults.forEach((unattractResult) => {
-        const targetPack = unattractResult.target;
-        const targetElem = targetPack.raw as HTMLElement;
-        const unattractedEventDetail: UnattractedEventDetail = {
-          source: sourceInParentPack,
-          target: targetPack,
-          sourceNextRect: sourceAttractionInParentRect,
-        };
-
-        triggerEvent<UnattractedEventDetail>(
-          targetElem,
-          Event.unattracted,
-          {
-            bubbles: true,
-            cancelable: false,
-            composed: true,
-            detail: unattractedEventDetail,
-          },
-        );
-      });
     }
 
     if (attractmoveResults.length > 0) {
@@ -349,29 +404,12 @@ function attractionResultOfPosition(
           detail: attractmoveEventDetail,
         },
       );
-      attractmoveResults.forEach((attractmoveResult) => {
-        const targetPack = attractmoveResult.target;
-        const targetElem = targetPack.raw as HTMLElement;
-        const attractedmoveEventDetail: AttractedmoveEventDetail = {
-          source: sourceInParentPack,
-          target: targetPack,
-          sourceNextRect: sourceAttractionInParentRect,
-          distance: attractmoveResult,
-        };
-
-        triggerEvent<AttractedmoveEventDetail>(
-          targetElem,
-          Event.attractedmove,
-          {
-            bubbles: true,
-            cancelable: false,
-            composed: true,
-            detail: attractedmoveEventDetail,
-          },
-        );
-      });
     }
   }
+
+  dispatchAttractEvents(sourceAttractionInParentRect);
+  dispatchUnattractEvents(sourceAttractionInParentRect);
+  dispatchAttractmoveEvents(sourceAttractionInParentRect);
 
   return {
     position: createPoint(

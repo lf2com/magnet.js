@@ -70,7 +70,6 @@ function moveListener(
     )),
     targetPacks,
     {
-      ignoreEvent: false,
       unattractable: this.unattractable,
       attractDistance: this.attractDistance,
       alignTos: this.alignTos,
