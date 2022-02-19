@@ -5,6 +5,7 @@ import { MoveEventDetail, StartEventDetail } from '../types/EventDetail';
 import Pack from '../types/Pack';
 import createPoint from '../types/Point';
 import createRect from '../types/Rect';
+import Attribute from '../values/attribute';
 import Event from '../values/event';
 import { addEventListeners, removeEventListeners, triggerEvent } from './eventHandler';
 import getEventXY from './getEventXY';
@@ -29,9 +30,8 @@ function moveListener(
   this: Magnet,
   startPoint: DOMPoint,
   startLastOffset: DOMPoint,
-  event: PointerEvent,
-): void {
-  const movePoint = getEventXY(event);
+  movePoint: DOMPoint,
+): DOMPoint {
   const {
     magnetRect: sourceRect,
     targetMagnetPacks: targetPacks,
@@ -88,6 +88,8 @@ function moveListener(
     (position?.y ?? sourceRect.y) - sourceRect.y + startLastOffset.y,
   );
   this.lastAttractionBest = attractionBest;
+
+  return movePoint;
 }
 
 /**
@@ -131,12 +133,22 @@ function startListener(
     return;
   }
 
-  const dragMoveListener = moveListener.bind(this, startPoint, this.lastOffset);
+  let lastMovePoint: DOMPoint = startPoint;
+  const dragMoveHandler = moveListener.bind(this, startPoint, this.lastOffset);
+  const dragMoveListener = (evt: PointerEvent) => {
+    const movePoint = getEventXY(evt);
+
+    lastMovePoint = dragMoveHandler(movePoint);
+  };
+  const attributeObserver = new MutationObserver(() => {
+    dragMoveHandler(lastMovePoint);
+  });
   const dragEndListener = () => {
     this.isMoving = false;
     this.style.removeProperty('z-index');
     removeEventListeners(document, EVENT_DRAG_MOVE, dragMoveListener);
     removeEventListeners(document, EVENT_DRAG_END, dragEndListener);
+    attributeObserver.disconnect();
     resetMagnetCaches(this);
     triggerEvent(this, Event.magnetend, {
       bubbles: true,
@@ -150,6 +162,11 @@ function startListener(
   event.preventDefault();
   addEventListeners(document, EVENT_DRAG_MOVE, dragMoveListener);
   addEventListeners(document, EVENT_DRAG_END, dragEndListener);
+  attributeObserver.observe(this, {
+    attributes: true,
+    attributeFilter: Object.values(Attribute),
+  });
+  dragMoveHandler(lastMovePoint);
 }
 
 /**
