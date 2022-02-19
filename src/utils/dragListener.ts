@@ -103,6 +103,7 @@ function startListener(
 
   const startPoint = getEventXY(event);
 
+  this.isMoving = false;
   resetMagnetCaches(this);
 
   const {
@@ -132,6 +133,8 @@ function startListener(
 
   const dragMoveListener = moveListener.bind(this, startPoint, this.lastOffset);
   const dragEndListener = () => {
+    this.isMoving = false;
+    this.style.removeProperty('z-index');
     removeEventListeners(document, EVENT_DRAG_MOVE, dragMoveListener);
     removeEventListeners(document, EVENT_DRAG_END, dragEndListener);
     resetMagnetCaches(this);
@@ -142,6 +145,8 @@ function startListener(
     });
   };
 
+  this.isMoving = true;
+  this.style.setProperty('z-index', `${Date.now()}`);
   event.preventDefault();
   addEventListeners(document, EVENT_DRAG_MOVE, dragMoveListener);
   addEventListeners(document, EVENT_DRAG_END, dragEndListener);

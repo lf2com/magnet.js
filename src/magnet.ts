@@ -41,11 +41,13 @@ template.innerHTML = `
 `;
 
 class Magnet extends MagnetPack {
-  #rect: DOMRect | null = null;
+  protected rectCache: DOMRect | null = null;
 
-  #parentPack: Pack | null = null;
+  protected parentPackCache: Pack | null = null;
 
-  #targetMagnetPacks: Pack[] | null = null;
+  protected targetMagnetPacksCache: Pack[] | null = null;
+
+  protected isMoving: boolean = false;
 
   protected lastOffset: DOMPoint = createPoint(0, 0);
 
@@ -93,18 +95,20 @@ class Magnet extends MagnetPack {
    * Returns rect object of this magnet.
    */
   get magnetRect(): DOMRect {
-    if (!this.#rect) {
-      this.#rect = getRect(this);
+    if (!this.rectCache) {
+      this.rectCache = getRect(this);
     }
 
-    return this.#rect;
+    return this.rectCache;
   }
 
   /**
    * Resets the rect object of this magnet.
    */
   resetMagnetRect(): void {
-    this.#rect = null;
+    if (!this.isMoving) {
+      this.rectCache = null;
+    }
   }
 
   /**
@@ -113,37 +117,41 @@ class Magnet extends MagnetPack {
   get parentPack(): Pack {
     const parent = this.parentElement ?? document.body;
 
-    if (!this.#parentPack) {
-      this.#parentPack = getPack(parent);
+    if (!this.parentPackCache) {
+      this.parentPackCache = getPack(parent);
     }
 
-    return this.#parentPack;
+    return this.parentPackCache;
   }
 
   /**
    * Resets the pack object of the parent of magnet.
    */
   resetParentPack(): void {
-    this.#parentPack = null;
+    if (!this.isMoving) {
+      this.parentPackCache = null;
+    }
   }
 
   /**
    * Returns pack objects of target magnets.
    */
   get targetMagnetPacks(): Pack[] {
-    if (!this.#targetMagnetPacks) {
-      this.#targetMagnetPacks = this.getAttractableMagnets()
+    if (!this.targetMagnetPacksCache) {
+      this.targetMagnetPacksCache = this.getAttractableMagnets()
         .map((target) => getPack(target));
     }
 
-    return this.#targetMagnetPacks;
+    return this.targetMagnetPacksCache;
   }
 
   /**
    * Resets the pack objects of target magnets.
    */
   resetTargetMagnetPacks(): void {
-    this.#targetMagnetPacks = null;
+    if (!this.isMoving) {
+      this.targetMagnetPacksCache = null;
+    }
   }
 
   /**
