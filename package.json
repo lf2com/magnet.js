@@ -1,6 +1,6 @@
 {
   "name": "@lf2com/magnet.js",
-  "version": "2.0.0-alpha",
+  "version": "2.0.0",
   "description": "Magnet.js is a JavaScript library that groups HTML elements and makes them attractable with each other",
   "main": "index.js",
   "scripts": {
@@ -15,8 +15,8 @@
     "url": "https://github.com/lf2com/magnet.js"
   },
   "keywords": [
-    "jquery",
-    "magnet"
+    "magnet",
+    "typescript"
   ],
   "bugs": {
     "url": "https://github.com/lf2com/magnet.js/issues"
