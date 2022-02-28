@@ -2,56 +2,117 @@
 
 Magnet.js is a JavaScript library making HTML elements attractable to each other.
 
+---
+
 ## Demo
 
-[url-demo-blocks]: https://lf2com.github.io/magnet.js/demo/blocks/index.html
+[url-demo-basic]: https://lf2com.github.io/magnet.js/demo/basic/index.html
+[url-demo-basic-js]: https://lf2com.github.io/magnet.js/demo/basic/javascript.html
+[url-demo-basic-jquery]: https://lf2com.github.io/magnet.js/demo/basic/jquery.html
+[url-demo-basic-react]: https://lf2com.github.io/magnet.js/demo/basic/react.html
 
-**[Blocks][url-demo-blocks]** - An example of magnet blocks in different groups
+### [Basic][url-demo-basic]
 
-## Usage
+Samples of using magnet.js:
 
-[url-github]: https://github.com/lf2com/magnet.js
-[url-npmjs]: https://www.npmjs.com/package/@lf2com/magnet.js
+- [HTML][url-demo-basic]
+- [JavaScript][url-demo-basic-js]
+- [jQuery][url-demo-basic-jquery]
+- [React][url-demo-basic-react].
 
-Install from [GitHub][url-github] or [npmjs][url-npmjs]:
+[url-demo-groups]: https://lf2com.github.io/magnet.js/demo/groups/index.html
 
-```sh
-npm install @lf2com/magnet.js
-# or
-npm install https://github.com/lf2com/magnet.js
-```
+### [Groups][url-demo-groups]
 
-Import to your project:
+Creates magnet blocks of different groups.
 
-```js
-import '@lf2com/magnet.js';
-// or
-require('@lf2com/magnet.js');
-```
+## Get Started
 
-### Browser
+:warning: _**Since `v2.0.0`, magnet.js has become a HTML element for us to wrap other elements or directly use it as a attractable block.**_
 
-Add the `.js` file to your HTML file and use magnet.js directly:
+Add magnet.js to your HTML file:
 
 ```html
-<script src="PATH/TO/magnet.js"></script>
+<script defer src="https://unpkg.com/@lf2com/magnet.js@latest/magnet.min.js"></script>
+<!-- or -->
+<script defer src="https://cdn.jsdelivr.net/gh/lf2com/magnet.js@latest/magnet.min.js"></script>
+```
 
-<!-- use magnet -->
-<magnet-block>
-  magnet
+We can use magnets directly in HTML:
+
+```html
+<magnet-block
+  style="width: 100px; height: 50px; background: #fcc;"
+  attract-distance="10"
+  align-to="outer|center"
+>
+  foo
 </magnet-block>
 
-<!-- or wrap an element -->
-<magnet-block>
-  <div>
-    some text
+<magnet-block attract-distance="10" align-to="outer|center">
+  <div style="width: 100px; height: 50px; background: #fcc;">
+    bar
   </div>
 </magnet-block>
 ```
 
+Or in JavaScript code:
+
+```js
+const magnet = document.createElement('magnet-block');
+
+magnet.setAttribute('attract-distance', '10');
+magnet.setAttribute('align-to', 'outer|center');
+// or
+magnet.attractDistance = 10;
+magnet.alignTos = ['outer', 'center'];
+
+magnet.style.setProperty('width', '100px');
+magnet.style.setProperty('height', '50px');
+magnet.style.setProperty('background', '#fcc');
+magnet.innerText = 'foo';
+document.body.append(magnet);
+```
+
+Since magnet.js is an element, we can handle it with jQuery:
+
+
+```jq
+$('<magnet-block>')
+  .attr({
+    'attract-distance': '10',
+    'align-to': 'outer|center',
+  })
+  .css({
+    width: '100px',
+    height: '50px',
+    background: '#fcc',
+  })
+  .html('foo')
+  .appendTo($('body'));
+```
+
+Of course we can use it in React:
+
+```jsx
+const Magnet = () => (
+  <magnet-block
+    style={{
+      width: '100px',
+      height: '50px',
+      background: '#fcc',
+    }}
+    attract-distance="10"
+    align-to="outer|center"
+  >
+    foo
+  </magnet-block>
+);
+```
+
 ## Build
 
-Build magnet.js by the command:
+Build magnet.js with the command:
 
 ```sh
 npm run build
@@ -61,11 +122,11 @@ The built would be at `./dist/magnet.min.js`.
 
 ### Magnet Nodes
 
-There are 2 DOMs of magnet elements: [\<magnet-block\>](#magnet-block) and [\<magnet-pack\>](#magnet-pack).
+There are 2 magnet elements: [\<magnet-block\>](#magnet-block) and [\<magnet-pack\>](#magnet-pack).
 
 #### \<magnet-block\>
 
-**Magnet block** is an HTML element that can be dragged and attracted by other magnets.
+**Magnet block** can be dragged and attracted by other magnets.
 
 ```html
 <magnet-block>
@@ -237,11 +298,11 @@ console.log('Unmovable:', magnet.hasAttribute('unmovable'));
 
 > Type of getting value: _`number`_
 >
-> Default: _`0`_
+> Default: **_`10`_**
 
 Distance for magnet being dragged to attract other magnets.
 
-> **We don't define the distance for magnet being attracted.**
+> **We don't define the distance for magnet to be attracted.**
 
 ```html
 <!-- set distance of attraction -->
@@ -271,7 +332,7 @@ console.log('Attraction distance:', magnet.getAttribute('attract-distance'));
 
 > Type of getting value: _`string[]`_
 >
-> Default: `['outer', 'inner', 'center', 'extend']`
+> Default: `['outer', 'center', 'extend']`
 >
 > Accepts [multiple values](#multiple-values).
 
