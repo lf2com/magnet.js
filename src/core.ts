@@ -15,25 +15,18 @@ const template = document.createElement('template');
 export const defaultAttributeValues = {
   [Attribute.disabled]: false,
   [Attribute.group]: null,
-  [Attribute.attractDistance]: 0,
+  [Attribute.attractDistance]: 10,
   [Attribute.unattractable]: false,
   [Attribute.unmovable]: false,
-  get [Attribute.alignTo]() {
-    return [
-      AlignTo.outer,
-      AlignTo.inner,
-      AlignTo.center,
-      AlignTo.extend,
-    ];
-  },
-  get [Attribute.alignToParent]() {
-    return [];
-  },
-  get [Attribute.crossPrevent]() {
-    return [
-      // CrossPrevents.parent,
-    ];
-  },
+  [Attribute.alignTo]: [
+    AlignTo.outer,
+    AlignTo.center,
+    AlignTo.extend,
+  ],
+  [Attribute.alignToParent]: [],
+  [Attribute.crossPrevent]: [
+    // CrossPrevents.parent,
+  ],
   [Attribute.offsetUnit]: OffsetUnit.pixel,
 };
 
