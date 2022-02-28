@@ -1,4 +1,4 @@
-import Magnet from '..';
+import Magnet from '../block';
 import MagnetPack, { defaultAttributeValues } from '../core';
 import Attraction, { AttractionBest } from '../types/Attraction';
 import Pack, { getPack, Rectable } from '../types/Pack';

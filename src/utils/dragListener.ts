@@ -1,4 +1,4 @@
-import Magnet from '..';
+import Magnet from '../block';
 import attractionResultOfPosition from '../methods/attractionResultOfPosition';
 import { OnJudgeMovement } from '../methods/judgeMovement';
 import { MoveEventDetail, StartEventDetail } from '../types/EventDetail';

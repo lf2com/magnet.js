@@ -3,7 +3,7 @@ import Pack, { getPack, Rectable } from '../types/Pack';
 import Alignment, { AlignmentXs, AlignmentYs } from '../values/alignment';
 import AlignTo, { AlignToParent } from '../values/alignTo';
 import { OnJudgeDistance } from './judgeDistance';
-import Magnet from '..';
+import Magnet from '../block';
 import { returnTrue } from '../utils/returnTrueFalse';
 import { defaultAttributeValues } from '../core';
 import Attribute from '../values/attribute';

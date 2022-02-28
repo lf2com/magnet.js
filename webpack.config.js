@@ -1,5 +1,4 @@
 const path = require('path');
-const HtmlWebPackPlugin = require('html-webpack-plugin');
 
 const BUILD_PATH = './dist';
 
@@ -15,7 +14,6 @@ module.exports = (env, options) => {
     output: {
       filename: (PRODUCTION_MODE
         ? 'magnet.min.js'
-        // : 'bundle.[contenthash].js'
         : 'magnet.dev.js'
       ),
       path: path.resolve(__dirname, BUILD_PATH),
@@ -53,15 +51,7 @@ module.exports = (env, options) => {
         },
       ],
     },
-    plugins: (PRODUCTION_MODE
-      ? []
-      : [
-        new HtmlWebPackPlugin({
-          template: './demo/magnet/index.html',
-          filename: './demo/magnet/index.html',
-        }),
-      ]
-    ),
+    plugins: [],
     devtool: 'inline-source-map',
     devServer: {
       https: false,

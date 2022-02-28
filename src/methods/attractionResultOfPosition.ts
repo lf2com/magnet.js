@@ -1,4 +1,4 @@
-import Magnet from '..';
+import Magnet from '../block';
 import { defaultAttributeValues } from '../core';
 import { AttractionBest, getAttractionOffset } from '../types/Attraction';
 import Distance from '../types/Distance';
