@@ -18,15 +18,21 @@ export const defaultAttributeValues = {
   [Attribute.attractDistance]: 10,
   [Attribute.unattractable]: false,
   [Attribute.unmovable]: false,
-  [Attribute.alignTo]: [
-    AlignTo.outer,
-    AlignTo.center,
-    AlignTo.extend,
-  ],
-  [Attribute.alignToParent]: [],
-  [Attribute.crossPrevent]: [
-    // CrossPrevents.parent,
-  ],
+  get [Attribute.alignTo]() {
+    return [
+      AlignTo.outer,
+      AlignTo.center,
+      AlignTo.extend,
+    ];
+  },
+  get [Attribute.alignToParent]() {
+    return [];
+  },
+  get [Attribute.crossPrevent]() {
+    return [
+      // CrossPrevents.parent,
+    ];
+  },
   [Attribute.offsetUnit]: OffsetUnit.pixel,
 };
 
