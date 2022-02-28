@@ -1,8 +1,8 @@
 {
   "name": "@lf2com/magnet.js",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Magnet.js is a JavaScript library that groups HTML elements and makes them attractable with each other",
-  "main": "index.js",
+  "main": "index.ts",
   "scripts": {
     "dev": "webpack serve --mode development --progress",
     "dev:public": "npm run dev -- --env public=true",
