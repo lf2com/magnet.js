@@ -5,7 +5,8 @@
   const rootPath = thisScript.getAttribute('src').replace(/\/[^/]+?$/, '');
   const modules = (thisScript.getAttribute('module') ?? '')
     .split(/[|;,\s]/)
-    .map((s) => s.trim());
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0);
 
   styleLoading.innerHTML = `
     body::before {
@@ -36,7 +37,8 @@
   const currentPath = () => document.head.lastChild.getAttribute('src').replace(/\/[^/]+?$/, '');
   const verifyQueueValue = (target) => {
     if (loadDone) {
-      throw new Error('scriptLoader is done');
+      console.warn(target);
+      throw new Error('scriptLoader is already done');
     }
 
     switch (typeof target) {
@@ -123,7 +125,7 @@
   });
 
   window.addEventListener('load', async () => {
-    const runNext = async (index = 0) => {
+    const runNext = async (index) => {
       if (queue.length === 0) {
         return index;
       }
@@ -136,7 +138,7 @@
       return index + 1;
     };
 
-    const lastIndex = await runNext();
+    const lastIndex = await runNext(0);
 
     modules.forEach((module) => {
       scriptLoader.push(`${rootPath}/${module}.js`);
