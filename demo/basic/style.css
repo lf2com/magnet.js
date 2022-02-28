@@ -1,0 +1,38 @@
+.axes {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  color: #ccc;
+  pointer-events: none;
+  z-index: 100;
+}
+
+.axis {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  background-color: currentColor;
+  opacity: 0;
+}
+
+.panel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  margin: 1em;
+  box-shadow: 0 0 0.5em #999;
+  background-color: #fff;
+}
+
+.block {
+  position: relative;
+  box-sizing: border-box;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background-color: #fcc;
+}

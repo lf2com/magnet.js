@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=1" />
+    <title>Magnet.js Demo - Basic jQuery</title>
+    <link href="./style.css" type="text/css" rel="stylesheet" />
+    <script src="../../dist/magnet.min.js"></script>
+    <script
+      src="https://code.jquery.com/jquery-3.6.0.slim.min.js"
+      integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI="
+      crossorigin="anonymous"
+    ></script>
+  </head>
+  <body>
+  </body>
+  <script>
+    (() => {
+      /**
+       * Sets <magnet-pack> for wrapping magnets and defining attraction options.
+       */
+      const $panel = $('<magnet-pack>')
+        .addClass('panel')
+        .attr({
+          'cross-prevent': 'parent',
+          'align-to': 'outer',
+          'attract-distance': '20',
+        })
+        .appendTo('body');
+
+      /**
+       * Axes for displaying the attracted edge on x/y axis.
+       */
+      const $axes = $('<div>')
+        .addClass('axes')
+        .appendTo('body');
+      const $axisX = $('<div>')
+        .addClass('axis')
+        .css('width', '100%')
+        .appendTo($axes);
+      const $axisY = $('<div>')
+        .addClass('axis')
+        .css('height', '100%')
+        .appendTo($axes);
+
+      /**
+       * Shows/hides the distance of attraction.
+       */
+      const onPointerEnter = (event) => {
+        const { target } = event;
+        const { attractDistance } = target;
+
+        $(target).css(
+          'outline',
+          `${attractDistance}px solid rgba(255, 200, 50, 0.25)`,
+        );
+      };
+      const onPointerLeave = ({ target }) => {
+        $(target).css('outline', '');
+      };
+
+      /**
+       * Defines magnets.
+       */
+      for (let i = 0; i < 5; i += 1) {
+        const width = Math.round(10 + 20 * Math.random());
+        const height = Math.round(10 + 20 * Math.random());
+        const x = Math.round(70 * Math.random());
+        const y = Math.round(70 * Math.random());
+
+        $('<magnet-block>')
+          .addClass('block')
+          .css({
+            position: 'absolute',
+            top: `${y}%`,
+            left: `${x}%`,
+            width: `${width}%`,
+            height: `${height}%`,
+          })
+          .on('pointerenter', onPointerEnter)
+          .on('pointerleave', onPointerLeave)
+          .appendTo($panel);
+      }
+
+      /**
+       * Shows/hides attracted edge of x/y axis.
+       */
+      const onAttractChange = (event) => {
+        const {
+          detail: {
+            nextRect,
+            attraction: {
+              best: { x, y },
+            },
+          },
+        } = event;
+
+        $axisX.css('opacity', '');
+        $axisY.css('opacity', '');
+
+        if (x) {
+          const { alignment } = x;
+          const edge = /^right/.test(alignment) ? 'right' : 'left';
+
+          $axisY.css('left', `${nextRect[edge]}px`);
+          $axisY.css('opacity', '1');
+        }
+        if (y) {
+          const { alignment } = y;
+          const edge = /^top/.test(alignment) ? 'top' : 'bottom';
+
+          $axisX.css('top', `${nextRect[edge]}px`);
+          $axisX.css('opacity', '1');
+        }
+      };
+      $('body')
+        .on('attract', onAttractChange)
+        .on('unattract', onAttractChange)
+        .on('magnetend', () => {
+          $axisX.css('opacity', '');
+          $axisY.css('opacity', '');
+        });
+    })();
+  </script>
+</html>

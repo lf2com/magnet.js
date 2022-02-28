@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=1" />
+    <title>Magnet.js Demo - Basic React</title>
+    <link href="./style.css" type="text/css" rel="stylesheet" />
+    <script src="../../dist/magnet.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react@17/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  </head>
+  <body>
+    <div id="app"></div>
+  </body>
+  <script type="text/babel">
+    (() => {
+      const {
+        createContext, useCallback, useContext, useEffect, useMemo,
+        useRef, useState,
+      } = React;
+      const AttractionInfoContext = createContext();
+
+      /**
+       * Axes for displaying the attracted edge on x/y axis.
+       */
+      const Axes = () => {
+        const {
+          attractionDetail: {
+            nextRect,
+            attraction: {
+              best: { x, y } = {},
+            } = {},
+          } = {},
+        } = useContext(AttractionInfoContext) ?? {};
+        const styleOnX = useMemo(() => {
+          const style = { height: '100%' };
+
+          if (x) {
+            const { alignment } = x;
+            const edge = /^right/.test(alignment) ? 'right' : 'left';
+
+            style.opacity = 1;
+            style.left = `${nextRect[edge]}px`;
+          }
+
+          return style;
+        }, [nextRect,x]);
+        const styleOnY = useMemo(() => {
+          const style = { width: '100%' };
+
+          if (y) {
+            const { alignment } = y;
+            const edge = /^top/.test(alignment) ? 'top' : 'bottom';
+
+            style.opacity = 1;
+            style.top = `${nextRect[edge]}px`;
+          }
+          
+          return style;
+        }, [nextRect, y]);
+
+        return (
+          <div class="axes">
+            <div
+              class="axis"
+              style={styleOnX}
+            />
+            <div
+              class="axis"
+              style={styleOnY}
+            />
+          </div>
+        );
+      };
+
+      /**
+       * Defines magnet.
+       */
+      const Magnet = ({
+        x, y, width, height,
+      }) => {
+        const refMagnet = useRef();
+        const [outlineSize, setOutlineSize] = useState(0);
+        const style = useMemo(() => ({
+          position: 'absolute',
+          top: `${y}%`,
+          left: `${x}%`,
+          width: `${width}%`,
+          height: `${height}%`,
+          outline: `${outlineSize}px solid rgba(255, 200, 50, 0.25)`,
+        }), [x, y, width, height, outlineSize]);
+
+        /**
+         * Shows/hides the distance of attraction.
+         */
+        const onPointerEnter = useCallback(() => {
+          setOutlineSize(refMagnet.current.attractDistance);
+        }, [refMagnet]);
+        const onPointerLeave = useCallback(() => {
+          setOutlineSize(0);
+        }, []);
+
+        /**
+         * Shows/hides attracted edge of x/y axis.
+         */
+        const { setAttractionDetail } = useContext(AttractionInfoContext);
+        const onAttractChange = useCallback((event) => {
+          setAttractionDetail(event.detail);
+        }, [setAttractionDetail]);
+        const onMagnetEnd = useCallback(() => {
+          setAttractionDetail();
+        }, [setAttractionDetail]);
+
+        useEffect(() => {
+          const magnet = refMagnet.current;
+
+          if (onAttractChange) {
+            magnet.addEventListener('attract', onAttractChange);
+            magnet.addEventListener('unattract', onAttractChange);
+          }
+          if (onMagnetEnd) {
+            magnet.addEventListener('magnetend', onMagnetEnd);
+          }
+
+          return () => {
+            if (onAttractChange) {
+              magnet.removeEventListener('attract', onAttractChange);
+              magnet.removeEventListener('unattract', onAttractChange);
+            }
+            if (onMagnetEnd) {
+              magnet.removeEventListener('magnetend', onMagnetEnd);
+            }
+          };
+        }, [refMagnet, onAttractChange, onMagnetEnd]);
+
+        return (
+          <magnet-block
+            ref={refMagnet}
+            class="block"
+            style={style}
+            onPointerEnter={onPointerEnter}
+            onPointerLeave={onPointerLeave}
+          />
+        );
+      };
+
+      /**
+       * <magnet-pack> for wrapping magnets and defining attraction options.
+       */
+      const Panel = () => {
+        const refPanel = useRef();
+        const magnetStyles = useMemo(() => (new Array(5)
+          .fill(0)
+          .map(() => {
+            const width = Math.round(10 + 20 * Math.random());
+            const height = Math.round(10 + 20 * Math.random());
+            const x = Math.round(70 * Math.random());
+            const y = Math.round(70 * Math.random());
+
+            return { width, height, x, y };
+          })
+        ), []);
+
+        return (
+          <magnet-pack
+            class="panel"
+            ref={refPanel}
+            cross-prevent="parent"
+            align-to="outer"
+            attract-distance={20}
+          >
+            {magnetStyles.map(({ width, height, x, y }) => (
+              <Magnet
+                x={x}
+                y={y}
+                width={width}
+                height={height}
+              />
+            ))}
+          </magnet-pack>
+        );
+      };
+
+      /**
+       * 
+       */
+      const App = () => {
+        const [attractionDetail, setAttractionDetail] = useState();
+        const attractionInfo = useMemo(() => ({
+          setAttractionDetail,
+          attractionDetail,
+        }), [attractionDetail]);
+
+        return (
+          <AttractionInfoContext.Provider value={attractionInfo}>
+            <Panel />
+            <Axes />
+          </AttractionInfoContext.Provider>
+        );
+      };
+
+      /**
+       * Renders root node.
+       */
+      ReactDOM.render(
+        <App />,
+        document.getElementById('app'),
+      );
+    })();
+  </script>
+</html>

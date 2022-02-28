@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=1" />
+    <title>Magnet.js Demo - Basic JavaScript</title>
+    <link href="./style.css" type="text/css" rel="stylesheet" />
+    <script src="../../dist/magnet.min.js"></script>
+  </head>
+  <body>
+  </body>
+  <script>
+    (() => {
+      /**
+       * Sets <magnet-pack> for wrapping magnets and defining attraction options.
+       */
+      const domPanel = document.createElement('magnet-pack');
+
+      domPanel.classList.add('panel');
+      domPanel.crossPrevents = 'parent';
+      domPanel.alignTos = 'outer';
+      domPanel.attractDistance = 20;
+      document.body.append(domPanel);
+
+      /**
+       * Axes for displaying the attracted edge on x/y axis.
+       */
+      const domAxes = document.createElement('div');
+      const domAxisX = document.createElement('div');
+      const domAxisY = document.createElement('div');
+
+      domAxes.classList.add('axes');
+      domAxisX.classList.add('axis');
+      domAxisY.classList.add('axis');
+      domAxisX.style.setProperty('width', '100%');
+      domAxisY.style.setProperty('height', '100%');
+      domAxes.append(domAxisX);
+      domAxes.append(domAxisY);
+      document.body.append(domAxes);
+
+      /**
+       * Shows/hides the distance of attraction.
+       */
+      const onPointerEnter = (event) => {
+        const { target } = event;
+        const { attractDistance } = target;
+
+        target.style.setProperty(
+          'outline',
+          `${attractDistance}px solid rgba(255, 200, 50, 0.25)`,
+        );
+      };
+      const onPointerLeave = ({ target }) => {
+        target.style.removeProperty('outline');
+      };
+
+      /**
+       * Defines magnets.
+       */
+      for (let i = 0; i < 5; i += 1) {
+        const domBlock = document.createElement('magnet-block');
+        const width = Math.round(10 + 20 * Math.random());
+        const height = Math.round(10 + 20 * Math.random());
+        const x = Math.round(70 * Math.random());
+        const y = Math.round(70 * Math.random());
+
+        domBlock.classList.add('block');
+        domBlock.style.setProperty('position', 'absolute');
+        domBlock.style.setProperty('top', `${y}%`);
+        domBlock.style.setProperty('left', `${x}%`);
+        domBlock.style.setProperty('width', `${width}%`);
+        domBlock.style.setProperty('height', `${height}%`);
+        domBlock.addEventListener('pointerenter', onPointerEnter);
+        domBlock.addEventListener('pointerleave', onPointerLeave);
+        domPanel.append(domBlock);
+      }
+
+      /**
+       * Shows/hides attracted edge of x/y axis.
+       */
+      const onAttractChange = (event) => {
+        const {
+          detail: {
+            nextRect,
+            attraction: {
+              best: { x, y },
+            },
+          },
+        } = event;
+
+        domAxisX.style.removeProperty('opacity');
+        domAxisY.style.removeProperty('opacity');
+
+        if (x) {
+          const { alignment } = x;
+          const edge = /^right/.test(alignment) ? 'right' : 'left';
+
+          domAxisY.style.setProperty('left', `${nextRect[edge]}px`);
+          domAxisY.style.setProperty('opacity', '1');
+        }
+        if (y) {
+          const { alignment } = y;
+          const edge = /^top/.test(alignment) ? 'top' : 'bottom';
+
+          domAxisX.style.setProperty('top', `${nextRect[edge]}px`);
+          domAxisX.style.setProperty('opacity', '1');
+        }
+      };
+      document.body.addEventListener('attract', onAttractChange);
+      document.body.addEventListener('unattract', onAttractChange);
+      document.body.addEventListener('magnetend', () => {
+        domAxisX.style.removeProperty('opacity');
+        domAxisY.style.removeProperty('opacity');
+      });
+    })();
+  </script>
+</html>

@@ -79,14 +79,15 @@
         domMagnetPack.append(newMagnet);
       });
 
+      // default magnet blocks
       new Array(5).fill(0).forEach(() => {
         buttonAddMagnet.click();
       });
     })(document.getElementById('add'));
 
-    // init clean button
-    ((buttonCleanMagnets) => {
-      buttonCleanMagnets.addEventListener('click', () => {
+    // init clear button
+    ((buttonClearMagnets) => {
+      buttonClearMagnets.addEventListener('click', () => {
         document.querySelectorAll('magnet-block').forEach((magnet) => {
           magnet.remove();
         });
@@ -96,19 +97,20 @@
         const hasMagnet = domMagnetPack.childNodes.length > 0;
 
         if (hasMagnet) {
-          buttonCleanMagnets.removeAttribute('disabled');
+          buttonClearMagnets.removeAttribute('disabled');
         } else {
-          buttonCleanMagnets.setAttribute('disabled', '');
+          buttonClearMagnets.setAttribute('disabled', '');
         }
       };
       const observer = new MutationObserver(() => {
         checkMagnets();
       });
+
       observer.observe(domMagnetPack, {
         childList: true,
       });
       checkMagnets();
-    })(document.getElementById('clean'));
+    })(document.getElementById('clear'));
 
     // init control panel
     ((domControlPanelBody) => {
