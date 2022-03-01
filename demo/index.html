@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width" />
+    <title>Magnet.js Demo</title>
+    <link href="/demo/style.css" type="text/css" rel="stylesheet" />
+  </head>
+  <body>
+  </body>
+  <script>
+    (() => {
+      const items = [
+        {
+          name: 'Basic',
+          path: '/demo/basic/',
+          desc: 'Basic usage of magnets in HTML',
+          children: [
+            {
+              name: 'JavaScript',
+              path: '/demo/basic/javascript.html',
+              desc: 'Basic usage and event listeners in JavaScript',
+            },
+            {
+              name: 'jQuery',
+              path: '/demo/basic/jquery.html',
+              desc: 'Basic usage and event listeners in jQuery',
+            },
+            {
+              name: 'React',
+              path: '/demo/basic/react.html',
+              desc: 'Basic usage and event listeners in React',
+            },
+          ],
+        },
+        {
+          name: 'Groups',
+          path: '/demo/groups/',
+          desc: 'Assign magnets to different groups',
+        },
+      ];
+      const addItem = (item, className = '') => {
+        const { name, path, desc } = item;
+        const domItem = document.createElement('div');
+        const domName = document.createElement('a');
+        const domDesc = document.createElement('p');
+
+        if (className.length > 0) {
+          domItem.classList.add(className);
+        }
+
+        domItem.classList.add('item');
+        domName.href = path;
+        domName.innerText = name;
+        domDesc.innerText = desc;
+        domItem.append(domName);
+        domItem.append(domDesc);
+        document.body.append(domItem);
+      };
+
+      items.forEach((item) => {
+        const {
+          children = [],
+        } = item;
+        
+        addItem(item);
+        children.forEach((child) => {
+          addItem(child, 'sub');
+        });
+      });
+    })();
+  </script>
+</html>

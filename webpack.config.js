@@ -58,7 +58,9 @@ module.exports = (env, options) => {
       host: DEV_PUBLIC ? 'local-ip' : 'localhost',
       port: '8080',
       compress: true,
-      open: true,
+      open: [
+        '/demo',
+      ],
       hot: true,
       static: {
         directory: path.resolve(__dirname),

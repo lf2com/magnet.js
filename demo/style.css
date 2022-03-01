@@ -1,0 +1,46 @@
+html {
+  background-color: #eee;
+}
+
+body {
+  margin: 1rem auto;
+  padding: 0.5rem;
+  width: max-content;
+  max-width: 80vw;
+  box-shadow: 0 0 1em #999;
+  background-color: #fff;
+  font-size: 16px;
+  font-family: Arial, Helvetica, sans-serif;
+  line-height: 1.5em;
+  color: #333;
+}
+
+p {
+  margin: 0;
+}
+
+a {
+  font-size: 1.5em;
+  color: #369;
+}
+
+a:hover {
+  background-color: #def;
+}
+
+.item {
+  --border-highlight-width: 0.3em;
+
+  margin: 1rem;
+  padding: 1em;
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  border-inline-start-width: var(--border-highlight-width);
+}
+
+.item.sub {
+  --border-highlight-width: 1px;
+
+  margin-inline-start: 3rem;
+  font-size: 0.8em;
+}
