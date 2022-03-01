@@ -22,7 +22,7 @@
         await loadScript(magnetJsPath);
       } catch (error) {
         try {
-          const magnetJsPath = `${rootPath}/../../dist/magnet.min.js`;
+          const magnetJsPath = '../../dist/magnet.min.js';
 
           console.log('Loading magnet');
           await loadScript(magnetJsPath);
