@@ -115,8 +115,10 @@
             resolve();
           });
           script.addEventListener('error', () => {
-            console.warn(`\`- Loading script failed: ${src}`);
-            reject();
+            const message = `Loading script failed: ${src}`;
+
+            console.warn(`\`- ${message}`);
+            reject(new Error(message));
           });
           document.head.append(script);
         });
