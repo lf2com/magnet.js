@@ -1,1 +1,1 @@
-import './src/magnet';
+import './src';
