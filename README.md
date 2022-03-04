@@ -33,9 +33,9 @@ Creates magnet blocks of different groups.
 Add magnet.js to your HTML file:
 
 ```html
-<script defer src="https://unpkg.com/@lf2com/magnet.js@latest/magnet.min.js"></script>
+<script defer src="https://unpkg.com/@lf2com/magnet.js@latest/dist/magnet.min.js"></script>
 <!-- or -->
-<script defer src="https://cdn.jsdelivr.net/gh/lf2com/magnet.js@latest/magnet.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/gh/lf2com/magnet.js@latest/dist/magnet.min.js"></script>
 ```
 
 We can use magnets directly in HTML:
