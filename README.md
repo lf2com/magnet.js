@@ -120,11 +120,11 @@ npm run build
 
 The built would be at `./dist/magnet.min.js`.
 
-### Magnet Nodes
+## Nodes of Magnet.js
 
 There are 2 magnet elements: [\<magnet-block\>](#magnet-block) and [\<magnet-pack\>](#magnet-pack).
 
-#### \<magnet-block\>
+### \<magnet-block\>
 
 **Magnet block** can be dragged and attracted by other magnets.
 
@@ -141,7 +141,7 @@ There are 2 magnet elements: [\<magnet-block\>](#magnet-block) and [\<magnet-pac
 </magnet-block>
 ```
 
-#### \<magnet-pack\>
+### \<magnet-pack\>
 
 **Magnet pack** is unable to be dragged but it defines the default values for it's sub magnets. The sub manget blocks would reference to the nearest parent magnet pack for the attribute value if it doesn't have assigned the corresponding values.
 
@@ -161,7 +161,7 @@ There are 2 magnet elements: [\<magnet-block\>](#magnet-block) and [\<magnet-pac
 
 ## Properties
 
-Settable properties are defined as the confuration values of magnet element. If the magnet has no some magnet settings, it would reference to the nearest [parent magnet](#parentmagnet) having the value. Otherwise the value would be the default one.
+Settable properties are defined as the configuration values of magnet element. If the magnet has no some magnet settings, it would reference to the nearest [parent magnet](#parentmagnet) having the value. Otherwise the value would be the default one.
 
 ### Multiple Values
 
@@ -169,7 +169,7 @@ If a property accepts multiple values. Use any of the following character as sep
 
 ### .disabled
 
-> Type of getting value: _`boolean`_
+> Type of value: _`boolean`_
 >
 > Default: _`false`_
 
@@ -196,7 +196,7 @@ console.log('Disabled:', magnet.hasAttribute('disabled'));
 
 ### .group
 
-> Type of getting value: _`string` | `null`_
+> Type of value: _`string` | `null`_
 >
 > Default: _`null`_ as ungrouped
 
@@ -229,7 +229,7 @@ console.log('Group:', magnet.getAttribute('group'));
 
 ### .parentMagnet
 
-> Type of getting value: [_`Magnet`_](#magnet-nodes)
+> Type of value: [_`Magnet`_](#magnet-nodes)
 
 Returns the nearest parent [magnet node](#magnet-nodes).
 
@@ -242,7 +242,7 @@ console.log('Nearest parent magnet:', magnet.parentMagnet);
 
 ### .unattractable
 
-> Type of getting value: _`boolean`_
+> Type of value: _`boolean`_
 >
 > Default: _`false`_
 
@@ -269,7 +269,7 @@ console.log('Unattractable:', magnet.hasAttribute('unattractable'));
 
 ### .unmovable
 
-> Type of getting value: _`boolean`_
+> Type of value: _`boolean`_
 >
 > Default: _`false`_
 
@@ -296,9 +296,9 @@ console.log('Unmovable:', magnet.hasAttribute('unmovable'));
 
 ### .attractDistance
 
-> Type of getting value: _`number`_
+> Type of value: _`number`_
 >
-> Default: **_`10`_**
+> Default: _`10`_
 
 Distance for magnet being dragged to attract other magnets.
 
@@ -330,7 +330,7 @@ console.log('Attraction distance:', magnet.getAttribute('attract-distance'));
 
 ### .alignTos
 
-> Type of getting value: _`string[]`_
+> Type of value: _`string[]`_
 >
 > Default: `['outer', 'center', 'extend']`
 >
@@ -368,7 +368,7 @@ console.log('Align to:', magnet.getAttribute('align-to'));
 
 ### .alignToParents
 
-> Type of getting value: _`string[]`_
+> Type of value: _`string[]`_
 >
 > Default: `[]`
 >
@@ -404,7 +404,7 @@ console.log('Align to parent:', magnet.getAttribute('align-to-parent'));
 
 ### .alignments
 
-> Type of getting value: _`string[]`_
+> Type of value: _`string[]`_
 
 Returns the side-to-side alignments from magnet to other magnets. The values are converted from [`.alignTos`](#aligntos).
 
@@ -428,7 +428,7 @@ console.log('Alignments:', magnet.alignments);
 
 ### .parentAlignments
 
-> Type of getting value: _`string[]`_
+> Type of value: _`string[]`_
 
 Returns the side-to-side alignments from magnet to it's parent element. The values are converted from [`.alignToParents`](#aligntoparents).
 
@@ -439,7 +439,7 @@ console.log('Alignments to parent:', magnet.parentAlignments);
 
 ### .crossPrevents
 
-> Type of getting value: _`string[]`_
+> Type of value: _`string[]`_
 >
 > Default: `[]`
 >
