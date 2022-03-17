@@ -14,6 +14,13 @@ module.exports = {
   plugins: [
     '@typescript-eslint',
   ],
+  ignorePatterns: [
+    'node_modules/',
+    'dist/',
+    '*.html',
+    '*.min.js',
+    '*.d.ts',
+  ],
   rules: {
     // prevent argument of function error in .ts
     'no-unused-vars': 'off',
