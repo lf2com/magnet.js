@@ -5,13 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=1" />
     <title>Magnet.js Demo - Basic JavaScript</title>
     <link href="./style.css" type="text/css" rel="stylesheet" />
-    <script src="../utils/scriptLoader.js"></script>
-    <script src="../utils/magnet/index.js"></script>
+    <script
+      src="https://cdn.jsdelivr.net/gh/lf2com/browser-utils@latest/dist/scriptLoader.js"
+      event:load="ready"
+      module="../utils/magnet"
+    ></script>
   </head>
   <body>
   </body>
   <script>
-    (() => {
+    // wait for magnet.js loaded
+    window.addEventListener('ready', () => {
       /**
        * Sets <magnet-pack> for wrapping magnets and defining attraction options.
        */
@@ -113,6 +117,6 @@
         domAxisX.style.removeProperty('opacity');
         domAxisY.style.removeProperty('opacity');
       });
-    })();
+    });
   </script>
 </html>

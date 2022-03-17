@@ -11,7 +11,7 @@
       }
 
       &.attracted {
-        outline: 0.2em solid #f66 !important;
+        box-shadow: inset 0 0 0 0.2em #f66;
       }
     }
   `;

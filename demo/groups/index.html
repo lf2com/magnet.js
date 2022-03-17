@@ -6,8 +6,18 @@
     <title>Magnet.js Demo - Magnet</title>
     <link href="./style.scss" type="text/scss" rel="stylesheet" />
     <link href="../utils/root.scss" type="text/scss" rel="stylesheet" />
-    <script src="../utils/scriptLoader.js" module="scss/index,dialog"></script>
-    <script src="../utils/magnet/index.js" module="axis,attraction,control"></script>
+    <script
+      src="https://cdn.jsdelivr.net/gh/lf2com/browser-utils@latest/dist/scriptLoader.js"
+      event:load="ready"
+      module="
+        ~/scss;
+        ../utils/dialog;
+        ../utils/magnet;
+        ../utils/magnet/axis;
+        ../utils/magnet/attraction;
+        ../utils/magnet/control;
+      "
+    ></script>
   </head>
   <body>
     <magnet-pack

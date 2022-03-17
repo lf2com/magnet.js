@@ -9,7 +9,7 @@
         z-index: 0;
         
         &.focus {
-          box-shadow: inset 0 0 0 0.25em rgba(0, 0, 0, 0.25);
+          outline: 0.25em solid rgba(0, 0, 0, 0.25);
         }
 
         &::after {
