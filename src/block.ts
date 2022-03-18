@@ -26,11 +26,11 @@ const template = document.createElement('template');
 template.innerHTML = `
   <style>
     :host {
-      --x: var(${Style.offsetX}, 0);
-      --y: var(${Style.offsetY}, 0);
+      ${Style.x}: var(${Style.offsetX}, 0);
+      ${Style.y}: var(${Style.offsetY}, 0);
 
       position: relative;
-      transform: translate(var(--x), var(--y));
+      transform: translate(var(${Style.x}), var(${Style.y}));
       touch-action: none;
       display: inline-block;
     }
