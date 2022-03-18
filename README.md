@@ -18,7 +18,7 @@ Samples of using magnet.js:
 - [HTML][url-demo-basic]
 - [JavaScript][url-demo-basic-js]
 - [jQuery][url-demo-basic-jquery]
-- [React][url-demo-basic-react].
+- [React][url-demo-basic-react]
 
 [url-demo-groups]: https://lf2com.github.io/magnet.js/demo/groups/index.html
 
